@@ -17,6 +17,8 @@ This page is short. The repository holds the technical depth, and duplicating it
 | The design reference | [Design](/about/design) |
 | This site | `labdash/website/` in the same repository |
 
+labdash is built and maintained by [Giancarlos Isasi](https://giancarlos-isasi.com/).
+
 ## Building it
 
 ```bash
@@ -67,7 +69,7 @@ Each of these is a bug that has already happened somewhere:
 
 - **No colour literal outside `internal/tui/theme`.** CI enforces it.
 - **Every state has a glyph, a colour and a word.** Colour alone fails for colour-blind readers, at `NO_COLOR`, and in every screenshot.
-- **Nerd Font and ASCII renderings have identical column widths.**
+- **Unicode and ASCII renderings have identical column widths.** Every glyph is one cell, every fallback is one character, and no glyph is East Asian Wide or from a private-use area.
 - **Contrast is computed, not eyeballed.**
 - **No token in a log, an error string, or a URL.** Tests print token lengths, never values.
 - **Every subprocess sends stdout and stderr to `io.Discard`.** Output leaking into a full-screen application corrupts the frame.

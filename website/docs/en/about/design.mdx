@@ -61,7 +61,7 @@ Every state is a triple: glyph, colour, word. Remove any one and the other two s
 <Terminal
   title="labdash · every pipeline status"
   cols={78}
-  alt="A list of thirteen pipeline statuses, each shown with its Nerd Font glyph, its ASCII fallback of identical width, and its word."
+  alt="A list of fifteen pipeline states, each shown with its glyph, its single-character ASCII fallback, and its word."
   caption="The same screen in ASCII mode has identical column boundaries."
 >{`
   GLYPH   ASCII   WORD            TOKEN
@@ -77,19 +77,36 @@ Every state is a triple: glyph, colour, word. Remove any one and the other two s
     ◔       @     scheduled       status.pending
     ◐       /     canceling       status.neutral
     ⊘       /     canceled        status.neutral
-    »      >>     skipped         status.neutral
+    »       s     skipped         status.neutral
     ⊘       -     no pipeline     text.muted
+    ✖       w     failed (allowed)  status.warning
 `}</Terminal>
 
-A job that failed with `allow_failure: true` renders as a warning. Red is reserved for the failures that stop a pipeline.
+Thirteen of those are GitLab's pipeline states. Two are labdash's: a merge request with no pipeline at all, and a job that failed with `allow_failure: true`.
+
+A glyph repeats where the word separates two states. `◌` covers pending and preparing, `⊘` covers canceled and no pipeline. A state is identified by its glyph and its word together, never by the glyph alone.
+
+An allow-failure job that failed renders as a warning. Red is reserved for the failures that stop a pipeline, because a dashboard that shows red for something the pipeline was told to tolerate teaches you to stop reading red.
 
 Merge blockers use the same triple. Each value of GitLab's `detailedMergeStatus` maps to a phrase, a token and a glyph: `ready`, `conflicts`, `ci failed`, `ci running`, `needs 2`, `3 threads open`, `needs rebase`, `changes requested`, `policy blocked`. A value labdash does not recognise is title-cased and logged rather than dropped.
 
-## Nerd Font and ASCII
+## Icons
 
-Every Nerd Font glyph has an ASCII fallback of **the same display width**, so a screen rendered in either mode has identical column boundaries. A glyph that is one cell in one mode and two in the other is a layout bug.
+**No patched font is required.** The glyphs above come from ordinary Unicode blocks that a
+terminal font has carried for years, so there is nothing to install and nothing to detect.
 
-`theme.icons` takes `auto`, `nerd` or `ascii`. `auto` detects a Nerd Font; the other two force the answer when detection is wrong. In `ascii` mode no byte above `0x7F` reaches the screen, borders are `+ - |`, and the spinner is `|/-\`.
+Every glyph occupies **one cell**, and every ASCII fallback is **one character**, so a screen
+rendered either way has identical column boundaries. A glyph that is one cell in one mode and
+two in the other is a layout bug.
+
+`theme.icons` takes `auto`, `unicode` or `ascii`. In `ascii` mode no byte above `0x7F` reaches
+the screen, borders are `+ - |`, and the spinner is `|/-\`.
+
+`auto` reads your locale. Three of the glyphs — `●` running, `○` created, `◐` canceling — are
+classed as East Asian Ambiguous, meaning one cell in most terminals and two in a terminal
+configured for CJK text. On a CJK locale `auto` chooses `ascii`, because a glyph drawn two
+cells wide where one was measured shifts every column after it. Set `icons: unicode` to keep
+the glyphs anyway.
 
 ## Type and borders
 

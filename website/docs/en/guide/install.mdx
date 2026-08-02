@@ -75,16 +75,16 @@ The Homebrew formula and the deb, rpm and apk packages install man pages. `man l
 
 ## Fonts
 
-labdash draws status with Nerd Font glyphs when it detects one, and with ASCII when it does not. Every Nerd Font glyph has an ASCII replacement of the same display width, so a screen rendered either way has identical column boundaries.
+**No patched font is required.** labdash draws status with ordinary Unicode glyphs that a terminal font has carried for years, so there is nothing to install.
 
-A Nerd Font is therefore optional. If you want one, [nerdfonts.com](https://www.nerdfonts.com/) publishes the patched families, and `JetBrainsMono Nerd Font` and `FiraCode Nerd Font` are both good choices.
-
-Detection is occasionally wrong, because some multiplexer and font combinations report a glyph they cannot draw. Force either mode in [appearance settings](/settings/appearance):
+Every glyph is one cell and every ASCII replacement is one character, so a screen rendered either way has identical column boundaries. Force either mode in [appearance settings](/settings/appearance):
 
 ```yaml title="settings.yml"
 theme:
-  icons: nerd   # auto | nerd | ascii
+  icons: ascii   # auto | unicode | ascii
 ```
+
+`auto` reads your locale. On a CJK locale it chooses `ascii`, because a few of the glyphs are drawn two cells wide there and one cell everywhere else.
 
 ## Terminals
 

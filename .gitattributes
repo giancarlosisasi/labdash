@@ -1,0 +1,2 @@
+# Git hook scripts run under sh. CRLF would break them.
+*.sh text eol=lf

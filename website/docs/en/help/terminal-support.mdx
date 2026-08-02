@@ -76,13 +76,13 @@ The classic `conhost.exe` console window lacks the virtual-terminal sequences a 
 
 ## Fonts
 
-A Nerd Font is optional. Every glyph has an ASCII fallback of the same display width, so a screen rendered both ways has identical column boundaries.
+No patched font is needed. The status glyphs come from ordinary Unicode blocks, and every one has a single-character ASCII fallback, so a screen rendered both ways has identical column boundaries.
 
-Some multiplexer and font combinations report the wrong capability. Set it yourself when that happens:
+Three glyphs are classed as East Asian Ambiguous and are drawn two cells wide by a terminal configured for CJK text. `auto` reads your locale and chooses `ascii` there. Set it yourself when you want the other answer:
 
 ```yaml title="settings.yml"
 theme:
-  icons: ascii    # or: nerd
+  icons: ascii    # or: unicode
 ```
 
 ## Restricted terminals

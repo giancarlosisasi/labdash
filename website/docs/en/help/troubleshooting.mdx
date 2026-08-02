@@ -101,18 +101,20 @@ Failure is per section, so one slow or broken query leaves the rest of the dashb
 
 ### Boxes, question marks, or `▯` instead of icons
 
-There is no Nerd Font, and detection did not notice. Force the fallback:
+Your terminal font is missing a glyph. labdash uses ordinary Unicode rather than a patched font, so this is rare, and old bitmap fonts and some Linux virtual consoles are where it happens. Force the fallback:
 
 ```yaml title="settings.yml"
 theme:
   icons: ascii
 ```
 
-Columns line up identically. Every glyph has an ASCII replacement of the same display width.
+Columns line up identically. Every glyph is one cell and every ASCII replacement is one character.
 
 ### Columns are misaligned
 
-Almost always a font that renders a glyph at a different width than it reports. `theme: { icons: ascii }` confirms it in one step: if the alignment fixes itself, the font is the cause.
+Usually a glyph drawn two cells wide where labdash measured one. Three of the status glyphs are classed as East Asian Ambiguous, which means a terminal set up for CJK text draws them double-width.
+
+`theme: { icons: ascii }` confirms it in one step: if the alignment fixes itself, glyph width is the cause. `auto` already picks `ascii` on a CJK locale, so seeing this means the locale did not say so.
 
 If it persists with ASCII icons, report it with your terminal name and version.
 

@@ -21,7 +21,7 @@ The columns are project, ref, pipeline number, status, duration, who triggered i
 
 ### Statuses
 
-Thirteen states. Each one has a glyph, a colour and a word, so meaning never rests on colour alone.
+Fifteen states. Each one has a glyph, a colour and a word, so meaning never rests on colour alone.
 
 | Status | Glyph | ASCII | Word |
 | --- | --- | --- | --- |
@@ -32,14 +32,18 @@ Thirteen states. Each one has a glyph, a colour and a word, so meaning never res
 | created | `○` | `-` | created |
 | preparing | `◌` | `.` | preparing |
 | waiting for resource | `◍` | `~` | waiting |
+| waiting for callback | `◍` | `~` | waiting |
 | manual | `⏸` | `!` | manual |
 | scheduled | `◔` | `@` | scheduled |
 | canceling | `◐` | `/` | canceling |
 | canceled | `⊘` | `/` | canceled |
-| skipped | `»` | `>>` | skipped |
+| skipped | `»` | `s` | skipped |
 | no pipeline | `⊘` | `-` | no pipeline |
+| failed, allowed | `✖` | `w` | failed (allowed) |
 
-Every glyph has an ASCII fallback of the same display width, so a screen rendered in either mode has identical column boundaries.
+Thirteen of those are GitLab's. The last two are labdash's: a merge request with no pipeline, and a job that failed with `allow_failure: true`, which renders as a warning rather than an error.
+
+A glyph repeats where the word separates the two states. Every glyph is one cell and every ASCII fallback is one character, so a screen rendered in either mode has identical column boundaries. No patched font is needed for any of them.
 
 ### The preview pane
 

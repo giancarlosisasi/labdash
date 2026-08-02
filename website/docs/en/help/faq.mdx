@@ -60,11 +60,11 @@ labdash covers GitLab. For GitHub, [gh-dash](https://github.com/dlvhdr/gh-dash) 
 
 `rcieri/glab-tui` is a repository browser with side-by-side diffs and inline review comments. labdash works a level up, on the queue across projects, and shows no file diffs. The two run side by side. See [other GitLab TUIs](/compare/vs-gitlab-tuis).
 
-## Nerd Fonts
+## Fonts
 
-Optional. Every Nerd Font glyph has an ASCII fallback of the same display width, so a screen rendered in ASCII mode has identical column boundaries.
+No patched font is needed. labdash draws status with ordinary Unicode glyphs, and every one has a single-character ASCII fallback, so a screen rendered in ASCII mode has identical column boundaries.
 
-`theme: { icons: ascii }` forces the fallback when detection gets it wrong.
+`theme: { icons: ascii }` forces the fallback everywhere.
 
 ## Request volume
 

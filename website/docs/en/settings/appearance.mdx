@@ -12,7 +12,7 @@ Everything under `theme:` changes how labdash looks, not what it shows. Which ro
 ```yaml title="settings.yml"
 theme:
   name: ember           # ember | ember-light | contrast | ansi | mono
-  icons: auto           # auto | nerd | ascii
+  icons: auto           # auto | unicode | ascii
   density: compact      # compact | comfortable
   separators: false
   dateFormat: relative  # relative | absolute
@@ -100,12 +100,16 @@ It is honoured unconditionally and no setting overrides it. `--no-color` does th
 
 ```yaml
 theme:
-  icons: auto        # auto | nerd | ascii
+  icons: auto        # auto | unicode | ascii
 ```
 
-`auto` detects a Nerd Font and falls back to ASCII. Force either value when detection is wrong; some terminal multiplexer and font combinations lie.
+**No patched font is required.** labdash draws status with ordinary Unicode glyphs that a terminal font has carried for years.
 
-**Every Nerd Font glyph has an ASCII fallback of the same display width.** A screen rendered in both modes has identical column boundaries. In `ascii` mode no byte above `0x7F` reaches the screen, which is what makes labdash usable on a serial console or inside a CI log.
+**Every glyph is one cell and every ASCII fallback is one character**, so a screen rendered in either mode has identical column boundaries. In `ascii` mode no byte above `0x7F` reaches the screen, which is what makes labdash usable on a serial console or inside a CI log.
+
+`auto` reads your locale rather than probing your font. Three glyphs — `●` running, `○` created, `◐` canceling — are classed as East Asian Ambiguous, meaning one cell in most terminals and two in a terminal configured for CJK text. On a CJK locale `auto` chooses `ascii`, because a glyph drawn two cells wide where one was measured shifts every column after it.
+
+Set `icons: unicode` to keep the glyphs anyway, or `icons: ascii` to drop them everywhere.
 
 ## Density and separators
 

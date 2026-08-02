@@ -1,9 +1,38 @@
 import * as path from 'node:path';
 import { defineConfig } from '@rspress/core';
 
+import { consentBootstrapScript } from './theme/analytics-bootstrap';
+
 const SITE_TITLE = 'labdash';
 const SITE_DESCRIPTION =
   'A terminal dashboard for GitLab: merge requests, pipelines, jobs, and to-dos across every project and group.';
+
+const AUTHOR_NAME = 'Giancarlos Isasi';
+const AUTHOR_URL = 'https://giancarlos-isasi.com/';
+const REPO_URL = 'https://github.com/giancarlosisasi/labdash';
+
+/**
+ * Machine-readable authorship. The footer credit is what a reader sees; this is
+ * what a search engine and an AI answer engine read, and it is where the link
+ * between the project and its author actually gets established.
+ */
+const STRUCTURED_DATA = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'Windows, macOS, Linux',
+  license: 'https://opensource.org/licenses/MIT',
+  codeRepository: REPO_URL,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  author: {
+    '@type': 'Person',
+    name: AUTHOR_NAME,
+    url: AUTHOR_URL,
+    sameAs: [AUTHOR_URL, 'https://github.com/giancarlosisasi'],
+  },
+};
 
 export default defineConfig({
   root: path.join(__dirname, 'docs'),
@@ -11,6 +40,19 @@ export default defineConfig({
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
   icon: '/favicon.svg',
+
+  head: [
+    // Runs before anything else so Consent Mode's default state is on the
+    // dataLayer when gtag.js arrives. It stores nothing and requests nothing.
+    // See theme/analytics-bootstrap.ts.
+    `<script>${consentBootstrapScript}</script>`,
+
+    ['meta', { name: 'author', content: AUTHOR_NAME }],
+    ['link', { rel: 'author', href: AUTHOR_URL }],
+    ['link', { rel: 'me', href: AUTHOR_URL }],
+
+    `<script type="application/ld+json">${JSON.stringify(STRUCTURED_DATA)}</script>`,
+  ],
 
   // Structured for i18n from the first commit. The default language carries no
   // path prefix, so adding `es` later is additive and breaks no published URL.

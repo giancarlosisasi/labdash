@@ -862,3 +862,26 @@ a.ld-card:hover {
     min-width: 0;
   }
 }
+
+/* Footer author credit — a line, not a billboard. */
+.ld-footer__meta {
+  flex: 1 1 32ch;
+  max-width: 62ch;
+}
+
+.ld-footer__author {
+  margin: 0 0 0.35rem;
+  font-family: var(--ld-font-mono);
+  font-size: 0.78rem;
+  color: var(--ld-text-secondary);
+}
+
+.ld-footer__author-link {
+  color: var(--ld-accent-primary);
+  text-decoration: none;
+  text-underline-offset: 0.25em;
+}
+
+.ld-footer__author-link:hover {
+  text-decoration: underline;
+}
