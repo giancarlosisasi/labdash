@@ -1,0 +1,74 @@
+---
+title: Group pipelines
+description: Every pipeline in a group and its subgroups, in one table and one request.
+---
+
+# Group pipelines
+
+<div className="ld-lede">
+Select a group in the browse tree and the pipeline view covers that group and every subgroup under it. One table, one request, however many projects sit beneath the node.
+</div>
+
+<Shot
+  id="group-pipelines"
+  alt="A pipelines table drawn from nine different projects inside one group tree. Failed, running and passed pipelines sit side by side, each row naming its project, ref, duration, who triggered it and the trigger source."
+  caption="Nine projects on screen, one node selected in the browse tree, one request to GitLab."
+/>
+
+## What you see
+
+The same table, the same keys and the same preview pane as the project-scoped [pipelines view](/features/pipelines). The project column carries the weight here, because the rows come from many repositories at once.
+
+### Columns
+
+| Column | What it holds |
+| --- | --- |
+| status | Thirteen states, each with its own glyph, colour and word |
+| project | Which repository the pipeline ran in |
+| ref | Branch or tag |
+| duration | How long it ran |
+| queued | How long it waited for a runner, which is the number that exposes a runner-capacity problem |
+| coverage | The coverage figure the pipeline reported |
+| failure reason | `script_failure` and `runner_system_failure` are different problems |
+| by / source | Who or what started it: push, merge request, schedule, tag, API |
+
+`source` earns its column on a group view. A busy group's red is often scheduled dependency-bump pipelines, and seeing them at a glance, or filtering them out, is what keeps the view a signal.
+
+## The query
+
+GitLab has no group-wide pipeline endpoint. `Group.pipelines` is absent from the GraphQL schema, and REST has no group equivalent. labdash reads pipelines through the group's projects instead:
+
+```graphql
+group(fullPath: $path) {
+  projects(includeSubgroups: true, first: 50) {
+    nodes { pipelines(first: 50) { nodes { … } } }
+  }
+}
+```
+
+Measured on gitlab.com: 50 projects, 945 pipelines, 4.4 seconds, complexity 52 of 250. One round trip.
+
+The fan-out is bounded. A group scope fetches a fixed number of pipelines per project, so a group with hundreds of projects still returns.
+
+## What you can do
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>R</Keys></td><td>retry the pipeline</td><td><Keys>L</Keys></td><td>logs of the first failing job</td></tr>
+<tr><td><Keys>x</Keys></td><td>cancel a running one</td><td><Keys>Enter</Keys></td><td>jobs by stage in the preview</td></tr>
+<tr><td><Keys>o</Keys></td><td>open in the browser</td><td><Keys>w</Keys></td><td>watch it, and be notified when it lands</td></tr>
+</tbody>
+</table>
+
+## Scope and filters
+
+<Keys>b</Keys>, <Keys>Enter</Keys> on the group, <Keys>Tab</Keys> to **pipelines**, <Keys>2</Keys> for failed, <Keys>P</Keys> to keep it. Selecting a group includes every subgroup beneath it.
+
+`source:push,merge-request` in the filter bar excludes scheduled dependency bumps, which are the most common source of noise on a group view.
+
+A pinned view carries its own refresh interval. A running-pipelines tab is worth 20 seconds; a merged-this-quarter tab is worth an hour, so one busy tab does not make the whole dashboard poll hard. See [Refresh and caching](/features/staying-fresh).
+
+:::tip Related
+[Pipelines](/features/pipelines) · [Failure summary](/features/failure-summary) · [Browse](/features/browse) · [The failed-pipelines recipe](/recipes/failed-pipelines)
+:::

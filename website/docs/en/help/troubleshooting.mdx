@@ -1,0 +1,187 @@
+---
+title: Troubleshooting
+description: Symptom, cause and fix, for the failures that happen in practice.
+---
+
+# Troubleshooting
+
+<div className="ld-lede">
+Start with <code>labdash doctor</code>. It answers most of what follows in one command.
+</div>
+
+## Authentication
+
+### "Your token for gitlab.example.com expired"
+
+Since GitLab 16.0 every access token has an expiry. If you left it blank when creating one, it is 365 days out, and personal access tokens expire at 00:00 UTC on their date.
+
+The message names the instance and links the exact creation URL for it. Create a new token and:
+
+```bash
+labdash auth login --hostname gitlab.example.com --with-token
+```
+
+An OAuth credential from `labdash auth login` renews itself and does not reach this state. If one does, the stored refresh token was invalidated, and logging in again is the fix.
+
+### The browser says "Device successfully authorized" and then shows the form again
+
+The login worked. GitLab re-renders its empty device-code form after authorising, which reads as a second prompt.
+
+That is GitLab's page, and RFC 8628 has no redirect to request. Check your terminal: the token is already there. [More.](/guide/first-run)
+
+### Actions return 403 but reading works
+
+Your token carries the `read_api` scope. That is [read-only mode](/guide/read-only), working as intended.
+
+To act on rows, create a token with the `api` scope. If you meant to be read-only, nothing is wrong, and the mutating keys are already absent from the footer.
+
+### `auth status` shows a token but requests fail with 401
+
+Check which credential is in use. Resolution is, per instance:
+
+1. That instance's `tokenEnv`
+2. `GITLAB_TOKEN` / `GITLAB_ACCESS_TOKEN` / `OAUTH_TOKEN`, on the default host only
+3. The credential store
+
+An exported `GITLAB_TOKEN` from another project beats your stored credential on the default host. `labdash auth status` names the source.
+
+### Logging in on a self-managed instance does nothing useful
+
+Your GitLab has no OAuth application registered, and labdash's gitlab.com application ID means nothing there. Use a token:
+
+```bash
+labdash auth login --hostname gitlab.example.com --with-token
+```
+
+[Or ask an administrator to register an application.](/guide/self-hosted)
+
+## Connection
+
+### `x509: certificate signed by unknown authority`
+
+Your instance uses a private certificate authority. Point at its root certificate:
+
+```yaml title="settings.yml"
+instances:
+  gitlab.example.com:
+    caCert: /etc/ssl/certs/corp-root.pem
+```
+
+Avoid `insecureSkipVerify: true`. Behind a TLS-inspecting corporate proxy, disabling verification is a real risk rather than a theoretical one. [Finding your CA certificate.](/recipes/corporate-proxy)
+
+### Every request returns 404
+
+Usually a `subfolder` problem: missing when GitLab lives at `https://example.com/gitlab/`, or set when it does not.
+
+```yaml title="settings.yml"
+instances:
+  gitlab.example.com:
+    subfolder: gitlab
+```
+
+### It hangs and then times out
+
+A proxy is required and not configured:
+
+```yaml title="settings.yml"
+instances:
+  gitlab.example.com:
+    proxy: http://proxy.internal:3128
+```
+
+`HTTPS_PROXY` from your environment is also honoured. An explicit `proxy:` overrides it.
+
+### One section shows an error and the others are fine
+
+Failure is per section, so one slow or broken query leaves the rest of the dashboard alone.
+
+<Keys>r</Keys> retries it. <Keys>d</Keys> shows the full error with the request id.
+
+## Display
+
+### Boxes, question marks, or `▯` instead of icons
+
+There is no Nerd Font, and detection did not notice. Force the fallback:
+
+```yaml title="settings.yml"
+theme:
+  icons: ascii
+```
+
+Columns line up identically. Every glyph has an ASCII replacement of the same display width.
+
+### Columns are misaligned
+
+Almost always a font that renders a glyph at a different width than it reports. `theme: { icons: ascii }` confirms it in one step: if the alignment fixes itself, the font is the cause.
+
+If it persists with ASCII icons, report it with your terminal name and version.
+
+### The screen is smeared, or text is left behind
+
+Usually a subprocess writing to the terminal. labdash sends every subprocess's output to `io.Discard`, so this is a bug. Report it with the action you took.
+
+<Keys>Ctrl+R</Keys> forces a full repaint in the meantime.
+
+### Everything is monochrome
+
+Something set `NO_COLOR`. labdash honours it unconditionally and no setting overrides it.
+
+```bash
+echo $NO_COLOR
+```
+
+### "Terminal too narrow"
+
+Below 56 columns there is not enough room for a usable table. Between 56 and 79 you get a single pane with three columns, and the preview goes full-screen on <Keys>Enter</Keys>. [Breakpoints.](/guide/tour)
+
+## Views and filters
+
+### A tab is empty and you expected rows
+
+In order of likelihood:
+
+1. **The filter is stricter than you think.** The empty state restates the query that produced it. Read it, then press <Keys>f</Keys> to loosen it.
+2. **`draft:false` is hiding them.** Half a busy queue is drafts.
+3. **The scope is narrower than you meant.** The breadcrumb in the context bar says where you are. Press <Keys>b</Keys> and pick a parent group.
+4. **The date filter is too recent.** `updated < 24h` on a quiet group returns nothing.
+
+A mistyped value is not the cause: the [filter bar](/features/filtering) rejects an invalid enum at the keystroke and completes label, user and project names from your own instance.
+
+### A pinned tab disappeared
+
+<Keys>P</Keys> on a pinned tab unpins it and offers an undo immediately. Once the undo has gone, rebuild it with <Keys>b</Keys>, <Keys>f</Keys>, <Keys>P</Keys>.
+
+If every tab is gone, the state file was reset. That happens only when it could not be read, and labdash says so on startup. Your credential and settings are unaffected.
+
+### Launching inside a repository changed what I see
+
+labdash reads the git remote and starts the browse tree at that project. Press <Keys>Ctrl+G</Keys> to toggle it off, or <Keys>b</Keys> to go anywhere else. Your pinned tabs are unaffected.
+
+## Settings
+
+### A settings change did nothing
+
+Check which file is in use:
+
+```bash
+labdash settings path
+```
+
+`--config` and `LABDASH_CONFIG` both outrank the user settings file.
+
+Settings hold connection details only: which GitLab, how to reach it, where your clones are, and how the interface looks. What appears in a table comes from browsing, filtering and pinning. See [settings](/settings/).
+
+### Startup is slow on a self-managed instance
+
+Group pipeline views fan out across every project beneath the group, which makes them the most expensive query in the product. labdash bounds the fan-out itself, and a large group still returns.
+
+If a group is big enough to be slow, scope narrower: [browse](/features/browse) one level down and [pin](/features/pinned-views) that instead. A subgroup you work in daily loads faster than a tree you have to scan.
+
+## Deeper diagnostics
+
+```bash
+labdash doctor
+LABDASH_DEBUG_HTTP=1 labdash
+```
+
+The debug log redacts `Authorization`, `PRIVATE-TOKEN` and `JOB-TOKEN` before writing. See [diagnostics](/help/diagnostics).

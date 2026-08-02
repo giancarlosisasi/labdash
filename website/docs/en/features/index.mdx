@@ -1,0 +1,82 @@
+---
+title: Features
+description: An index of the feature pages, grouped by merge requests, CI, and everything else.
+---
+
+# Features
+
+<div className="ld-lede">
+labdash shows the merge requests, pipelines, jobs, and to-dos from every project and group you have access to, in one window. Each page below covers one part of it: what the view holds, which columns it draws, and which keys act on it.
+</div>
+
+## Merge requests
+
+<Cards>
+  <Card title="Merge requests" href="/features/merge-requests">
+    Every merge request in the current scope, in one table, with approvals, pipeline status, diff size, and the reason it cannot merge.
+  </Card>
+  <Card title="Your review queue" href="/features/review-queue">
+    Every merge request waiting on your review, across the whole instance, from a single query.
+  </Card>
+  <Card title="Merge blockers" href="/features/why-it-cant-merge">
+    GitLab's 24 merge-status values in plain words, in the row. Conflicts, a red pipeline, and a missing approval read differently.
+  </Card>
+  <Card title="Merge trains" href="/features/merge-trains">
+    Train position in the row, and a merge prompt that says the merge request will queue.
+  </Card>
+</Cards>
+
+## CI and pipelines
+
+<Cards>
+  <Card title="Pipelines" href="/features/pipelines">
+    CI as a view of its own, with the same scope, the same table, and the same keys as merge requests.
+  </Card>
+  <Card title="Group pipelines" href="/features/group-pipelines">
+    Every pipeline in a nested group tree from one query. 945 pipelines across 50 projects return in about four seconds.
+  </Card>
+  <Card title="Failure summary" href="/features/failure-summary">
+    The jobs that failed, and the last meaningful lines of each, without opening a log.
+  </Card>
+  <Card title="Job logs" href="/features/job-logs">
+    Full traces, with live follow, search, folding, and one key from a failed pipeline to the error.
+  </Card>
+  <Card title="Watch and notify" href="/features/watch-and-notify">
+    Watch a pipeline until it reaches a terminal state, then take a desktop notification when it lands.
+  </Card>
+</Cards>
+
+## Everything else
+
+<Cards>
+  <Card title="Home" href="/features/home">
+    The screen labdash opens on: the reviews waiting on you, your own merge requests, and your failing pipelines.
+  </Card>
+  <Card title="Browse" href="/features/browse">
+    Your GitLab group tree in the terminal, with GitLab's own ranking of the groups and projects you use at the top.
+  </Card>
+  <Card title="Filtering" href="/features/filtering">
+    <code>/</code> narrows the rows already loaded. <code>f</code> opens a typed filter bar that completes from your instance.
+  </Card>
+  <Card title="Pinned views" href="/features/pinned-views">
+    One key turns the scope and filter you are looking at into a tab that is still there tomorrow.
+  </Card>
+  <Card title="To-dos" href="/features/todos">
+    GitLab's to-do list as a working queue, with mark done, mark all done, and a count on the view switcher.
+  </Card>
+  <Card title="Local git" href="/features/local-git">
+    Check out a merge request's branch in your own clone or in a worktree, and open the project in your editor.
+  </Card>
+  <Card title="Multiple instances" href="/features/multi-instance">
+    Your work GitLab and gitlab.com in one dashboard, each with its own TLS, proxy, and failure isolation.
+  </Card>
+  <Card title="Refresh and caching" href="/features/staying-fresh">
+    Concurrent fetches, stale-while-refreshing, a warm disk cache, and an offline mode, with the measured timings behind each.
+  </Card>
+  <Card title="Issues" href="/features/issues">
+    Issues as another queue you browse, filter, and pin, in the same table with the same keys.
+  </Card>
+  <Card title="Environments" href="/features/environments">
+    What is deployed where across a group, with review-app URLs one key away.
+  </Card>
+</Cards>

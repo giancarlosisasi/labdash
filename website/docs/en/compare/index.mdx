@@ -1,0 +1,40 @@
+---
+title: Related tools
+description: What labdash covers, and the GitLab tools people run alongside it.
+---
+
+# Related tools
+
+<div className="ld-lede">
+labdash covers the cross-project queue: the merge requests, pipelines, jobs and to-dos spread across every project and group you have access to, in one table you leave open.
+</div>
+
+## The tools
+
+| Tool | Good at |
+| --- | --- |
+| [labdash](/features/) | A live table of merge requests, pipelines, jobs and to-dos across many projects and groups |
+| [glab](https://gitlab.com/gitlab-org/cli) | One-off commands, scripting, CI, and GitLab's wider surface: releases, runners, registries |
+| [rcieri/glab-tui](https://github.com/rcieri/glab-tui) | Depth inside a single repository: diffs, inline review, issues, releases |
+| [gh-dash](https://github.com/dlvhdr/gh-dash) | The same dashboard shape, for GitHub |
+| [gitlab-ci-local](https://github.com/firecow/gitlab-ci-local) | Running a `.gitlab-ci.yml` on your own machine |
+
+## What labdash shows
+
+Merge requests with approvals, head pipeline status and the reason each one cannot merge. Pipelines across a whole group tree. Job logs. Your to-dos. Scope comes from [browsing](/features/browse) the group tree, [filtering](/features/filtering) it, and [pinning](/features/pinned-views) the result as a tab.
+
+Reading code happens elsewhere. labdash shows no file diffs and no inline review comments.
+
+## Where to read more
+
+<Cards>
+  <Card title="labdash and glab" href="/compare/vs-glab">
+    What the official CLI is for, how labdash reaches GitLab, and how to move a token across.
+  </Card>
+  <Card title="Coming from gh-dash" href="/compare/vs-gh-dash">
+    Sections, config files and keys, mapped onto their labdash equivalents.
+  </Card>
+  <Card title="Other GitLab TUIs" href="/compare/vs-gitlab-tuis">
+    What each GitLab terminal project does, and the job it fits.
+  </Card>
+</Cards>

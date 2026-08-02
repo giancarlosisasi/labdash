@@ -1,0 +1,65 @@
+---
+title: Introduction
+description: labdash is a terminal dashboard for GitLab merge requests, pipelines, jobs and to-dos, across every project and group you have access to.
+---
+
+# Introduction
+
+<div className="ld-lede">
+labdash is a terminal dashboard for GitLab. It shows the merge requests, pipelines, jobs, and to-dos from every project and group you have access to, in one window.
+</div>
+
+<Shot
+  id="home-tabs"
+  alt="A dashboard with Home and four pinned tabs along the top, each tab carrying a row count. Below the tabs, a table of merge requests lists the project, the author, the approval count, the head pipeline status, and a plain-language reason each row cannot merge."
+  caption="Each tab is a scope with a filter applied to it. The row count arrives with the rows."
+/>
+
+labdash opens on Home. Home is built from what GitLab already knows about you: the merge requests waiting on your review, the ones reviewers handed back, the ones you authored, and your failing pipelines. Every query behind that screen asks GitLab about you rather than about your organisation, so it is complete on a fresh install.
+
+## The four views
+
+| View | What it shows |
+| --- | --- |
+| [Merge requests](/features/merge-requests) | Every open merge request in the current scope, with approvals, head pipeline status, diff size, labels, and the reason it cannot merge |
+| [Pipelines](/features/pipelines) | Pipelines across a whole group tree, with status, duration, queued time, who triggered them, and the failure reason |
+| [Jobs and logs](/features/job-logs) | The jobs in a pipeline, grouped by stage, and the full trace of any one job, searchable and foldable |
+| [To-dos](/features/todos) | Your GitLab to-do list, with the action, the target, the project, the age, and mark-done |
+
+<Keys>Tab</Keys> moves between the tables. Jobs and their logs open from a pipeline row. The scope you are standing in follows you, so moving from merge requests to pipelines keeps your place.
+
+## Browse, filter, pin
+
+Home answers one question: what needs you. Three keys build every other view.
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Does</th></tr></thead>
+<tbody>
+<tr><td><Keys>b</Keys></td><td><strong><a href="/features/browse">Browse</a></strong> your GitLab group tree, with the groups and projects you work in most at the top. <Keys>Enter</Keys> scopes the table to the node you highlight.</td></tr>
+<tr><td><Keys>f</Keys></td><td><strong><a href="/features/filtering">Filter</a></strong> by state, draft, labels, author, reviewer, approvals, and dates. Values complete from your own instance, and an impossible value is rejected at the keystroke.</td></tr>
+<tr><td><Keys>P</Keys></td><td><strong><a href="/features/pinned-views">Pin</a></strong> the scope and filter on screen. It becomes a tab, and the tab is still there tomorrow.</td></tr>
+</tbody>
+</table>
+
+Pinned tabs live in a state file that labdash writes and you never open. There is no configuration file for the interface: no section definitions, no column layout, no template language. A small [settings file](/settings/) holds the connection details for a self-managed GitLab, where your clones live on disk, and appearance.
+
+## Scope
+
+labdash works on the queue around the code. Reading a diff line by line stays in the browser or your editor, and <Keys>o</Keys> opens the selected row there in one keypress. The dashboard covers merge requests, pipelines, jobs and to-dos on GitLab: there is no diff viewer, no file tree, no issue board, and no GitHub support. labdash calls GitLab's GraphQL and REST APIs directly rather than running `glab`.
+
+## Next steps
+
+<Cards>
+  <Card title="Install" href="/guide/install">
+    Homebrew, Scoop, winget, go install, Linux packages, a Docker image, or a signed download.
+  </Card>
+  <Card title="Signing in" href="/guide/first-run">
+    An OAuth device code on gitlab.com, or a personal access token on any instance.
+  </Card>
+  <Card title="Tour" href="/guide/tour">
+    The five regions of the screen, how to read a row, and the keys that cover most of the work.
+  </Card>
+  <Card title="Self-managed GitLab" href="/guide/self-hosted">
+    A private CA, client certificates, a proxy, a subfolder install, and custom headers.
+  </Card>
+</Cards>

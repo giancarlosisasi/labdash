@@ -1,0 +1,58 @@
+---
+title: Filtering
+description: Two keys narrow a table: one filters the rows already loaded, the other changes the query sent to GitLab.
+---
+
+# Filtering
+
+<div className="ld-lede">
+<Keys>/</Keys> narrows the rows already on screen, character by character. <Keys>f</Keys> opens a typed filter bar that changes what GitLab is asked for.
+</div>
+
+<Shot
+  id="filter-bar"
+  alt="The filter bar open above a merge request table, with a completion list of real label names from the instance and a running count of the rows that match."
+  caption="Label names, usernames, project paths and milestones are completed from your own instance."
+/>
+
+## Two keys
+
+| Key | What it does | Cost |
+| --- | --- | --- |
+| <Keys>/</Keys> | Narrows the rows already loaded, character by character | no request |
+| <Keys>f</Keys> | Changes the query sent to GitLab | one fetch |
+
+A fetch takes seconds, so the two stay separate. Instant search never issues a request.
+
+## The filter bar
+
+GitLab's merge request connections accept 46 typed filter arguments with real enums behind them, so the bar completes exactly and checks a value as you type it.
+
+- **Completion comes from your instance.** Labels, usernames, project paths and milestones are read from GitLab, not from memory.
+- **An invalid value cannot be submitted.** Type `state:opend` and the bar refuses it and lists the values that are valid. The typo never reaches GitLab.
+- **Dates are real timestamps.** `updated < 3w` becomes an RFC 3339 value bound to a typed variable rather than a string glued into a query.
+
+Every filter is sent as a typed GraphQL variable, never as a search string.
+
+## Quick filters
+
+The five most-used filters are on digits, so the common case needs no typing:
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Filter</th><th>Key</th><th>Filter</th></tr></thead>
+<tbody>
+<tr><td><Keys>1</Keys></td><td>mine</td><td><Keys>4</Keys></td><td>stale</td></tr>
+<tr><td><Keys>2</Keys></td><td>failed CI</td><td><Keys>5</Keys></td><td>conflicts</td></tr>
+<tr><td><Keys>3</Keys></td><td>draft</td><td></td><td></td></tr>
+</tbody>
+</table>
+
+Chips combine with AND, and each one clears on its own. Digits are reserved for chips, and never select a view or a tab.
+
+## Keeping a filter
+
+Press <Keys>P</Keys> and the filter becomes [a pinned tab](/features/pinned-views), together with the scope it was applied to. A view is built by browsing, filtering, and pinning rather than by editing a file, so the bar is where every valid key and value is listed.
+
+:::tip Related
+[Browse](/features/browse) · [Pinned views](/features/pinned-views) · [Your review queue](/features/review-queue) · [The keymap](/keys/)
+:::

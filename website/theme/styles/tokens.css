@@ -1,0 +1,217 @@
+/*
+ * labdash design tokens — the website half of research/17-design-system.md.
+ *
+ * The values below are the TUI's own semantic tokens, verbatim. The site and the
+ * tool share one palette so that a screenshot and the page around it read as one
+ * product. Nothing here invents a colour; §2.2 (dark) and §2.3 (light) are the
+ * source of truth, contrast ratios included.
+ *
+ * Rule inherited from the tool: components name a role, never a hex value.
+ * Everything below this file must use var(--ld-*), never a literal.
+ */
+
+:root {
+  /* ---- Type -------------------------------------------------------------- */
+  --ld-font-mono:
+    'JetBrains Mono Variable', ui-monospace, SFMono-Regular, 'SF Mono', Menlo,
+    Consolas, 'Liberation Mono', monospace;
+  --ld-font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
+
+  /* ---- Space (three values, §5) ------------------------------------------ */
+  --ld-space-tight: 0.35rem;
+  --ld-space-normal: 0.75rem;
+  --ld-space-loose: 1.5rem;
+
+  /* Terminal-native: crisp corners, not web cards. §1.7 */
+  --ld-radius: 6px;
+  --ld-radius-sm: 4px;
+}
+
+/* ==========================================================================
+   Dark — `ember`, the default theme. §2.2
+   ========================================================================== */
+
+:root,
+html.dark {
+  --ld-bg-base: #0f1117;
+  --ld-bg-surface: #161922;
+  --ld-bg-overlay: #1e222d;
+  --ld-bg-selected: #232838;
+
+  --ld-border-faint: #262b38;
+  --ld-border-default: #39404f;
+  --ld-border-focus: #e8a33d;
+
+  --ld-text-primary: #e6e9ef; /* 15.35:1 */
+  --ld-text-secondary: #a8b0c0; /* 8.56:1 */
+  --ld-text-muted: #7c8699; /* 5.09:1 */
+  --ld-text-inverted: #0f1117;
+
+  --ld-accent-primary: #e8a33d; /* 8.65:1 */
+  --ld-accent-secondary: #7aa2f7; /* 7.41:1 */
+
+  --ld-status-success: #7bd88f; /* 10.72:1 */
+  --ld-status-warning: #e8c55d; /* 11.18:1 */
+  --ld-status-error: #f07178; /* 6.52:1 */
+  --ld-status-running: #5fd7e0; /* 10.91:1 */
+  --ld-status-pending: #c4a7f5; /* 9.06:1 */
+  --ld-status-neutral: #7c8699; /* 5.09:1 */
+
+  --ld-diff-added: #7bd88f;
+  --ld-diff-removed: #f07178;
+
+  /* Derived surfaces — tints of a token, never a new hue. */
+  --ld-accent-tint: rgba(232, 163, 61, 0.12);
+  --ld-accent-tint-strong: rgba(232, 163, 61, 0.22);
+  --ld-error-tint: rgba(240, 113, 120, 0.13);
+  --ld-success-tint: rgba(123, 216, 143, 0.13);
+  --ld-warning-tint: rgba(232, 197, 93, 0.13);
+  --ld-running-tint: rgba(95, 215, 224, 0.13);
+  --ld-secondary-tint: rgba(122, 162, 247, 0.13);
+
+  --ld-shadow-terminal: 0 18px 48px -24px rgb(0 0 0 / 85%);
+}
+
+/* ==========================================================================
+   Light — `ember-light`. §2.3
+   ========================================================================== */
+
+html:not(.dark) {
+  --ld-bg-base: #fbfbfd;
+  --ld-bg-surface: #f2f3f7;
+  --ld-bg-overlay: #ffffff;
+  --ld-bg-selected: #e4e8f2;
+
+  --ld-border-faint: #e2e5ec;
+  --ld-border-default: #c3c9d6;
+  --ld-border-focus: #a85e00;
+
+  --ld-text-primary: #14161c; /* 16.9:1 */
+  --ld-text-secondary: #454c5c; /* 8.9:1 */
+  --ld-text-muted: #656d7e; /* 5.03:1 */
+  --ld-text-inverted: #fbfbfd;
+
+  --ld-accent-primary: #a85e00; /* 4.77:1 */
+  --ld-accent-secondary: #2e5fcc; /* 6.3:1 */
+
+  --ld-status-success: #147a3d; /* 5.25:1 */
+  --ld-status-warning: #8a6100; /* 5.1:1 */
+  --ld-status-error: #c0323c; /* 5.41:1 */
+  --ld-status-running: #0e6e77; /* 5.6:1 */
+  --ld-status-pending: #6b3fbf; /* 6.4:1 */
+  --ld-status-neutral: #656d7e; /* 5.03:1 */
+
+  --ld-diff-added: #147a3d;
+  --ld-diff-removed: #c0323c;
+
+  --ld-accent-tint: rgba(168, 94, 0, 0.09);
+  --ld-accent-tint-strong: rgba(168, 94, 0, 0.16);
+  --ld-error-tint: rgba(192, 50, 60, 0.09);
+  --ld-success-tint: rgba(20, 122, 61, 0.09);
+  --ld-warning-tint: rgba(138, 97, 0, 0.09);
+  --ld-running-tint: rgba(14, 110, 119, 0.09);
+  --ld-secondary-tint: rgba(46, 95, 204, 0.09);
+
+  --ld-shadow-terminal: 0 18px 40px -26px rgb(20 22 28 / 40%);
+}
+
+/* ==========================================================================
+   Rspress variable mapping — the theme speaks our tokens from here on.
+   ========================================================================== */
+
+:root {
+  --rp-c-brand: var(--ld-accent-primary);
+  --rp-c-brand-light: var(--ld-accent-primary);
+  --rp-c-brand-lighter: var(--ld-accent-primary);
+  --rp-c-brand-dark: var(--ld-accent-primary);
+  --rp-c-brand-darker: var(--ld-accent-primary);
+  --rp-c-brand-tint: var(--ld-accent-tint);
+
+  --rp-c-bg: var(--ld-bg-base);
+  --rp-c-bg-soft: var(--ld-bg-surface);
+  --rp-c-bg-mute: var(--ld-bg-overlay);
+  --rp-c-bg-alt: var(--ld-bg-surface);
+
+  --rp-c-divider: var(--ld-border-default);
+  --rp-c-divider-light: var(--ld-border-faint);
+
+  --rp-c-text-0: var(--ld-text-primary);
+  --rp-c-text-1: var(--ld-text-primary);
+  --rp-c-text-2: var(--ld-text-secondary);
+  --rp-c-text-3: var(--ld-text-muted);
+  --rp-c-text-4: var(--ld-border-default);
+  --rp-c-link: var(--ld-accent-secondary);
+
+  --rp-c-text-code: var(--ld-accent-secondary);
+  --rp-c-text-code-bg: var(--ld-secondary-tint);
+  --rp-c-text-code-border: var(--ld-border-faint);
+
+  --rp-code-font-size: 0.84rem;
+  --rp-code-title-bg: var(--ld-bg-overlay);
+  --rp-code-block-color: var(--ld-text-primary);
+  --rp-code-block-bg: var(--ld-bg-surface);
+  --rp-code-block-border: 1px solid var(--ld-border-faint);
+  --rp-code-block-shadow: none;
+
+  --rp-font-family-base: var(--ld-font-sans);
+  --rp-font-family-mono: var(--ld-font-mono);
+
+  /* §1.7 — no fake shadows. Keep depth to a hairline where it must exist. */
+  --rp-shadow-1: 0 1px 0 rgb(0 0 0 / 6%);
+  --rp-shadow-2: 0 2px 10px -6px rgb(0 0 0 / 35%);
+  --rp-shadow-3: 0 8px 24px -14px rgb(0 0 0 / 45%);
+  --rp-shadow-4: 0 12px 32px -18px rgb(0 0 0 / 50%);
+  --rp-shadow-5: 0 18px 44px -22px rgb(0 0 0 / 55%);
+
+  --rp-radius: var(--ld-radius);
+  --rp-radius-small: var(--ld-radius-sm);
+  --rp-radius-large: var(--ld-radius);
+
+  --rp-home-hero-secondary-color: var(--ld-status-error);
+  --rp-home-hero-title-color: transparent;
+  --rp-home-hero-title-bg: linear-gradient(
+    90deg,
+    var(--ld-accent-primary) 0%,
+    var(--ld-status-error) 100%
+  );
+  --rp-home-feature-bg: var(--ld-bg-surface);
+}
+
+/* ==========================================================================
+   Syntax highlighting — derived from the palette, so a YAML block on the site
+   and a row in the dashboard share one vocabulary of colour.
+   ========================================================================== */
+
+html:not(.rp-dark) {
+  --shiki-foreground: var(--ld-text-primary);
+  --shiki-background: transparent;
+  --shiki-token-constant: #2e5fcc;
+  --shiki-token-string: #8a6100;
+  --shiki-token-comment: #656d7e;
+  --shiki-token-keyword: #c0323c;
+  --shiki-token-parameter: #a85e00;
+  --shiki-token-function: #6b3fbf;
+  --shiki-token-string-expression: #8a6100;
+  --shiki-token-punctuation: #454c5c;
+  --shiki-token-link: #a85e00;
+  --shiki-token-deleted: #c0323c;
+  --shiki-token-inserted: #147a3d;
+}
+
+html.rp-dark {
+  --shiki-foreground: var(--ld-text-primary);
+  --shiki-background: transparent;
+  --shiki-token-constant: #7aa2f7;
+  --shiki-token-string: #e8c55d;
+  --shiki-token-comment: #7c8699;
+  --shiki-token-keyword: #f07178;
+  --shiki-token-parameter: #e8a33d;
+  --shiki-token-function: #c4a7f5;
+  --shiki-token-string-expression: #e8c55d;
+  --shiki-token-punctuation: #a8b0c0;
+  --shiki-token-link: #e8a33d;
+  --shiki-token-deleted: #f07178;
+  --shiki-token-inserted: #7bd88f;
+}

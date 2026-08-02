@@ -1,0 +1,182 @@
+---
+title: Appearance
+description: Themes, icons, density, dates, motion, and the two operational switches.
+---
+
+# Appearance
+
+<div className="ld-lede">
+Everything under `theme:` changes how labdash looks, not what it shows. Which rows appear comes from browsing, filtering and pinning inside the application.
+</div>
+
+```yaml title="settings.yml"
+theme:
+  name: ember           # ember | ember-light | contrast | ansi | mono
+  icons: auto           # auto | nerd | ascii
+  density: compact      # compact | comfortable
+  separators: false
+  dateFormat: relative  # relative | absolute
+  reducedMotion: false
+  spinner: braille      # braille | line | dot
+  logo: splash          # splash | compact | off
+
+log:
+  level: warn           # error | warn | info | debug
+
+updateCheck: true
+```
+
+## Built-in themes
+
+| Name | Basis | For |
+| --- | --- | --- |
+| `ember` | Warm amber on cool slate | The default. Dark |
+| `ember-light` | The same tokens, light values | Light terminals |
+| `contrast` | AAA, 7:1 body text | A re-derived palette rather than `ember` with more saturation |
+| `ansi` | Indices 0–15 only | Your terminal's own colour scheme wins entirely |
+| `mono` | No colour at all | Screenshots, printing, serial consoles |
+
+`ansi` deserves a note. At that tier your terminal theme supplies the actual hues, so the application looks like it belongs in your terminal. If you have a colour scheme you love, this is the setting you want.
+
+## The tokens
+
+Components name a **role**, never a hex value. Colour literals live in the theme package and nowhere else, so one token change reaches every screen.
+
+### Surfaces and borders
+
+<Palette group="surfaces" theme="dark" />
+
+### Text
+
+<Palette group="text" theme="dark" />
+
+### Meaning
+
+<Palette group="meaning" theme="dark" />
+
+Every value clears WCAG AA against its own background, and the ratios are computed on every commit. The lowest is `text.muted` at 5.09:1.
+
+The light values are on [the design page](/about/design#colour).
+
+## Your own theme
+
+Override a token by name, in hex or as an ANSI index from 0 to 255. Anything you leave out keeps its value from `name`, so a two-line theme is a complete theme.
+
+```yaml title="settings.yml"
+theme:
+  name: ember
+  colors:
+    accent.primary: "#d98a3d"
+    status.error: 203
+```
+
+A token that does not exist, a malformed hex value, or an index outside 0 to 255 is reported at load with the file, the line, and the accepted values. A theme that drops a pair below WCAG AA still loads, and `labdash theme preview` shows you the ratio it produced.
+
+To keep a theme in its own file, point at it:
+
+```yaml
+theme:
+  file: ~/.config/labdash/themes/solarized.yml
+```
+
+That file holds the same `colors` map. The path is read from disk; labdash does not fetch a theme over the network.
+
+## Colour-profile detection
+
+labdash reads your terminal's capability once at startup and renders to the tier it finds.
+
+| Tier | Detected by | What happens |
+| --- | --- | --- |
+| Monochrome | `NO_COLOR`, or `TERM=dumb` | No colour. Hierarchy from glyphs, weight and layout |
+| 16 ANSI | `TERM` without `256color` | Indices 0–15. Your terminal's theme supplies the hues |
+| 256 | `TERM` contains `256color` | Nearest match into the 256-colour cube |
+| True colour | `COLORTERM` is `truecolor` or `24bit` | The palette above, exactly |
+
+:::info `NO_COLOR` is not negotiable
+It is honoured unconditionally and no setting overrides it. `--no-color` does the same for one run.
+:::
+
+## Icons
+
+```yaml
+theme:
+  icons: auto        # auto | nerd | ascii
+```
+
+`auto` detects a Nerd Font and falls back to ASCII. Force either value when detection is wrong; some terminal multiplexer and font combinations lie.
+
+**Every Nerd Font glyph has an ASCII fallback of the same display width.** A screen rendered in both modes has identical column boundaries. In `ascii` mode no byte above `0x7F` reaches the screen, which is what makes labdash usable on a serial console or inside a CI log.
+
+## Density and separators
+
+```yaml
+theme:
+  density: comfortable   # two-line rows
+  separators: true       # a rule between rows
+```
+
+Both are global rather than per tab. Mixing row heights between tabs costs the spatial memory that makes a terminal interface fast.
+
+## Dates
+
+```yaml
+theme:
+  dateFormat: relative           # "2h ago"
+  # or
+  dateFormat: absolute
+  datePattern: "2006-01-02 15:04"
+  timezone: America/Lima
+```
+
+Tables show relative time and the preview shows absolute time, because the two are read differently. `datePattern` uses Go's reference-time layout. `timezone` takes an IANA name and defaults to the system zone.
+
+## Motion
+
+```yaml
+theme:
+  spinner: braille       # braille | line | dot
+  reducedMotion: false
+```
+
+The spinner runs at 10 frames per second on work that is actually running. `braille` is `⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏`; ASCII mode uses `|/-\` whatever the setting says.
+
+`reducedMotion: true` replaces the spinner with a static marker and drops the splash gradient. **State is still communicated**: the task line still names what is running.
+
+## Accessibility switches
+
+| Setting | Effect |
+| --- | --- |
+| `NO_COLOR` environment variable | Honoured unconditionally, and no setting overrides it |
+| `--no-color` | The same, for one run |
+| `theme: { name: mono }` | No colour. Hierarchy from glyphs, weight and layout |
+| `theme: { name: contrast }` | A shipped 7:1 theme |
+| `theme: { icons: ascii }` | No byte above `0x7F` anywhere |
+| `theme: { reducedMotion: true }` | A static marker instead of a spinner, and no gradients |
+
+## The logo
+
+```yaml
+theme:
+  logo: splash      # splash | compact | off
+```
+
+`splash` shows the full wordmark, `compact` shows the two-row mark, `off` shows neither. The splash appears for at most 900 ms while Home loads, is skipped by any key, and never renders when output is not a terminal, when `NO_COLOR` is set, or below 60 columns. It never appears in the dashboard header.
+
+## Operational switches
+
+| Key | Values | What it does |
+| --- | --- | --- |
+| `log.level` | `error`, `warn`, `info`, `debug` | How much labdash writes to its log file |
+| `updateCheck` | `true`, `false` | Whether labdash checks for a newer release at startup |
+
+## Theme preview
+
+```bash
+labdash theme preview
+```
+
+Renders every token, every status glyph and every state in your terminal, at your colour depth, with your font, which is the only place the question can be answered.
+
+:::tip Related
+[Design](/about/design) · [Terminal support](/help/terminal-support)
+:::

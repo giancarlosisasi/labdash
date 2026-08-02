@@ -1,0 +1,64 @@
+---
+title: Issues
+description: Issues as a table you browse, filter and pin, with the same columns rules and the same keys as every other view.
+---
+
+# Issues
+
+<div className="ld-lede">
+The issue view is a table of issues for whatever scope you browsed to, filtered with the same bar and pinned with the same key as merge requests, pipelines and to-dos.
+</div>
+
+## What you see
+
+| Column | What it holds |
+| --- | --- |
+| title | The issue title, growing to fill the row and truncated at the end |
+| project | Which repository the issue is in |
+| author | Who opened it |
+| assignees | Who it is assigned to |
+| labels | GitLab's own label colours, with a `+n` overflow marker |
+| milestone | The milestone it belongs to |
+| weight | The issue weight |
+| due date | When it is due, relative or absolute to match your date format |
+
+Columns drop by priority as the terminal narrows, the same way they do in every other table.
+
+Selecting a row opens the preview pane: the description rendered as markdown, then the comment thread.
+
+## What you can do
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>c</Keys></td><td>comment</td><td><Keys>t</Keys></td><td>add or remove labels</td></tr>
+<tr><td><Keys>x</Keys> <Keys>X</Keys></td><td>close, reopen</td><td><Keys>a</Keys> <Keys>A</Keys></td><td>assign, unassign</td></tr>
+<tr><td><Keys>o</Keys></td><td>open in the browser</td><td><Keys>Y</Keys></td><td>copy the URL</td></tr>
+</tbody>
+</table>
+
+These are the merge-request keys. A key means the same verb in every view, so nothing here is new to learn.
+
+## Scope and filters
+
+<Keys>Tab</Keys> reaches the issue view. From there the pattern is the one every view shares: [browse](/features/browse) to a scope, [filter](/features/filtering) it, [pin](/features/pinned-views) the result.
+
+| You want | Do this |
+| --- | --- |
+| Assigned to you | <Keys>f</Keys> `assignee:@me`, <Keys>P</Keys> |
+| Bugs in one group | <Keys>b</Keys> to the group, <Keys>f</Keys> `label:bug`, <Keys>P</Keys> |
+| This milestone | <Keys>f</Keys> `milestone:"Sprint 24" state:opened`, <Keys>P</Keys> |
+
+Label, milestone and username values complete from your own instance, so a name in the filter bar cannot be misspelled.
+
+## Work items
+
+GitLab models issues, epics, tasks and objectives as **work items** in its GraphQL API, and is retiring the Epics REST endpoint in favour of it. labdash reads issues through GraphQL, from the same API.
+
+## Issues and merge requests
+
+A merge request that closes an issue shows the link in its preview pane, and <Keys>Enter</Keys> on that link jumps to the issue's row in the issue view.
+
+:::tip Related
+[Merge requests](/features/merge-requests) · [Filtering](/features/filtering) · [Pinned views](/features/pinned-views)
+:::

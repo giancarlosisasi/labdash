@@ -1,0 +1,66 @@
+---
+title: Home
+description: The screen labdash opens on, grouping your merge requests and failing pipelines by what needs you next.
+---
+
+# Home
+
+<div className="ld-lede">
+Home opens on launch and groups your work by what needs you next. It asks GitLab only about you, so it draws itself on a fresh install that knows nothing about your organisation.
+</div>
+
+<Shot
+  id="home"
+  alt="The Home screen, with groups for Review requested, Returned to you, Your merge requests and Your failing pipelines above a rule, and four collapsed groups that need no action below it."
+  caption="Nine merge requests and pipelines are waiting on this person. Everything below the rule is waiting on somebody else."
+/>
+
+## Groups
+
+The groups and their wording come from GitLab's own merge request homepage, which shipped in 17.9 and has been the default since 18.2. Home adds one block that page does not have: your failing pipelines.
+
+Above the rule, everything is waiting on you. These groups count toward the attention badge:
+
+| Group | What it holds |
+| --- | --- |
+| **Review requested** | Merge requests awaiting your review, across the whole instance |
+| **Returned to you** | Reviewers responded, and it is your move again |
+| **Your merge requests** | What you authored or were assigned |
+| **Your failing pipelines** | Red CI on your own branches |
+
+Below the rule, everything is waiting on somebody else. Those four groups are collapsed by default and excluded from the count: waiting for approvals, waiting for assignee, approved by you, approved by others.
+
+Rows carry GitLab's own substatus wording: `Draft`, `Reviewers needed`, `Changes requested`, `Reviewer commented`.
+
+<Stats>
+  <Stat value="4" label="queries behind this screen, all issued at once" />
+  <Stat value="4.65 s" label="the slowest of them, measured on gitlab.com" />
+</Stats>
+
+The four queries run concurrently behind one spinner, and a warm cache paints real rows before the first reply arrives. See [refresh and caching](/features/staying-fresh).
+
+## The attention count
+
+`9 need you` counts the groups above the rule and nothing else. Work that is waiting on somebody else stays out of the number, so the badge counts the things you can act on now.
+
+## What you can do
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>j</Keys> <Keys>k</Keys></td><td>move</td><td><Keys>b</Keys></td><td>browse the rest of GitLab</td></tr>
+<tr><td><Keys>Enter</Keys></td><td>focus the preview</td><td><Keys>f</Keys></td><td>filter this group</td></tr>
+<tr><td><Keys>z</Keys> <Keys>Z</Keys></td><td>collapse a group, or all of them</td><td><Keys>P</Keys></td><td>pin what you are looking at</td></tr>
+<tr><td><Keys>o</Keys></td><td>open in the browser</td><td><Keys>r</Keys></td><td>refresh</td></tr>
+</tbody>
+</table>
+
+Collapse state is remembered between runs. Reordering a built-in group, or hiding one, is two keys and is the whole customisation surface Home has.
+
+## The rest of your work
+
+Home answers one question: what needs me. For a team's queue, a group's failed pipelines, or a release branch, press <Keys>b</Keys> and [browse](/features/browse), narrow the result with [the filter bar](/features/filtering), then [pin it](/features/pinned-views) so it is a tab tomorrow.
+
+:::tip Related
+[Browse](/features/browse) · [Your review queue](/features/review-queue) · [Merge blockers](/features/why-it-cant-merge) · [First run](/guide/first-run)
+:::

@@ -1,0 +1,118 @@
+---
+title: Terminal support
+description: The supported terminals, with the colour depth, mouse, clipboard and resize behaviour of each.
+---
+
+# Terminal support
+
+<div className="ld-lede">
+labdash runs on any terminal that speaks virtual-terminal sequences. This is what each one gives you.
+</div>
+
+## The matrix
+
+| Terminal | Colour | Mouse | Clipboard | Resize | Unicode |
+| --- | --- | --- | --- | --- | --- |
+| Windows Terminal | truecolor | ✔ | OSC 52 | ✔ | ✔ |
+| WezTerm | truecolor | ✔ | OSC 52 | ✔ | ✔ |
+| Ghostty | truecolor | ✔ | OSC 52 | ✔ | ✔ |
+| Alacritty | truecolor | ✔ | OSC 52 | ✔ | ✔ |
+| kitty | truecolor | ✔ | OSC 52 | ✔ | ✔ |
+| iTerm2 | truecolor | ✔ | OSC 52 | ✔ | ✔ |
+| Terminal.app | 256 | ✔ | system | ✔ | partial |
+| GNOME Terminal | truecolor | ✔ | OSC 52 | ✔ | ✔ |
+| Konsole | truecolor | ✔ | OSC 52 | ✔ | ✔ |
+| VS Code terminal | truecolor | ✔ | OSC 52 | ✔ | ✔ |
+| tmux | inherits | ✔ | OSC 52 passthrough | ✔ | ✔ |
+| GNU screen | 256 | none | none | ✔ | partial |
+| SSH into any of the above | inherits | inherits | OSC 52 | ✔ | inherits |
+| WSL | inherits from the host | ✔ | OSC 52 | ✔ | ✔ |
+| Linux virtual console | 16 | none | none | ✔ | ASCII mode |
+| CI log capture | none | none | none | none | ASCII mode |
+
+Windows Terminal is the development machine and the first one checked each release.
+
+## Colour detection
+
+| Detected | Result |
+| --- | --- |
+| `COLORTERM=truecolor` or `24bit` | The full palette, exactly as designed |
+| `TERM` contains `256color` | Nearest match into the 256-colour cube |
+| `TERM` without either | ANSI 0 to 15. Your terminal's own theme supplies the hues |
+| `NO_COLOR` set, or `TERM=dumb` | No colour at all. Hierarchy comes from glyphs, weight and layout |
+
+At the 16-colour tier labdash borrows your terminal's palette, so it matches everything else in the session. `theme: { name: ansi }` selects that tier on any terminal.
+
+Detection happens once at startup and is stored.
+
+## tmux
+
+Clipboard needs OSC 52 passthrough turned on:
+
+```bash
+set -g set-clipboard on
+```
+
+Without it, <Keys>y</Keys> and <Keys>Y</Keys> copy into tmux's own buffer rather than your system clipboard.
+
+For truecolor inside tmux:
+
+```bash
+set -g default-terminal "tmux-256color"
+set -as terminal-features ",*:RGB"
+```
+
+## SSH
+
+The device-flow login exists for this case. A remote machine has no `localhost` for your browser to reach, so a loopback OAuth callback cannot work. `labdash auth login` prints a code you approve on whichever device has a browser.
+
+Clipboard works over SSH through OSC 52, with no helper installed on either end.
+
+## Windows
+
+Windows Terminal and ConPTY are the development target and are checked first, for resize, mouse, Unicode and key handling.
+
+The classic `conhost.exe` console window lacks the virtual-terminal sequences a full-screen application needs. Run labdash in Windows Terminal.
+
+## Fonts
+
+A Nerd Font is optional. Every glyph has an ASCII fallback of the same display width, so a screen rendered both ways has identical column boundaries.
+
+Some multiplexer and font combinations report the wrong capability. Set it yourself when that happens:
+
+```yaml title="settings.yml"
+theme:
+  icons: ascii    # or: nerd
+```
+
+## Restricted terminals
+
+For serial consoles, CI log capture, and corporate terminals that block anything above ASCII:
+
+```yaml title="settings.yml"
+theme:
+  name: mono
+  icons: ascii
+```
+
+That combination emits no byte above `0x7F` and no colour.
+
+## Sizes
+
+| Columns | What you get |
+| --- | --- |
+| under 56 | A notice with the current and required width |
+| 56 to 79 | Single pane, two-line rows, three columns |
+| 80 to 119 | Single pane, preview at the bottom |
+| 120 to 159 | Split, preview on the right. The reference size |
+| 160 and up | Split, more columns |
+
+Vertically, below 12 rows the section tab bar is dropped and the section name moves into the context bar. Between 12 and 19 rows the bottom preview is disabled, and `auto` resolves to the right-hand pane or to none.
+
+## Terminal problem reports
+
+Include the terminal name and version, the output of `labdash doctor`, and a screenshot of `labdash theme preview`. Those three answer nearly every rendering question at once.
+
+:::tip Related
+[Appearance](/settings/appearance) · [Diagnostics](/help/diagnostics) · [Design](/about/design)
+:::

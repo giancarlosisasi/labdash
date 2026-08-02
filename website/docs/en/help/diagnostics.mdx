@@ -1,0 +1,141 @@
+---
+title: Diagnostics
+description: doctor, the debug HTTP log, the application log, and what to include in a bug report.
+---
+
+# Diagnostics
+
+<div className="ld-lede">
+Every command here exists so a bug report can be answered without a screen share.
+</div>
+
+## labdash doctor
+
+```bash
+labdash doctor
+```
+
+```
+labdash 1.4.2  (2026-07-28, commit a9f3c21, go1.26.5, windows/amd64)
+
+  SETTINGS
+  ✔  found        %LOCALAPPDATA%\labdash\settings.yml
+  ✔  valid        1 instance, 2 repo paths
+
+  CREDENTIAL
+  ✔  present      gitlab.example.com  (keyring: Credential Manager)
+  ✔  scopes       read_api, read_user  → read-only mode
+  ✔  expires      2027-03-14  (181 days)
+
+  INSTANCE
+  ✔  reachable    https://gitlab.example.com/gitlab  (412 ms)
+  ✔  version      GitLab 17.11.3
+  ⚠  filter       "reviewStates" needs GitLab 16.5  → available
+  ⚠  filter       "onMergeTrain" needs Premium  → column stays empty
+
+  TERMINAL
+  ✔  program      Windows Terminal 1.22
+  ✔  colour       truecolor
+  ✔  size         143 × 41
+  ✔  font         Nerd Font glyphs detected
+  ✔  clipboard    OSC 52 supported
+
+  2 warnings, 0 errors.
+```
+
+It never prints a token.
+
+## The debug HTTP log
+
+```bash
+LABDASH_DEBUG_HTTP=1 labdash
+```
+
+Every request and response goes to `<config dir>/http-debug.log`, with `Authorization`, `PRIVATE-TOKEN` and `JOB-TOKEN` redacted before anything reaches the disk.
+
+```
+POST /api/graphql  →  200  1.42s
+  Authorization: Bearer [REDACTED 64 chars]
+  operation: MergeRequestsByGroup
+  variables: {"group":"platform","first":50,"state":"opened"}
+  complexity: 59/250
+  x-request-id: 01JG8K2M5P
+```
+
+The GitLab request id is the most useful line in a report about a self-managed instance, because an administrator can find that exact request in their own logs.
+
+## The application log
+
+`<config dir>/labdash.log`. Structured, rotated, and never written to stdout or stderr.
+
+:::info The log never goes to standard output
+A full-screen terminal application owns the screen. Anything else writing to it corrupts the display, and the corruption gets reported as "the UI randomly breaks", which is nearly impossible to diagnose from a bug report.
+
+Every subprocess labdash spawns has its output sent to `io.Discard` for the same reason.
+:::
+
+```yaml title="settings.yml"
+log:
+  level: info      # error | warn | info | debug
+  maxSizeMB: 10
+  maxFiles: 3
+```
+
+## Crash reports
+
+A panic restores your terminal first, then writes a report and prints its path:
+
+```
+labdash crashed and your terminal has been restored.
+
+  Report written to:
+    %LOCALAPPDATA%\labdash\crash-2026-07-28T11-42-08.log
+
+  Please attach it to an issue at github.com/giancarlosisasi/labdash.
+```
+
+Leaving someone with a broken shell, with no cursor, no echo and the alt-screen still active, is a worse bug than whatever caused the panic. The restore happens before anything else.
+
+The report contains the stack trace, the version and the terminal environment. It contains no credential and no row data, because your merge request titles are not ours to collect.
+
+## Theme preview
+
+```bash
+labdash theme preview
+```
+
+Renders every token, every status glyph and every state at your colour depth with your font, which is the only place the question "does this look right" can be answered.
+
+Use it when reporting anything visual. A screenshot of `theme preview` says more than a paragraph.
+
+## Bug report contents
+
+1. `labdash doctor` output
+2. What you expected, and what happened
+3. For a rendering problem: the terminal name and version, and `theme preview`
+4. For a request problem: the relevant lines from the debug log, including the `x-request-id`
+5. For a settings problem: the relevant block, with names changed
+
+:::danger Change the names first
+A pinned view contains your group and project paths. A debug log contains hostnames. Neither is a credential, and both may still be something your employer would rather you did not paste into a public issue.
+
+Never include a token, even partially. If one reaches a transcript, revoke it.
+:::
+
+## Version and updates
+
+```bash
+labdash --version
+# labdash 1.4.2 (2026-07-28, commit a9f3c21, go1.26.5, windows/amd64)
+# 1.5.0 is available
+```
+
+The update check is one request, cached, and it never blocks startup.
+
+```yaml title="settings.yml"
+updateCheck: false
+```
+
+:::tip Related
+[Troubleshooting](/help/troubleshooting) · [Security](/help/security) · [Terminal support](/help/terminal-support)
+:::

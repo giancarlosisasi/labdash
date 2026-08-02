@@ -1,0 +1,329 @@
+/*
+ * Base typography and chrome.
+ *
+ * The motif borrowed from the tool is the context-bar marker `▍`: one accent
+ * bar that says "you are here". It appears on section headings, on the active
+ * sidebar item, and in the wordmark. Nothing else is decorated.
+ */
+
+html {
+  background-color: var(--ld-bg-base);
+}
+
+body {
+  font-family: var(--ld-font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- Headings: mono, tight, sentence case (§9.3) ------------------------- */
+
+.rspress-doc h1,
+.rspress-doc h2,
+.rspress-doc h3,
+.rspress-doc h4,
+.rspress-doc h5,
+.rspress-doc h6 {
+  font-family: var(--ld-font-mono);
+  letter-spacing: -0.02em;
+  color: var(--ld-text-primary);
+}
+
+.rspress-doc h1 {
+  font-size: 2.05rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.6rem;
+}
+
+/* A section rule with a short accent tick at its left — the same "you are
+   here" marker the TUI's context bar uses, drawn as a background so it cannot
+   affect line layout.
+   Rspress draws its own 1px divider with `h2::before`; that is removed here so
+   the two rules do not stack. */
+.rspress-doc h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-top: 3rem;
+  padding-top: 1.4rem;
+  padding-bottom: 0.35rem;
+  border-top: 1px solid var(--ld-border-faint);
+  border-bottom: none;
+  background-image: linear-gradient(
+    90deg,
+    var(--ld-accent-primary) 0 30px,
+    transparent 30px
+  );
+  background-size: 100% 2px;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+}
+
+.rspress-doc h2::before {
+  content: none;
+}
+
+.rspress-doc h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 2.1rem;
+}
+
+.rspress-doc h4 {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--ld-text-secondary);
+}
+
+/* The page subtitle: the frontmatter description, rendered under the h1. */
+.ld-lede {
+  font-size: 1.06rem;
+  line-height: 1.65;
+  color: var(--ld-text-secondary);
+  margin: 0 0 1.6rem;
+  max-width: 62ch;
+}
+
+/* ---- Prose --------------------------------------------------------------- */
+
+.rspress-doc p,
+.rspress-doc li {
+  color: var(--ld-text-secondary);
+  line-height: 1.72;
+}
+
+.rspress-doc strong {
+  color: var(--ld-text-primary);
+  font-weight: 650;
+}
+
+.rspress-doc a {
+  color: var(--ld-accent-secondary);
+  text-decoration-color: color-mix(
+    in srgb,
+    var(--ld-accent-secondary) 35%,
+    transparent
+  );
+  text-underline-offset: 0.18em;
+}
+
+.rspress-doc a:hover {
+  text-decoration-color: currentcolor;
+}
+
+.rspress-doc hr {
+  border: none;
+  border-top: 1px solid var(--ld-border-faint);
+  margin: 2.5rem 0;
+}
+
+/* ---- Tables: the reference surface, so they get the most care ------------ */
+
+.rspress-doc table {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin: 1.4rem 0;
+  border: 1px solid var(--ld-border-faint);
+  border-radius: var(--ld-radius-sm);
+  overflow: hidden;
+}
+
+.rspress-doc thead {
+  background: var(--ld-bg-surface);
+}
+
+.rspress-doc th {
+  font-family: var(--ld-font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase; /* §4 — uppercase for column headers only */
+  color: var(--ld-text-muted);
+  text-align: left;
+  padding: 0.6rem 0.85rem;
+  border-bottom: 1px solid var(--ld-border-default);
+}
+
+.rspress-doc td {
+  padding: 0.6rem 0.85rem;
+  border-top: 1px solid var(--ld-border-faint);
+  color: var(--ld-text-secondary);
+  vertical-align: top;
+}
+
+.rspress-doc tr:nth-child(even) {
+  background: transparent; /* no zebra — separators carry the rhythm */
+}
+
+.rspress-doc td:first-child {
+  color: var(--ld-text-primary);
+}
+
+/* Tables must scroll inside their own box, never the page. */
+.rspress-doc .ld-table-scroll,
+.rspress-doc table {
+  overflow-x: auto;
+}
+
+/* ---- Code ---------------------------------------------------------------- */
+
+.rspress-doc code {
+  font-family: var(--ld-font-mono);
+  font-size: 0.86em;
+}
+
+.rspress-doc :not(pre) > code {
+  border-radius: var(--ld-radius-sm);
+  padding: 0.1em 0.36em;
+}
+
+.rp-codeblock,
+.rspress-doc pre {
+  border-radius: var(--ld-radius-sm);
+}
+
+.rp-codeblock__title,
+.rspress-doc .rspress-code-title {
+  font-family: var(--ld-font-mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.02em;
+  color: var(--ld-text-muted);
+  border-bottom: 1px solid var(--ld-border-faint);
+}
+
+/* ---- Directive containers — four are permitted (§5.4) -------------------- */
+
+.rspress-directive {
+  border-radius: var(--ld-radius-sm);
+  border-width: 1px;
+  border-left-width: 3px;
+  font-size: 0.93rem;
+}
+
+.rspress-directive .rspress-directive-title {
+  font-family: var(--ld-font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.rspress-directive.tip {
+  --rp-c-brand: var(--ld-status-success);
+  background: var(--ld-success-tint);
+  border-color: var(--ld-status-success);
+}
+
+.rspress-directive.info {
+  background: var(--ld-secondary-tint);
+  border-color: var(--ld-accent-secondary);
+}
+
+.rspress-directive.info .rspress-directive-title {
+  color: var(--ld-accent-secondary);
+}
+
+.rspress-directive.warning {
+  background: var(--ld-warning-tint);
+  border-color: var(--ld-status-warning);
+}
+
+.rspress-directive.warning .rspress-directive-title {
+  color: var(--ld-status-warning);
+}
+
+.rspress-directive.danger {
+  background: var(--ld-error-tint);
+  border-color: var(--ld-status-error);
+}
+
+.rspress-directive.danger .rspress-directive-title {
+  color: var(--ld-status-error);
+}
+
+.rspress-directive.tip .rspress-directive-title {
+  color: var(--ld-status-success);
+}
+
+/* ---- Nav bar: the site's context bar ------------------------------------- */
+
+.rp-nav {
+  border-bottom: 1px solid var(--ld-border-faint);
+  background: color-mix(in srgb, var(--ld-bg-base) 88%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.rp-nav-menu__item,
+.rp-nav a {
+  font-family: var(--ld-font-mono);
+  font-size: 0.86rem;
+  letter-spacing: -0.01em;
+}
+
+/* ---- Sidebar ------------------------------------------------------------- */
+
+.rspress-sidebar {
+  border-right: 1px solid var(--ld-border-faint);
+  background: var(--ld-bg-base);
+}
+
+.rspress-sidebar-item,
+.rspress-sidebar-collapse,
+.rspress-sidebar-section-header {
+  font-family: var(--ld-font-mono);
+  font-size: 0.82rem;
+}
+
+.rspress-sidebar-section-header {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.68rem;
+  color: var(--ld-text-muted);
+}
+
+.rspress-sidebar-item:hover {
+  background: var(--ld-bg-surface);
+}
+
+/* The active item wears the same marker the TUI uses for the active view. */
+.rspress-sidebar-item.rspress-sidebar-item-active,
+.rspress-sidebar-item[class*='menu-item-active'] {
+  background: var(--ld-accent-tint);
+  border-left: 2px solid var(--ld-accent-primary);
+  border-radius: 0 var(--ld-radius-sm) var(--ld-radius-sm) 0;
+}
+
+/* ---- Outline (right-hand TOC) -------------------------------------------- */
+
+.rspress-doc-outline {
+  font-family: var(--ld-font-mono);
+  font-size: 0.78rem;
+}
+
+/* ---- Footer -------------------------------------------------------------- */
+
+.rp-doc-footer,
+footer {
+  border-top: 1px solid var(--ld-border-faint);
+}
+
+/* ---- Search -------------------------------------------------------------- */
+
+.rspress-search-panel,
+.rp-search {
+  font-family: var(--ld-font-mono);
+}
+
+/* ---- Reduced motion (ACC-06 applies here too) ---------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

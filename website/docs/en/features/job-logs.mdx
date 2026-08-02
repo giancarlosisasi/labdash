@@ -1,0 +1,69 @@
+---
+title: Job logs
+description: The full job trace, folded by default, with live follow, search, and one key from a failed pipeline to the error.
+---
+
+# Job logs
+
+<div className="ld-lede">
+The trace viewer shows a job's complete log, folded into the sections GitLab marks in it, with line numbers, search, and live follow while the job runs.
+</div>
+
+## What you see
+
+**Full screen.** The trace viewer is the one screen that takes the whole frame from the dashboard, because a log needs every column it can get.
+
+**Folded by default.** GitLab emits section markers in its traces and labdash folds on them, so a 40,000-line log opens as about twelve headings with their durations. <Keys>z</Keys> folds and unfolds one, <Keys>Z</Keys> does all of them.
+
+**Line numbers, always on.** The header carries the current line and the total, so a line you paste into an issue has a number attached to it.
+
+**ANSI colour, contained.** GitLab traces carry real ANSI escapes. labdash renders them and stops them from repainting the frame around the log.
+
+**`follow` as a visible state.** It shows in the header. Scrolling up releases it and <Keys>w</Keys> re-engages it, so the view is never moving or still for a reason you cannot see.
+
+## Opening a log
+
+<Keys>L</Keys> from a failed pipeline row lands on the first failing job's log, already scrolled to the error. It does not open at line 1, and it does not stop at a job list first.
+
+<Keys>L</Keys> works the same way from a merge request row, where it opens the failing job of that merge request's head pipeline.
+
+## What you can do
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>w</Keys></td><td>follow a running job</td><td><Keys>/</Keys></td><td>search</td></tr>
+<tr><td><Keys>z</Keys> <Keys>Z</Keys></td><td>fold one section, fold all</td><td><Keys>n</Keys> <Keys>N</Keys></td><td>next and previous match</td></tr>
+<tr><td><Keys>y</Keys></td><td>copy to the clipboard</td><td><Keys>g</Keys> <Keys>G</Keys></td><td>first line, last line</td></tr>
+<tr><td><Keys>S</Keys></td><td>save to a file</td><td><Keys>R</Keys></td><td>retry this job</td></tr>
+<tr><td><Keys>Esc</Keys></td><td>back to the pipeline</td><td><Keys>Ctrl+d</Keys> <Keys>Ctrl+u</Keys></td><td>page down and up</td></tr>
+</tbody>
+</table>
+
+<Keys>y</Keys> works over SSH and inside tmux through OSC 52, with no clipboard helper installed. <Keys>S</Keys> writes the raw trace to a file, which is what a bug report wants.
+
+## Live follow
+
+Following a running job polls the trace incrementally and appends the new lines. Polling stops when the job reaches a terminal state, so a finished job leaves no poller behind it.
+
+## The trace source
+
+GitLab's GraphQL `CiJobTrace` type exposes one field, `htmlSummary`, and it is a truncated tail. labdash reads the full log from REST instead, `GET /projects/:id/jobs/:job_id/trace`, so every line the runner produced is there to fold, search, copy and save.
+
+## The job list
+
+The pipeline preview lists every job in the selected pipeline, ordered by stage, with status, duration, allow-failure marking, runner and tags. From there:
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>R</Keys></td><td>retry this job only</td><td><Keys>m</Keys></td><td>play a manual job, such as a deploy gate</td></tr>
+<tr><td><Keys>x</Keys></td><td>cancel this job, or unschedule a delayed one</td><td><Keys>L</Keys></td><td>its full trace</td></tr>
+</tbody>
+</table>
+
+Each job row also names the runner that took it, which is the first thing to check when a job is slow.
+
+:::tip Related
+[Failure summary](/features/failure-summary) · [Pipelines](/features/pipelines) · [Watch and notify](/features/watch-and-notify)
+:::

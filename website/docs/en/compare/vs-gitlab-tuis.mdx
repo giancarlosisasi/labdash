@@ -1,0 +1,65 @@
+---
+title: Other GitLab TUIs
+description: What each GitLab terminal project does, and the job it is the right tool for.
+---
+
+# Other GitLab TUIs
+
+<div className="ld-lede">
+Several GitLab terminal applications exist. They divide up by the unit they work in: one repository, one pipeline, or a queue across everything.
+</div>
+
+## rcieri/glab-tui
+
+[github.com/rcieri/glab-tui](https://github.com/rcieri/glab-tui). Rust, built on ratatui and tokio, released weekly.
+
+The most complete repository browser in the space. Inside one project it covers issues and merge requests including create, edit and bulk edit, code review with inline comments and suggestions, side-by-side diffs, pipelines with job retry and cancel, live trace streaming, runners, releases, milestones, branches and environments. It handles GitHub as well as GitLab, ships through Homebrew, Scoop, Cargo and Docker, and carries 13 themes, a `config.toml` and remappable keys. It reaches both forges by running `glab` and `gh` as subprocesses.
+
+**Right tool for:** reading and reviewing code inside one project, in the terminal.
+
+## junkdog/glim
+
+[github.com/junkdog/glim](https://github.com/junkdog/glim). Rust and ratatui. A focused, read-only pipeline monitor.
+
+**Right tool for:** watching CI with a credential that has no write access.
+
+## apoclyps/reviews
+
+[github.com/apoclyps/reviews](https://github.com/apoclyps/reviews). Python. A review-queue dashboard covering GitHub and GitLab together.
+
+**Right tool for:** one review list spanning both forges.
+
+## firecow/gitlab-ci-local
+
+[github.com/firecow/gitlab-ci-local](https://github.com/firecow/gitlab-ci-local). Runs a `.gitlab-ci.yml` on your own machine, resolving `include` and `extends` as GitLab would.
+
+**Right tool for:** testing a pipeline change before pushing it.
+
+## Smaller projects
+
+| Project | Language | Covers |
+| --- | --- | --- |
+| [rkristelijn/glab-tui](https://github.com/rkristelijn/glab-tui) | Go, Bubble Tea | Pipelines, jobs, logs and merge requests |
+| [arvindell/glab-overseer](https://github.com/arvindell/glab-overseer) | Go | A pipeline watcher with live logs |
+| [nospor/gitlab-tui](https://github.com/nospor/gitlab-tui) | Go | Merge requests, pipelines, issues |
+| [felipeospina21/mrglab](https://github.com/felipeospina21/mrglab) | Go | Merge requests |
+| [ragamo/lazyglab](https://github.com/ragamo/lazyglab) | Rust | Merge requests and pipeline status |
+| [niklastreml/gitlab-tui](https://github.com/niklastreml/gitlab-tui) | Rust | Issues and merge requests for the current repository. Unmaintained since 2023 |
+| [nbedos/cistern](https://github.com/nbedos/cistern) | Go | A multi-CI pipeline viewer including GitLab. Unmaintained since 2020 |
+
+## glab ci view
+
+GitLab's own CLI ships an interactive single-pipeline view, `glab ci view`, and a log follower, `glab ci trace`. Both are worth knowing about before reaching for a separate tool. See [labdash and glab](/compare/vs-glab).
+
+## Where labdash fits
+
+labdash works a level above a repository: merge requests, pipelines, jobs and to-dos from every project and group you have access to, in one table, reached by [browsing](/features/browse) the group tree rather than opening a project. It shows no file diffs and no inline code review.
+
+<Cards>
+  <Card title="Depth in one repository" href="https://github.com/rcieri/glab-tui">
+    Diffs, inline review comments, issues, releases and runners for the project you are standing in.
+  </Card>
+  <Card title="The queue across projects" href="/guide/">
+    What is waiting on your review, and what is red in your group, from every project at once.
+  </Card>
+</Cards>

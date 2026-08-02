@@ -1,0 +1,142 @@
+---
+title: Tour
+description: The five regions of the screen, how to read a row, the keys, and what the layout does as the terminal narrows.
+---
+
+# Tour
+
+<div className="ld-lede">
+The interface is five regions and four rows of chrome. Everything else on screen is data.
+</div>
+
+<Shot
+  id="tour-annotated"
+  alt="The full dashboard with its five regions labelled: the context bar across the top, the row of section tabs beneath it, the table filling the middle, the preview pane on the right, and the footer along the bottom."
+/>
+
+## The five regions
+
+| # | Region | Rows | What it owns |
+| --- | --- | --- | --- |
+| 1 | **Context bar** | 1 | The active view, the instance and user, how long since the last refresh, remaining rate limit, and any `offline` or `read-only` badge |
+| 2 | **Tabs** | 1 | Home, then every view you pinned, with row counts, scrolling horizontally when there are more than fit |
+| 3 | **Table** | flex | The data |
+| 4 | **Preview pane** | flex | Detail of the selected row |
+| 5 | **Footer** | 1 | The running task on the left, the keys available right now on the right |
+
+Chrome costs four rows out of thirty-two, which is why no logo sits permanently in the header. A sixth region is usually zero rows tall: the filter bar, which appears while you are searching or editing a filter.
+
+## Reading a row
+
+```
+ →  Add retry budget to the i…  ingest        @dana   2/2  ✔  ready      2h
+ │  │                           │             │       │    │  │           │
+ │  │                           │             │       │    │  │           └─ updated, relative
+ │  │                           │             │       │    │  └───────────── why it cannot merge
+ │  │                           │             │       │    └──────────────── head pipeline
+ │  │                           │             │       └───────────────────── approvals: have / need
+ │  │                           │             └───────────────────────────── author
+ │  │                           └─────────────────────────────────────────── project
+ │  └─────────────────────────────────────────────────────────────────────── title
+ └────────────────────────────────────────────────────────────────────────── selection marker
+```
+
+A pipeline row reads the same way, with the same keys: project, ref, pipeline number, duration, failure reason, and how long ago.
+
+```
+ →  ✖ gateway  main             #88231   4m 02s  script_failure          2m
+```
+
+The leftmost column carries a marker rather than a column of its own:
+
+| Marker | Meaning |
+| --- | --- |
+| `→` | the selected row |
+| `▲` | draft |
+| `✱` | changed since the last refresh |
+| `▣` | multi-selected |
+
+**`title`, `blockers` and `pipeline` never drop**, however narrow the terminal is. Every other column drops in a fixed priority order as the window shrinks.
+
+## Browse, filter, pin
+
+You start on [Home](/features/home), which needs none of these three keys. They cover the questions Home does not answer: a team's queue, a release branch, a group's CI.
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Does</th></tr></thead>
+<tbody>
+<tr><td><Keys>b</Keys></td><td><strong><a href="/features/browse">Browse</a></strong> your whole GitLab tree, most-used groups first. <Keys>Enter</Keys> scopes the dashboard to whatever you highlight, and the scope survives a view switch.</td></tr>
+<tr><td><Keys>f</Keys></td><td><strong><a href="/features/filtering">Filter</a></strong> by state, draft, labels, authors, reviewers, approvals and dates. Values complete from your own instance, and a value GitLab would reject is rejected at the keystroke.</td></tr>
+<tr><td><Keys>P</Keys></td><td><strong><a href="/features/pinned-views">Pin</a></strong> the scope and filter on screen as a tab. Name it in one prompt, and it is still there tomorrow.</td></tr>
+</tbody>
+</table>
+
+## Common keys
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Does</th><th>Key</th><th>Does</th></tr></thead>
+<tbody>
+<tr><td><Keys>j</Keys> <Keys>k</Keys></td><td>move down and up</td><td><Keys>r</Keys></td><td>refresh this section</td></tr>
+<tr><td><Keys>h</Keys> <Keys>l</Keys></td><td>previous and next section</td><td><Keys>Tab</Keys></td><td>next view</td></tr>
+<tr><td><Keys>/</Keys></td><td>search the loaded rows</td><td><Keys>p</Keys></td><td>show or hide the preview</td></tr>
+<tr><td><Keys>o</Keys></td><td>open in the browser</td><td><Keys>L</Keys></td><td>logs of the failing job</td></tr>
+<tr><td><Keys>?</Keys></td><td>every key, grouped</td><td><Keys>q</Keys></td><td>quit</td></tr>
+</tbody>
+</table>
+
+Arrow keys, <Keys>Enter</Keys> and <Keys>Esc</Keys> do everything the vim keys do. Both vocabularies are complete, so nobody is locked out for not knowing vim and nobody who knows vim has to reach for an arrow key.
+
+<Keys>/</Keys> and <Keys>f</Keys> are different jobs. <Keys>/</Keys> narrows what is already on screen and issues no request. <Keys>f</Keys> changes what labdash asks GitLab for.
+
+## Key conventions
+
+**Lowercase acts on the row, uppercase escalates or reverses it.** <Keys>x</Keys> closes and <Keys>X</Keys> reopens. <Keys>d</Keys> marks one to-do done and <Keys>D</Keys> marks all of them. <Keys>r</Keys> refreshes this section and <Keys>Ctrl+R</Keys> refreshes everything.
+
+**A key means the same verb in every view.** <Keys>R</Keys> retries. <Keys>x</Keys> stops. <Keys>m</Keys> makes it go, merging a merge request or playing a manual job. <Keys>L</Keys> shows logs.
+
+Two behaviours worth knowing before they surprise you:
+
+- **<Keys>Esc</Keys> never quits, and <Keys>q</Keys> never goes back.** `Esc` moves back exactly one level. On a dashboard it clears a search or a selection, and with nothing to clear it does nothing. It will not throw away a half-typed comment without asking.
+- **There are no timed key sequences.** A chord is `Ctrl`-prefixed and instant. A `g`-then-`g` with a timeout produces mystery input on a slow SSH link, so labdash has none.
+
+## The help overlay
+
+<Shot
+  id="tour-preview"
+  alt="A help overlay covering the dashboard, listing keys in groups: universal keys, vim navigation, merge request actions, pipeline actions, and the keys the current view adds."
+/>
+
+<Keys>?</Keys> opens the overlay, generated from the same keymap the application runs on. The [keyboard cheatsheet](/keys/) on this site comes from that keymap too, with `labdash keys --markdown`, so the two cannot drift.
+
+## Terminal width
+
+The layout has real breakpoints, and each one is a window somebody works in.
+
+| Columns | Layout | Preview | Columns shown |
+| --- | --- | --- | --- |
+| under 56 | A notice with the current and required width | none | none |
+| 56–79 | One pane, two-line rows, tabs collapse to `‹ 2/5 Needs My Review ›` | full-screen on <Keys>Enter</Keys> | title, blocker, CI |
+| 80–119 | One pane, one-line rows | **bottom**, 40% | + approvals, project, updated |
+| 120–159 | Split | **right**, 38% | + author, labels |
+| 160 and up | Split | **right**, 34% | + diff size, threads, branch |
+
+The preview sits at the bottom below 120 columns and on the right at or above it. A right-hand pane on a 90-column terminal squeezes the table into uselessness.
+
+<Shot
+  id="tour-narrow"
+  alt="The same dashboard at 96 columns. The preview has moved below the table, the author and labels columns have dropped, and a read-only badge sits in the context bar."
+  caption="The same screen at 96 columns. The preview moved to the bottom, two columns dropped, and title, blocker and CI stayed."
+/>
+
+## Navigation depth
+
+```
+dashboard → pipeline detail → job trace      the deepest legitimate path
+dashboard → MR detail       → thread         the other one
+```
+
+Nothing goes deeper than three levels. Reading code at the fourth level belongs in the browser or your editor, one <Keys>o</Keys> away.
+
+:::tip Next
+[Browse your GitLab](/features/browse), filter it, and pin the result.
+:::

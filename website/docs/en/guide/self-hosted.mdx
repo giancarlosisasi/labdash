@@ -1,0 +1,143 @@
+---
+title: Self-managed GitLab
+description: Personal access tokens, an OAuth application, private CAs, client certificates, proxies, subfolder installs and custom headers, configured per instance.
+---
+
+# Self-managed GitLab
+
+<div className="ld-lede">
+Every connection detail labdash needs for a self-managed instance is a per-instance key in the settings file: the host, the API host, a subfolder, TLS material, a proxy, and custom headers.
+</div>
+
+## Personal access tokens
+
+On a self-managed instance a personal access token is the recommended path. OAuth needs an application registered on that instance, and the gitlab.com application id means nothing on `gitlab.example.com`.
+
+A token also lasts longer: up to 365 days, against two hours for an OAuth access token.
+
+```bash
+labdash auth login --hostname gitlab.example.com --with-token
+```
+
+Create the token at `https://gitlab.example.com/-/user_settings/personal_access_tokens` with the `api` scope, or `read_api` for [read-only mode](/guide/read-only).
+
+## Registering an OAuth application
+
+If an administrator registers an application, OAuth works and renews itself. The form is at `https://gitlab.example.com/-/user_settings/applications`, or the instance-wide equivalent.
+
+| Field | Value | Why |
+| --- | --- | --- |
+| Name | `labdash` | Shown on the consent screen |
+| Redirect URI | `http://localhost:7171/auth/redirect` | Only the browser fallback uses it, and `--web` fails without it. Port 7171 matches `glab`'s, so an administrator who registered that reuses the value |
+| Confidential | unchecked | A CLI binary is a public client. It cannot keep a secret, so it must not be issued one |
+| Device authorization grant | checked | The load-bearing box. Unchecked, every login falls back to the browser flow |
+| Scopes | `api`, `read_api`, `read_user` | The maximum a login may request, not what it grants |
+
+Name the application in your settings, then log in:
+
+```yaml title="settings.yml"
+instances:
+  gitlab.example.com:
+    clientId: <the application id>
+```
+
+:::info Minimum version for the device flow
+GitLab 17.9, where the device authorization grant became generally available. Below that, labdash falls back to the loopback browser flow automatically, or you use a token.
+:::
+
+## Transport settings
+
+Every key below is per instance.
+
+```yaml title="settings.yml"
+defaultHost: gitlab.example.com
+
+instances:
+  gitlab.example.com:
+    # Authentication
+    clientId: <application id>       # OAuth application registered on this instance
+    tokenEnv: GITLAB_WORK_TOKEN      # or skip OAuth: name a variable holding a PAT
+
+    # Where the API lives
+    apiHost: api.example.com         # only if the API is on a different hostname
+    apiProtocol: https
+    subfolder: gitlab                # only if GitLab is not at the domain root
+
+    # TLS
+    caCert: /etc/ssl/corp-root.pem
+    clientCert: /etc/ssl/client.pem
+    clientKey: /etc/ssl/client-key.pem
+    insecureSkipVerify: false
+
+    # Network
+    proxy: http://proxy.internal:3128
+    customHeaders:
+      - name: Cf-Access-Client-Secret
+        valueFromEnv: CF_ACCESS_SECRET
+
+repoPaths:
+  platform/*: ~/code/platform/*
+```
+
+A host with no entry still works and gets the defaults, which is correct for gitlab.com. `HTTPS_PROXY` and `NO_PROXY` from the environment are honoured, and an explicit `proxy:` overrides them. Each instance gets its own HTTP client, with its own CA pool, its own client certificate, its own proxy and its own concurrency budget, so one unreachable instance degrades only its own rows.
+
+`repoPaths` maps a project path to a directory on disk, with glob support, which is what [local git integration](/features/local-git) uses to find your clones.
+
+Field-by-field reference: [instances](/settings/instances).
+
+## Subfolder installs
+
+If GitLab lives at `https://example.com/gitlab/` rather than at a domain root, set `subfolder: gitlab`. Every URL labdash builds then includes it: the GraphQL endpoint, the REST endpoint, and the OAuth endpoints.
+
+```
+https://api.example.com/gitlab/api/graphql
+```
+
+OAuth endpoints hang off the web host rather than `apiHost`. Only the API is ever proxied elsewhere.
+
+## Custom headers
+
+`valueFromEnv` reads the value at runtime from the named environment variable. The secret never enters the settings file, so the file stays safe to commit or to share with a colleague.
+
+## Tokens from the environment
+
+The cleanest multi-instance setup puts no credential on disk at all:
+
+```yaml title="settings.yml"
+instances:
+  gitlab.example.com:
+    tokenEnv: GITLAB_WORK_TOKEN
+  gitlab.com:
+    tokenEnv: GITLAB_OSS_TOKEN
+```
+
+An instance's `tokenEnv` is the most explicit signal available, so it wins over a credential labdash stored itself.
+
+:::warning `GITLAB_TOKEN` applies to the default host only
+`GITLAB_TOKEN`, `GITLAB_ACCESS_TOKEN` and `OAUTH_TOKEN` are not host-scoped. Applying them to a named host would send one instance's token to another, so labdash does not. For a named host, use that instance's `tokenEnv`.
+:::
+
+## Instance versions
+
+gitlab.com runs a pre-release version and a self-managed instance usually runs behind it, so a field available there may not exist for you. labdash reads the version from `GET /version` when it connects, and drops the columns it cannot fill. The affected column degrades and the section keeps working.
+
+## Diagnostics
+
+```bash
+labdash auth status --hostname gitlab.example.com
+labdash doctor
+```
+
+`doctor` reports whether the settings file was found and parsed, whether the credential is present and unexpired, whether the instance is reachable, the GitLab version, the terminal's capabilities and font support. That is one command, and one paste into a bug report.
+
+For request-level detail:
+
+```bash
+LABDASH_DEBUG_HTTP=1 labdash
+```
+
+Requests go to a file with `Authorization`, `PRIVATE-TOKEN` and `JOB-TOKEN` redacted before anything is written. See [diagnostics](/help/diagnostics).
+
+:::tip Related
+[Corporate proxy](/recipes/corporate-proxy) · [Two GitLabs in one dashboard](/recipes/two-gitlabs) · [Security](/help/security)
+:::

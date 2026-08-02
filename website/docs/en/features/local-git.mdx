@@ -1,0 +1,72 @@
+---
+title: Local git
+description: Check out a merge request's branch in your own clone, create a worktree for it, or open the project in your editor.
+---
+
+# Local git
+
+<div className="ld-lede">
+labdash maps GitLab projects to the clones on your disk, so a merge request row becomes a checked-out branch, a worktree, or an editor window without you retyping a branch name.
+</div>
+
+## Where your clones are
+
+```yaml title="settings.yml"
+repoPaths:
+  platform/*: ~/work/platform/*
+  ops/runner: ~/work/infra/runner
+  "*": ~/src/*
+```
+
+Globs work on both sides. The first pattern that matches wins, so a specific mapping sits above a catch-all.
+
+Without a mapping, labdash still detects the repository you launched it inside, and it still resolves a git remote to a GitLab project: SSH and HTTPS remotes, self-managed hosts, subfolder installs, and which instance the host belongs to. What it cannot do is check out a merge request from a project you have not told it where to find.
+
+## Checkout
+
+<Keys>C</Keys> fetches the merge request's source branch and switches to it, in the mapped clone.
+
+```
+✔ platform/ingest → feat/retry-budget (fetched, switched)
+```
+
+:::danger A dirty working tree stops the checkout
+If the target clone has uncommitted changes, labdash stops and says so:
+
+```
+Cannot check out feat/retry-budget. ~/work/platform/ingest has
+uncommitted changes in 3 files. Commit, stash, or use W for a worktree.
+```
+:::
+
+## Worktrees
+
+<Keys>W</Keys> creates a git worktree instead of switching branches:
+
+```
+✔ platform/ingest → ~/work/platform/ingest.worktrees/feat-retry-budget
+```
+
+The worktree sits beside the clone, in a directory named after the branch. Your current branch, your build cache and your running dev server stay where they were.
+
+## Opening the code
+
+<Keys>O</Keys> opens the mapped clone in `$EDITOR`. <Keys>o</Keys> opens the merge request in your browser.
+
+Every subprocess labdash starts, the editor and the browser opener included, has its stdout and stderr discarded, so nothing they print can corrupt the frame.
+
+## Repository scope
+
+<Keys>Ctrl+G</Keys> scopes every view to the repository you are standing in, and toggles back out again. Launching labdash inside a clone also starts the [browse](/features/browse) tree at that repository's group, so you begin where you already are.
+
+## Local divergence
+
+When a merge request maps to a clone you have, the preview pane says how far your local branch has fallen behind the source branch. You see that before you start reviewing, rather than after a confusing diff.
+
+## Creating a merge request
+
+<Keys>Ctrl+N</Keys> opens a merge request from the branch you are standing on. It pushes the branch when it has no upstream, prefills the title from the last commit, and asks for a target branch, a description and reviewers.
+
+:::tip Related
+[Merge requests](/features/merge-requests) · [Settings](/settings/) · [Pinned views](/features/pinned-views)
+:::

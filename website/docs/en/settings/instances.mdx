@@ -1,0 +1,163 @@
+---
+title: Instances
+description: Every per-instance key for authentication, endpoints, TLS, proxy and headers.
+---
+
+# Instances
+
+<div className="ld-lede">
+An instance entry tells labdash which GitLab to talk to and how to reach it. A host with no entry gets the defaults, which are correct for gitlab.com.
+</div>
+
+```yaml title="settings.yml"
+defaultHost: gitlab.example.com
+
+instances:
+  gitlab.example.com:
+    clientId: <application id>
+    tokenEnv: GITLAB_WORK_TOKEN
+    apiHost: api.example.com
+    apiProtocol: https
+    subfolder: gitlab
+    caCert: /etc/ssl/corp-root.pem
+    clientCert: /etc/ssl/client.pem
+    clientKey: /etc/ssl/client-key.pem
+    insecureSkipVerify: false
+    proxy: http://proxy.internal:3128
+    customHeaders:
+      - name: Cf-Access-Client-Secret
+        valueFromEnv: CF_ACCESS_SECRET
+
+  gitlab.com:
+    tokenEnv: GITLAB_OSS_TOKEN
+```
+
+You need an entry only when something about the instance is not standard.
+
+:::danger This file holds no secrets
+Credentials live in the OS keyring, or in `credentials.json` at mode `0600` where no keyring exists. `tokenEnv` names an **environment variable**, it does not hold a token.
+
+An inline `token:` key exists and is documented, and it stays discouraged. See [security](/help/security).
+:::
+
+## Every key
+
+### Authentication
+
+| Key | Type | What it does |
+| --- | --- | --- |
+| `clientId` | string | The OAuth **Application ID** registered on *this* instance. GitLab's UI calls it "Application ID"; the OAuth spec calls it `client_id`. Same value |
+| `tokenEnv` | string | Names an environment variable holding a personal access token. **The highest-precedence credential source** |
+| `token` | string | An inline token. Documented, discouraged |
+
+### Endpoints
+
+| Key | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `apiHost` | string | the instance host | Only when the API is served from a different hostname |
+| `apiProtocol` | enum | `https` | `https` or `http` |
+| `subfolder` | string | none | When GitLab is not at the domain root |
+
+`subfolder` applies to every URL labdash builds: GraphQL, REST, and OAuth.
+
+```yaml
+    subfolder: gitlab
+    apiHost: api.example.com
+    # → https://api.example.com/gitlab/api/graphql
+```
+
+:::warning OAuth endpoints hang off the web host, not `apiHost`
+Only the API is ever proxied elsewhere. An OAuth refresh sent to `apiHost` fails in a way that looks like an expired token.
+:::
+
+### TLS
+
+| Key | Type | What it does |
+| --- | --- | --- |
+| `caCert` | path | A PEM bundle for a private certificate authority |
+| `clientCert` | path | Client certificate, for mutual TLS |
+| `clientKey` | path | Its private key |
+| `insecureSkipVerify` | bool | Disables verification entirely |
+
+:::danger `insecureSkipVerify: true` turns off certificate verification
+It makes the connection interceptable by anything on the path. Use `caCert` instead: adding your organisation's root certificate keeps verification on and solves the same problem properly.
+
+It exists for one case. Proving that a connection failure is a certificate problem and not something else, for five minutes, on a machine you control.
+:::
+
+### Network
+
+| Key | Type | What it does |
+| --- | --- | --- |
+| `proxy` | url | An HTTP or SOCKS5 proxy for this instance |
+| `customHeaders` | list | Extra headers on every request |
+
+```yaml
+    customHeaders:
+      - name: Cf-Access-Client-Id
+        valueFromEnv: CF_ACCESS_ID
+      - name: Cf-Access-Client-Secret
+        valueFromEnv: CF_ACCESS_SECRET
+      - name: X-Team
+        value: platform
+```
+
+`valueFromEnv` reads at runtime; `value` is literal. **Use `valueFromEnv` for anything secret** so the settings file stays safe to commit and share.
+
+### Clone paths
+
+```yaml
+repoPaths:
+  platform/*: ~/code/platform/*
+  gitlab.example.com/tools/cli: ~/src/cli
+```
+
+`repoPaths` maps a project path to a directory on disk, so labdash can check out a branch, open a worktree, or open your editor on the right repository. Nothing in the API knows your filesystem, which is why this one is written down. See [local git](/features/local-git).
+
+## One HTTP client per instance
+
+Each instance gets its own `*http.Client`, with its own certificate authority pool, its own client certificate, its own proxy, its own headers, and **its own concurrency budget**.
+
+The budget matters for self-managed. Six tabs must not open six simultaneous connections against a small box that also serves your CI. The cap is per instance, so a busy set of gitlab.com tabs cannot starve your work instance or the other way round.
+
+## Credential resolution
+
+Per instance, most specific first:
+
+1. **That instance's `tokenEnv`.** The most explicit signal available, so it beats even a credential labdash minted.
+2. **`GITLAB_TOKEN` / `GITLAB_ACCESS_TOKEN` / `OAUTH_TOKEN`**, on the default host only.
+3. **The credential store**: keyring, then file.
+
+**There is no fourth step.**
+
+:::warning Why the environment variables are default-host only
+They are not host-scoped. Applying `GITLAB_TOKEN` to every configured instance would send your work token to gitlab.com, or the reverse. For a named host, use that instance's `tokenEnv`.
+:::
+
+Only step 3 produces a credential labdash can renew, because it is the only one labdash minted and holds a refresh token for.
+
+## Version differences
+
+labdash asks each instance which version it runs, and hides the columns that version cannot fill. gitlab.com runs ahead of most self-managed installations.
+
+When a field is unavailable on an instance, **that column degrades and the tab keeps working**. An instance below the supported floor gets a message naming its version rather than a schema error.
+
+## Several instances at once
+
+```yaml title="settings.yml"
+defaultHost: gitlab.example.com
+
+instances:
+  gitlab.example.com:
+    tokenEnv: GITLAB_WORK_TOKEN
+    caCert: /etc/ssl/corp-root.pem
+    proxy: http://proxy.internal:3128
+  gitlab.com:
+    tokenEnv: GITLAB_OSS_TOKEN
+```
+
+Each configured instance is a root in the browse tree, and a view pinned beneath one remembers which instance it came from. <Keys>Ctrl+T</Keys> switches between them. See [multiple instances](/features/multi-instance).
+
+:::tip Related
+[Self-managed GitLab](/guide/self-hosted) · [The corporate proxy recipe](/recipes/corporate-proxy) · [Security](/help/security)
+:::

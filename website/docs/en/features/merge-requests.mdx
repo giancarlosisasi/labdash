@@ -1,0 +1,93 @@
+---
+title: Merge requests
+description: Every merge request in the current scope, in one table, with approvals, pipeline status, diff size, and the reason it cannot merge.
+---
+
+# Merge requests
+
+<div className="ld-lede">
+A merge request view is a scope plus a filter, rendered as a table. The scope comes from [browsing](/features/browse), the filter from [the filter bar](/features/filtering), and every column in the table arrives in the same query as the rows.
+</div>
+
+<Shot
+  id="mr-group-section"
+  alt="A merge request dashboard with five section tabs and a preview pane showing the selected merge request's branches, approvals, head pipeline, description, thread count and diff size."
+  caption="Five sections, five queries, all issued at once. The preview pane fetches its extra detail only for the selected row."
+/>
+
+## Scope
+
+Three scopes cover the ways people look for merge requests, and you reach all three from the browse tree:
+
+- **Your own work**, instance-wide, already on [Home](/features/home).
+- **A group**, including every subgroup beneath it, in one round trip.
+- **A project**, when the question is about one repository.
+
+A group scope uses `Group.mergeRequests(includeSubgroups: true)`, so a nested tree of projects costs one wait rather than one wait per project.
+
+## Columns
+
+`title`, `blockers` and `pipeline` are drawn at every width. The rest have a priority and a minimum width, and drop in a fixed order as the terminal narrows. Draft is a `▲` marker in the leftmost cell and a filter, rather than a column of its own.
+
+| Column | What it shows | Drops at |
+| --- | --- | --- |
+| title | The title, truncated with `…` rather than hard-clipped | never |
+| [blockers](/features/why-it-cant-merge) | Why it cannot merge, in words, including `train 3/7` for a [merge train](/features/merge-trains) | never |
+| pipeline | The head pipeline's status, returned with the merge request | never |
+| approvals | `2/2`, how many approvals it has against how many it needs | < 60 |
+| project | Which repository the merge request is in | < 68 |
+| updated | Relative by default, absolute in the preview | < 76 |
+| author | Who wrote it | < 90 |
+| labels | GitLab's own label colours, with a `+n` overflow | < 110 |
+| diff | `+412 −38`, so review cost is visible from the row | < 124 |
+| threads | Total comments, and unresolved threads separately | < 136 |
+| branch | Source and target branch | < 150 |
+| instance | Which GitLab a row came from, in a mixed-instance table | mixed-instance tables only |
+
+Widths are in terminal columns. Under 80 columns the preview pane hides itself as well.
+
+## The preview pane
+
+<Keys>Enter</Keys> focuses the preview and <Keys>p</Keys> hides it. Its position is automatic: to the right at 120 columns or wider, along the bottom below that.
+
+The preview renders the description as markdown and shows branches, dates, approval detail with each reviewer's state, the head pipeline's stages, thread count, and diff stats. It fetches that detail for the selected row only, which keeps the table query to the fields the columns render.
+
+Preview tabs cover Overview, Pipeline, Approvals, Threads, Commits and Files. <Keys>[</Keys> and <Keys>]</Keys> move between them.
+
+## What you can do
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>o</Keys></td><td>open in the browser</td><td><Keys>v</Keys></td><td>approve or unapprove</td></tr>
+<tr><td><Keys>y</Keys> <Keys>Y</Keys></td><td>copy the branch, copy the URL</td><td><Keys>m</Keys></td><td>merge</td></tr>
+<tr><td><Keys>J</Keys></td><td>load the next 50</td><td><Keys>c</Keys></td><td>comment</td></tr>
+<tr><td><Keys>/</Keys></td><td>filter the loaded rows</td><td><Keys>C</Keys></td><td>check out the branch</td></tr>
+<tr><td><Keys>Space</Keys></td><td>multi-select</td><td><Keys>t</Keys> <Keys>a</Keys> <Keys>s</Keys></td><td>labels, assignees, reviewers</td></tr>
+</tbody>
+</table>
+
+<Keys>y</Keys> and <Keys>Y</Keys> use OSC 52, so they work over SSH and inside tmux with no clipboard helper installed.
+
+## A team's queue
+
+Your own queues are on [Home](/features/home). For somebody else's:
+
+<table className="ld-keytable">
+<thead><tr><th>Step</th><th>Key</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><Keys>b</Keys> then <Keys>Enter</Keys> on <code>platform</code></td><td>Scopes the table to the group and every subgroup</td></tr>
+<tr><td>2</td><td><Keys>f</Keys> → <code>state:opened author:!@me updated &lt; 3w</code></td><td>Open, not yours, still moving</td></tr>
+<tr><td>3</td><td><Keys>P</Keys></td><td>Keeps it as a tab called <em>platform/*</em></td></tr>
+</tbody>
+</table>
+
+## Paging
+
+Every list is paginated at 50 rows, in GraphQL and REST alike. <Keys>J</Keys> loads the next page by cursor, and the tab count comes from the connection, so you know the size of a section before you page through it. A group with 1,447 open merge requests pages the same way as one with twelve.
+
+A section holds a bounded number of rows and releases the head as you page past it, so a long session cannot exhaust memory.
+
+:::tip Related
+[Your review queue](/features/review-queue) · [Merge blockers](/features/why-it-cant-merge) · [Browse](/features/browse) · [Filtering](/features/filtering)
+:::

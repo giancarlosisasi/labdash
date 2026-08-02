@@ -1,0 +1,52 @@
+---
+title: Piping a view into a script
+description: The rows of any pinned view as JSON on standard output, using the view you already built.
+---
+
+# Piping a view into a script
+
+You have a pinned view that answers a question exactly right: everything targeting `main`, not draft, with a passing pipeline. You want the same rows in a shell script, for a standup summary, a release checklist, or a message posted to chat.
+
+<Shot
+  id="scripting"
+  alt="A recording of a pinned view being exported. The dashboard is open on a tab named release holding eleven merge requests, and the tab is read once so the rows are visible. labdash is closed with q, and in the same terminal the command labdash export release --json is piped into jq, which prints one line per merge request: the project path, the internal id and the title. The command runs a second time with a view name that does not exist; it prints an error naming the view and the shell reports a non-zero exit code."
+  caption="The view is defined once in the dashboard, where you can see whether it is right, and the script asks for it by name. The export returns the same rows the table renders, as a JSON array, and fails loudly on a name that does not exist."
+/>
+
+## Steps
+
+<table className="ld-keytable">
+<thead><tr><th>Step</th><th>What you do</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Build the view once in the terminal: <Keys>b</Keys> browse, <Keys>f</Keys> filter, <Keys>P</Keys> pin</td></tr>
+<tr><td>2</td><td>Name it something a script can refer to, for example <code>release</code></td></tr>
+<tr><td>3</td><td>Run it from the command line</td></tr>
+</tbody>
+</table>
+
+```bash
+labdash export release --json | jq -r '.[] | "\(.project)!\(.iid)  \(.title)"'
+```
+
+```text
+platform/ingest!2841  Add retry budget to the ingest job
+platform/cache!1190   Bump go-redis to v9.7
+identity/auth!733     Migrate auth to OIDC
+```
+
+## Where the view is defined
+
+The view is defined in the place where you could see whether it was right, and the script asks for it by name. Re-expressing the same filter as command-line flags gives you a second thing to keep correct.
+
+For general-purpose GitLab commands there is [`glab`](/compare/vs-glab), which is official and good at exactly that. `labdash export` returns the rows of a view, and that is its whole surface.
+
+## Output
+
+- A JSON array of row objects, holding the same fields the table renders plus the web URL.
+- A non-zero exit code when the view name does not exist, so a typo fails the script instead of producing an empty list.
+- The same credential and instance settings the dashboard uses, including [proxies and custom certificate authorities](/settings/instances).
+- A read. Nothing is written anywhere.
+
+:::tip Related
+[Pinned views](/features/pinned-views) · [Filtering](/features/filtering) · [labdash vs glab](/compare/vs-glab)
+:::

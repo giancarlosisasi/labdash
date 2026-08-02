@@ -1,0 +1,65 @@
+---
+title: To-dos
+description: GitLab's to-do list as a working queue, with mark-done, snooze, and a count badge on the view switcher.
+---
+
+# To-dos
+
+<div className="ld-lede">
+The to-do view is `currentUser.todos` rendered as a table. It scopes, filters and pins like every other view, and one key takes you from a to-do to the row it is about.
+</div>
+
+## What you see
+
+The columns are the action that created the to-do, its target, the project, the group, the author, how long ago it arrived, and the snoozed-until time when it has one. That is enough to triage without opening anything.
+
+:::info GitLab's to-do API covers all of this
+The connection filters by action, author, project, group, state and snooze status. GitLab exposes mutations for marking one done, marking all done, snoozing and restoring.
+:::
+
+## What you can do
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>d</Keys></td><td>mark done</td><td><Keys>Enter</Keys></td><td>go to the target</td></tr>
+<tr><td><Keys>D</Keys></td><td>mark all done</td><td><Keys>o</Keys></td><td>open it in the browser</td></tr>
+<tr><td><Keys>u</Keys></td><td>restore one you just did</td><td><Keys>s</Keys></td><td>snooze</td></tr>
+</tbody>
+</table>
+
+<Keys>D</Keys> sits behind a confirm that names the number:
+
+```
+▸ Mark all 14 to-dos done?        y  yes    n  no    Esc  cancel
+```
+
+<Keys>Enter</Keys> takes a to-do to the target's own row, selected. A to-do about a merge request lands you on that merge request in the merge-request table, so the to-do list reads as an index into the dashboard you are already in.
+
+<Keys>s</Keys> snoozes to this afternoon, tomorrow, or next week. A to-do you cannot act on for three days leaves today's list and comes back on its own.
+
+## The count badge
+
+The view switcher carries a pending count, taken from the connection:
+
+```
+  merge requests   pipelines   ▍to-dos 14
+```
+
+## Scope and filters
+
+<Keys>Tab</Keys> reaches the to-do view, and the full pending list is there with no setup. To-dos use the same [filter bar](/features/filtering) and the same [pin key](/features/pinned-views) as everything else:
+
+| You want | Filter | Then |
+| --- | --- | --- |
+| Review requests only | `action:review-requested` | <Keys>P</Keys> |
+| Mentions | `action:mentioned,directly-addressed` | <Keys>P</Keys> |
+| One group | <Keys>b</Keys> to it first | <Keys>P</Keys> |
+
+## Notifications
+
+`onNewTodo` in [settings](/settings/) sends a desktop notification when a to-do arrives. It is off by default.
+
+:::tip Related
+[Watch and notify](/features/watch-and-notify) · [Home](/features/home) · [Filtering](/features/filtering)
+:::

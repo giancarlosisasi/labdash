@@ -1,0 +1,95 @@
+---
+title: Install
+description: Homebrew, Scoop, winget, go install, deb, rpm, apk, AUR, Docker, and signed downloads, plus shell completions and font notes.
+---
+
+# Install
+
+<div className="ld-lede">
+labdash is a single static binary with no runtime dependency. There is no Node, no Python, and no <code>glab</code> to install first.
+</div>
+
+## Package managers
+
+| Platform | Command |
+| --- | --- |
+| macOS, Linux | `brew install labdash` |
+| Windows | `scoop install labdash` |
+| Windows | `winget install labdash` |
+| Arch Linux | `yay -S labdash` |
+
+## Go
+
+```bash
+go install github.com/giancarlosisasi/labdash/cmd/labdash@latest
+```
+
+The OAuth client id is a plain value in the source rather than a build-time flag, so a binary from `go install` logs in exactly like a released one.
+
+## Downloaded binaries
+
+Every release publishes archives for **windows, darwin and linux × amd64 and arm64**, built by goreleaser with `CGO_ENABLED=0`. Download the archive for your platform, unpack it, and put `labdash` on your `PATH`.
+
+```bash
+tar -xzf labdash_<version>_linux_amd64.tar.gz
+chmod +x labdash
+sudo mv labdash /usr/local/bin/
+```
+
+Each release also carries signed checksums and an SBOM, so a corporate build pipeline can verify what it installs.
+
+## Linux packages
+
+```bash
+sudo dpkg -i labdash_<version>_linux_amd64.deb
+sudo rpm -i  labdash_<version>_linux_amd64.rpm
+sudo apk add --allow-untrusted labdash_<version>_linux_amd64.apk
+```
+
+## Docker
+
+```bash
+docker run --rm -it ghcr.io/giancarlosisasi/labdash:latest
+```
+
+The OAuth device flow needs no callback to `localhost`, so logging in works inside a container. That is why it is the default.
+
+## Verifying the install
+
+```bash
+labdash --version
+```
+
+## Shell completions
+
+```bash
+labdash completion bash   > /etc/bash_completion.d/labdash
+labdash completion zsh    > "${fpath[1]}/_labdash"
+labdash completion fish   > ~/.config/fish/completions/labdash.fish
+labdash completion powershell | Out-String | Invoke-Expression
+```
+
+## Man pages
+
+The Homebrew formula and the deb, rpm and apk packages install man pages. `man labdash` covers the flags and every subcommand.
+
+## Fonts
+
+labdash draws status with Nerd Font glyphs when it detects one, and with ASCII when it does not. Every Nerd Font glyph has an ASCII replacement of the same display width, so a screen rendered either way has identical column boundaries.
+
+A Nerd Font is therefore optional. If you want one, [nerdfonts.com](https://www.nerdfonts.com/) publishes the patched families, and `JetBrainsMono Nerd Font` and `FiraCode Nerd Font` are both good choices.
+
+Detection is occasionally wrong, because some multiplexer and font combinations report a glyph they cannot draw. Force either mode in [appearance settings](/settings/appearance):
+
+```yaml title="settings.yml"
+theme:
+  icons: nerd   # auto | nerd | ascii
+```
+
+## Terminals
+
+Windows Terminal and ConPTY are verified for resize, mouse, Unicode and key handling, because that is where labdash is developed. tmux, SSH, WSL, Ghostty, WezTerm, Alacritty, iTerm2 and the VS Code terminal each have a tested entry in [terminal support](/help/terminal-support).
+
+:::tip Next
+[Sign in](/guide/first-run). The device flow works over SSH and inside a container.
+:::

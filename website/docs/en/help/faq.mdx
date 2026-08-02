@@ -1,0 +1,91 @@
+---
+title: FAQ
+description: Short answers to the questions people ask before and after they install labdash.
+---
+
+# FAQ
+
+## glab
+
+labdash does not need `glab` and does not use it. It calls GitLab's GraphQL and REST endpoints directly and spawns no subprocess.
+
+It also reads and writes nothing that belongs to `glab`: not the configuration file, not the keyring entries, not the token. See [labdash and glab](/compare/vs-glab).
+
+## Self-managed GitLab
+
+Supported directly. A private certificate authority, client certificates, a proxy, a subfolder install, custom headers and per-instance credentials are all settings on an instance. See [self-managed GitLab](/guide/self-hosted).
+
+OAuth needs an application registered on that instance. Without one, log in with a personal access token, which lasts up to 365 days against the two hours an OAuth access token lasts.
+
+## Windows
+
+labdash is developed on Windows, and Windows Terminal is the first terminal checked. Resize, mouse, Unicode and key handling are verified there. See [terminal support](/help/terminal-support).
+
+## Repository access
+
+labdash never requests the `write_repository` scope. It asks for `api` and `read_user`, or `read_api` and `read_user` in read-only mode.
+
+It checks out a branch in a local clone you have mapped in `repoPaths`, and refuses when the working tree is dirty. It never pushes. See [security](/help/security).
+
+## Telemetry
+
+labdash talks to your GitLab and to nothing else. There is no telemetry, no analytics and no crash-reporting service.
+
+The version check is one cached request that never blocks startup, and `updateCheck: false` turns it off.
+
+This documentation site is separate. It can count page views with Google Analytics, and it asks you first. Reject is the same one click as Accept, and the footer's Cookies link changes your answer later. See [privacy](/help/privacy).
+
+## Minimum GitLab version
+
+GitLab 16.0 for the core. Some features need more:
+
+| Feature | Needs |
+| --- | --- |
+| OAuth device flow | 17.9. Below that, the browser flow or a personal access token |
+| `reviewStates` filter | 16.5 |
+| Merge trains | 16.10, plus Premium or Ultimate |
+| Full `detailedMergeStatus` enum | 15.6 |
+
+labdash asks your instance which version it runs. Where a field is unavailable, that column degrades and the section keeps working.
+
+## Read-only mode
+
+A `read_api` token is a supported mode. It gets you every section, every filter, every column and every log. The mutating keys are removed from the footer and from help, and a badge in the context bar says why. See [read-only mode](/guide/read-only).
+
+## GitHub
+
+labdash covers GitLab. For GitHub, [gh-dash](https://github.com/dlvhdr/gh-dash) is the equivalent dashboard, and its concepts map across closely. See [coming from gh-dash](/compare/vs-gh-dash).
+
+## Other GitLab terminal tools
+
+`rcieri/glab-tui` is a repository browser with side-by-side diffs and inline review comments. labdash works a level up, on the queue across projects, and shows no file diffs. The two run side by side. See [other GitLab TUIs](/compare/vs-gitlab-tuis).
+
+## Nerd Fonts
+
+Optional. Every Nerd Font glyph has an ASCII fallback of the same display width, so a screen rendered in ASCII mode has identical column boundaries.
+
+`theme: { icons: ascii }` forces the fallback when detection gets it wrong.
+
+## Request volume
+
+Each section is one query. Sections carry independent refresh intervals, so a "merged this quarter" archive polls hourly while "Running" polls every 20 seconds. A busy dashboard sits well inside gitlab.com's per-user rate budget. See [refresh and caching](/features/staying-fresh).
+
+## Load time
+
+Section queries take seconds on GitLab's API. labdash fetches every section concurrently and paints the first frame from cache, so the previous rows stay on screen while the new ones arrive. See [refresh and caching](/features/staying-fresh).
+
+## CI and scripting
+
+You can authenticate in CI. The device flow works inside a container, and `labdash auth login --with-token` reads a token from standard input.
+
+The dashboard itself is interactive. For a script, `labdash export <view> --json` emits a pinned view's rows as JSON. See [pipe a view into jq](/recipes/scripting).
+
+## The name
+
+"GitLab dashboard".
+
+The mascot is a tanuki, a Japanese raccoon dog, which is what GitLab's own logo is. labdash draws its own and uses none of GitLab's marks or brand colours.
+
+## Affiliation
+
+labdash is an independent open-source project. It is not affiliated with, endorsed by, or sponsored by GitLab Inc.

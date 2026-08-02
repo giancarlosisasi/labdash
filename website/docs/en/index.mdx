@@ -1,0 +1,106 @@
+---
+pageType: custom
+title: labdash — a terminal dashboard for GitLab
+description: Merge requests, pipelines, jobs, and to-dos from every project and group you have access to, in one terminal window.
+---
+
+<div className="ld-page">
+  <section className="ld-hero">
+    <div className="ld-hero__mark">
+      <Wordmark />
+    </div>
+    <div className="ld-hero__pitch">
+      <strong>labdash is a terminal dashboard for GitLab.</strong>{' '}
+      It shows the merge requests, pipelines, jobs, and to-dos from every project and group you have access to, in one window. It opens on the work that needs you, so there is nothing to set up first.
+    </div>
+    <div className="ld-hero__actions">
+      <a className="ld-btn ld-btn--primary" href="/guide/install">Install</a>
+      <a className="ld-btn" href="/features/">Features</a>
+      <a className="ld-btn" href="/guide/tour">Take the tour</a>
+    </div>
+    <div className="ld-install">
+      <div className="ld-install__row">
+        <span className="ld-install__label">macOS, Linux</span>
+        <span className="ld-install__prompt">$</span>
+        <span className="ld-install__cmd">brew install labdash</span>
+      </div>
+      <div className="ld-install__row">
+        <span className="ld-install__label">Windows</span>
+        <span className="ld-install__prompt">$</span>
+        <span className="ld-install__cmd">scoop install labdash</span>
+      </div>
+    </div>
+  </section>
+
+  <Shot
+    id="hero-dashboard"
+    alt="A terminal dashboard. A context bar names the active view, the instance, the signed-in user, the time since the last refresh and the remaining API rate limit. Below it, Home plus three pinned tabs with row counts. A table of merge requests fills the left two thirds with title, project, author, approvals, pipeline status, blocker and age. A preview pane on the right shows the selected merge request in detail. A footer names the running task and the available keys."
+    caption={<>The merge request view at 120×32 in the <code>ember</code> palette. Every status carries a glyph, a colour and a word, so the screen still reads with colour switched off.</>}
+  />
+
+  <section className="ld-section">
+    <div className="ld-section__eyebrow">What it shows</div>
+    <h2 className="ld-section__title">Four views over your whole GitLab.</h2>
+    <Cards>
+      <Card title="Merge requests" href="/features/merge-requests">
+        Every open merge request in a group and its subgroups, in one table: approvals, head pipeline, diff size, labels, unresolved threads, and the reason it cannot merge. Approve, merge, comment, and check out a branch from the row.
+      </Card>
+      <Card title="Pipelines" href="/features/pipelines">
+        A group's CI in one table. Status, ref, duration, queued time, coverage, and failure reason across every project beneath a group. Retry, cancel, and watch a pipeline until it finishes.
+      </Card>
+      <Card title="Jobs and logs" href="/features/job-logs">
+        A failed pipeline expands into its failed jobs and their last meaningful log lines. One key opens the full trace, scrolled to the first error, with search, folding, live follow, and colour intact.
+      </Card>
+      <Card title="To-dos" href="/features/todos">
+        GitLab's To-Do list as a view of its own. Filter it, jump to the target, mark one done or all of them, and snooze what can wait. The count sits in the view switcher.
+      </Card>
+      <Card title="Browse, filter, pin" href="/features/browse">
+        Walk your real group tree, narrow the table with a typed filter bar that completes from your own instance, and pin the result as a tab that is still there tomorrow.
+      </Card>
+      <Card title="Self-managed GitLab" href="/guide/self-hosted">
+        A private CA, client certificates, a proxy, a subfolder install, custom headers, and a <code>read_api</code> token. All of it per instance, and read-only is a supported mode rather than a broken one.
+      </Card>
+    </Cards>
+  </section>
+
+  <section className="ld-section">
+    <div className="ld-section__eyebrow">How you get there</div>
+    <h2 className="ld-section__title">Any view you need, in three keys.</h2>
+    <div className="ld-section__lede">
+      Home opens on the merge requests waiting for your review, the ones handed back to you, and your red pipelines. Everything else is three keys away.
+    </div>
+    <div className="ld-split">
+      <div>
+
+```text
+b    browse    →  walk your real group tree
+                  platform ▸ ingest ▸ …
+
+f    filter    →  state:opened  draft:false
+                  label:backend
+                  completes from your instance
+
+P    pin       →  it is a tab, and it is
+                  still there tomorrow
+```
+
+      </div>
+      <div className="ld-split__note">
+        <p><strong>Browse</strong> shows your actual group tree. GitLab returns it in one request and ranks it by the groups you work in most, so your working set is at the top the first time you open the application.</p>
+        <p><strong>Filter</strong> is typed, not a search box. GitLab exposes real filter arguments with real enums, so labdash completes label names, usernames, branches and milestones from your own instance and refuses a value the instance would reject.</p>
+        <p><strong>Pin</strong> turns the current scope and filter into a named tab beside Home. Reorder it, rename it, remove it.</p>
+        <p><a href="/guide/tour">Take the tour →</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section className="ld-section">
+    <div className="ld-section__eyebrow">Start here</div>
+    <h2 className="ld-section__title">Three ways in.</h2>
+    <Cards tight>
+      <Card title="Install it" href="/guide/install">Homebrew, Scoop, winget, distro packages, Docker, or a single static binary.</Card>
+      <Card title="Take the tour" href="/guide/tour">The four keys that cover most of what you will do, in about two minutes.</Card>
+      <Card title="Keyboard reference" href="/keys/">Every binding, grouped the way it is learned. The same list <Keys>?</Keys> shows in the application.</Card>
+    </Cards>
+  </section>
+</div>

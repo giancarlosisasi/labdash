@@ -1,0 +1,90 @@
+---
+title: Contributing
+description: Where the code lives, how to build it, how to run the tests, and how to propose a change.
+---
+
+# Contributing
+
+<div className="ld-lede">
+This page is short. The repository holds the technical depth, and duplicating it here means one of the two goes stale.
+</div>
+
+## Where things are
+
+| | |
+| --- | --- |
+| Source, issues, pull requests | [github.com/giancarlosisasi/labdash](https://github.com/giancarlosisasi/labdash) |
+| The design reference | [Design](/about/design) |
+| This site | `labdash/website/` in the same repository |
+
+## Building it
+
+```bash
+git clone https://github.com/giancarlosisasi/labdash.git
+cd labdash
+go build -o labdash ./cmd/labdash
+go test ./...
+```
+
+Go 1.26 or newer. No CGO, no code generation step, and no other tool required.
+
+## Running the tests
+
+```bash
+go test ./...                      # everything
+go test ./internal/tui/...         # one package tree
+go test -run TestPipelineStatus ./internal/tui/theme
+go test -race ./...
+```
+
+Every feature carries an identifier, and its test rows are written before the code that satisfies them. Golden tests cover each screen in four states: populated, empty, error, and narrow.
+
+## The documentation site
+
+The site is Rspress v2 in `labdash/website/`:
+
+```bash
+cd labdash/website
+pnpm install
+pnpm run dev      # http://localhost:3000
+pnpm run build    # the merge requirement
+```
+
+**`pnpm run build` passing is the primary success criterion.** It catches broken links, missing navigation entries, invalid frontmatter and failed MDX imports, which are the four ways a documentation site rots.
+
+Two conventions worth knowing:
+
+- **Second person, present tense, active voice.** "Press <Keys>r</Keys> to refresh this section", never "the section can be refreshed by the user".
+- **Numbers, not adjectives.** "one request for a whole group tree, rather than one per project", never "blazing fast".
+
+`VOICE.md` in that directory holds the rest, and it is binding on every page.
+
+Generated pages, the [keyboard reference](/keys/) and the [filter reference](/features/filtering), are produced from the Go source. Do not hand-edit them; CI regenerates them and fails on a diff.
+
+## Review checklist
+
+Each of these is a bug that has already happened somewhere:
+
+- **No colour literal outside `internal/tui/theme`.** CI enforces it.
+- **Every state has a glyph, a colour and a word.** Colour alone fails for colour-blind readers, at `NO_COLOR`, and in every screenshot.
+- **Nerd Font and ASCII renderings have identical column widths.**
+- **Contrast is computed, not eyeballed.**
+- **No token in a log, an error string, or a URL.** Tests print token lengths, never values.
+- **Every subprocess sends stdout and stderr to `io.Discard`.** Output leaking into a full-screen application corrupts the frame.
+- **The documentation ships with the change.** The pages a change touches are part of the same change.
+
+:::danger Nothing from a real instance, ever
+No real project name, username, hostname, group path or token appears anywhere in the code, the tests, the demo data or these pages. Every example on this site uses fictional projects, and demo data comes from a fixture generator.
+:::
+
+## Proposing a change
+
+Open an issue that names the behaviour you want and the screen it belongs on. A proposal that can name the feature identifiers it touches is easier to review, and `labdash keys --list` prints every built-in action name.
+
+Three kinds of help are worth more than code:
+
+- **Testing on hardware nobody here has.** macOS and Linux credential paths, and any self-managed instance.
+- **Terminal reports.** The [support matrix](/help/terminal-support) is marked *tested* only where somebody ran it.
+- **`detailedMergeStatus` values in the wild.** A blocker that renders as a title-cased raw enum is a mapping gap, and the exact value is what fixes it.
+
+Rules on this site have their reason written next to them. If one looks wrong, argue with the reason.

@@ -1,0 +1,9 @@
+[
+  { "type": "file", "name": "index", "label": "Getting help" },
+  "faq",
+  "troubleshooting",
+  "diagnostics",
+  "terminal-support",
+  "security",
+  "privacy"
+]

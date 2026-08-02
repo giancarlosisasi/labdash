@@ -1,0 +1,10 @@
+[
+  { "type": "file", "name": "index", "label": "Introduction" },
+  "install",
+  "first-run",
+  "tour",
+  "daily-workflow",
+  "self-hosted",
+  "read-only",
+  "updating"
+]

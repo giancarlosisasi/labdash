@@ -1,0 +1,58 @@
+---
+title: Environments
+description: What is deployed where across a group, with the review-app URL and the deployment history one key away.
+---
+
+# Environments
+
+<div className="ld-lede">
+The environment view lists the environments in whatever scope you browsed to, with the deployment that is live in each one. A group scope covers every project beneath it, so staging and production across a whole tree sit in one table.
+</div>
+
+## What you see
+
+| Column | What it holds |
+| --- | --- |
+| project | Which repository the environment belongs to |
+| environment | The environment name, such as `production` or `review/feat-retry` |
+| state | Available or stopped |
+| status | The status of the deployment that is live |
+| ref | The branch or tag that is live |
+| commit | The commit that is live |
+| by | Who deployed it |
+| when | When that deployment finished |
+
+The ref and commit columns let you compare a live environment against a merge request you merged, in one table rather than two browser tabs. The status and actor columns separate a failed deploy nobody noticed from a successful one.
+
+Selecting a row shows that environment's deployment history in the preview pane.
+
+## What you can do
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>o</Keys></td><td>open the environment or review-app URL</td><td><Keys>R</Keys></td><td>re-deploy, or roll back</td></tr>
+<tr><td><Keys>x</Keys></td><td>stop an environment</td><td><Keys>v</Keys></td><td>approve a protected-environment deployment</td></tr>
+<tr><td><Keys>Enter</Keys></td><td>deployment history in the preview</td><td><Keys>Y</Keys></td><td>copy the environment URL</td></tr>
+</tbody>
+</table>
+
+<Keys>R</Keys>, <Keys>x</Keys> and <Keys>v</Keys> confirm inline in the footer, with the environment, the ref and the outcome named in full.
+
+## Review apps
+
+<Keys>o</Keys> on a review-app row opens its URL in a browser. The URL comes from the environment itself, so a review app is one key from the merge request instead of a link dug out of a job log.
+
+## Scope and filters
+
+<Keys>b</Keys> to a group or project, <Keys>Tab</Keys> to **environments**, then filter and pin:
+
+| You want | Do this |
+| --- | --- |
+| Production across the group | <Keys>f</Keys> `name:production`, <Keys>P</Keys> |
+| Live review apps | <Keys>f</Keys> `name:review/* state:available`, <Keys>P</Keys> |
+| Failed deployments | <Keys>f</Keys> `status:failed`, <Keys>P</Keys> |
+
+:::tip Related
+[Pipelines](/features/pipelines) · [Browse](/features/browse) · [Pinned views](/features/pinned-views)
+:::

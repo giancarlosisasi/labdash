@@ -1,0 +1,144 @@
+---
+title: Behind a corporate proxy
+description: One instance block covering a private certificate authority, an egress proxy, gateway headers and a read-only token.
+---
+
+# Behind a corporate proxy
+
+Your GitLab sits behind an egress proxy, its certificate is signed by your organisation's own authority, an access gateway stands in front of it, and the only token you can get carries `read_api`. All four are keys on one instance in the settings file.
+
+<Shot
+  id="corporate-proxy"
+  alt="A recording of labdash reaching a self-managed GitLab through a corporate proxy. The terminal first shows labdash auth status --hostname gitlab.example.com, which reports the token source as the GITLAB_WORK_TOKEN environment variable, the account it belongs to, its read_api scope and its expiry date. labdash then launches: the context bar names gitlab.example.com and carries a read-only badge, and Home fills with merge requests and failing pipelines from the corporate instance. Moving down a row opens the preview, and the footer offers open, copy and refresh but no merge or approve, because the token cannot write. The last frame shows labdash doctor printing settings found and valid, credential present and unexpired, instance reachable, TLS chain verified, and the GitLab version."
+  caption="The instance block covers the private certificate authority, the client certificate, the proxy and the gateway headers, and certificate verification stays on throughout. The read-only badge in the context bar comes from the token's scope, and the actions that need write access are hidden rather than failing when pressed."
+/>
+
+## Steps
+
+<table className="ld-keytable">
+<thead><tr><th>Step</th><th>What you do</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Put the instance block below into <code>settings.yml</code></td><td>Names the host and how to reach it</td></tr>
+<tr><td>2</td><td>Export the token and the gateway secrets in your shell profile</td><td>Nothing secret enters the file</td></tr>
+<tr><td>3</td><td>Run <code>labdash auth status --hostname gitlab.example.com</code></td><td>Confirms the credential and the TLS chain before you launch</td></tr>
+</tbody>
+</table>
+
+```yaml title="settings.yml"
+defaultHost: gitlab.example.com
+
+instances:
+  gitlab.example.com:
+    # Credential: read from the environment, never stored by labdash
+    tokenEnv: GITLAB_WORK_TOKEN
+
+    # GitLab is not at the domain root
+    subfolder: gitlab
+
+    # Corporate root certificate. Verification stays ON
+    caCert: /etc/ssl/certs/corp-root.pem
+
+    # Mutual TLS, if your instance requires a client certificate
+    clientCert: /etc/ssl/certs/client.pem
+    clientKey: /etc/ssl/private/client-key.pem
+
+    # Egress proxy
+    proxy: http://proxy.internal:3128
+
+    # An access gateway in front of GitLab
+    customHeaders:
+      - name: Cf-Access-Client-Id
+        valueFromEnv: CF_ACCESS_ID
+      - name: Cf-Access-Client-Secret
+        valueFromEnv: CF_ACCESS_SECRET
+```
+
+```bash
+export GITLAB_WORK_TOKEN="$(pass show work/gitlab-pat)"
+export CF_ACCESS_ID="$(pass show work/cf-access-id)"
+export CF_ACCESS_SECRET="$(pass show work/cf-access-secret)"
+
+labdash auth status --hostname gitlab.example.com
+```
+
+That is the whole file. It describes the connection; what you see in the dashboard comes from [Home](/features/home), [browsing](/features/browse) and [pinning](/features/pinned-views), the same as on gitlab.com.
+
+Log in with a token rather than OAuth, because a self-managed instance has no OAuth application unless an administrator registered one.
+
+## The settings that matter
+
+**`tokenEnv`** names an environment variable holding a personal access token. A token created with `read_api` gives you [read-only mode](/guide/read-only): every section, every filter, every column and every log, with the mutating keys hidden. On many corporate instances that is the only scope you will be granted, and it is a supported mode.
+
+**`subfolder: gitlab`** is for a GitLab served from `https://example.com/gitlab/` rather than from a domain root. It is applied to **every** URL labdash builds: GraphQL, REST and OAuth.
+
+**`caCert`** adds your organisation's root certificate to the pool. Verification stays **on**.
+
+:::danger `insecureSkipVerify: true` turns certificate verification off
+It makes the connection interceptable by anything on the path, which behind a TLS-inspecting corporate proxy is not hypothetical.
+
+`caCert` solves the same problem correctly. `insecureSkipVerify` has one legitimate use: proving for five minutes that a failure is a certificate problem, on a machine you control.
+:::
+
+**`valueFromEnv` on the headers** reads the secret at runtime, so it never enters the settings file and the file stays safe to commit to your dotfiles.
+
+**A self-managed instance gets its own concurrency cap.** Six tabs cannot open six simultaneous connections against a box that also runs your CI. Group pipeline queries bound their own fan-out for the same reason, and a tab that needs to poll faster is set on the tab itself, in the dashboard.
+
+## Your CA certificate
+
+| Situation | Where it usually is |
+| --- | --- |
+| Linux, already trusted system-wide | `/etc/ssl/certs/ca-certificates.crt` |
+| macOS, in the System keychain | `security find-certificate -a -p /Library/Keychains/System.keychain > corp.pem` |
+| Windows, in the certificate store | `certutil -store root`, then export as Base-64 |
+| Ask your platform team | Usually the fastest route |
+
+## Connection problems
+
+```bash
+labdash doctor
+```
+
+One command reports settings found and valid, credential present and unexpired, instance reachable, TLS chain verified, GitLab version, and terminal capabilities. One paste answers a support thread.
+
+For request-level detail:
+
+```bash
+LABDASH_DEBUG_HTTP=1 labdash
+```
+
+Requests go to a file with `Authorization`, `PRIVATE-TOKEN` and `JOB-TOKEN` redacted **before** anything is written to disk.
+
+| Symptom | Usually |
+| --- | --- |
+| `x509: certificate signed by unknown authority` | `caCert` missing, or pointing at the wrong file |
+| `404` on every request | `subfolder` missing, or set when it should not be |
+| Hangs, then times out | `proxy` missing, or the proxy needs credentials in the URL |
+| `401` immediately | The token is wrong, expired, or scoped to the wrong instance |
+| `403` only on actions | The token is `read_api`, and read-only mode is working as intended |
+
+## Variations
+
+### Proxy from the standard environment variables
+
+If your shell already exports them, labdash honours them and you can leave `proxy` out:
+
+```bash
+export HTTPS_PROXY=http://proxy.internal:3128
+export NO_PROXY=.internal,localhost
+```
+
+An explicit `proxy:` in the instance block overrides them, which is what you want when only GitLab needs the proxy.
+
+### A group access token for a shared dashboard
+
+A group access token scoped to `read_api` gives a whole team a dashboard without giving a whole team write access:
+
+```yaml
+instances:
+  gitlab.example.com:
+    tokenEnv: GITLAB_TEAM_TOKEN
+```
+
+:::tip Related
+[Self-managed GitLab](/guide/self-hosted) · [Instances](/settings/instances) · [Read-only mode](/guide/read-only) · [Diagnostics](/help/diagnostics)
+:::

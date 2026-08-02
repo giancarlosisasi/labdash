@@ -1,0 +1,94 @@
+---
+title: Settings
+description: Where the settings file lives, what it holds, and how to point at a different one.
+---
+
+# Settings
+
+<div className="ld-lede">
+One YAML file holds connection details, your account, and appearance. Against gitlab.com it does not need to exist.
+</div>
+
+## Where it lives
+
+| Platform | Path |
+| --- | --- |
+| Windows | `%LOCALAPPDATA%\labdash\settings.yml` |
+| macOS | `~/Library/Application Support/labdash/settings.yml` |
+| Linux | `~/.config/labdash/settings.yml` |
+
+```bash
+labdash settings path      # where the file is
+labdash settings show      # what is in it, never a credential
+```
+
+`labdash settings show` prints an example file when there is nothing to show.
+
+## Pointing at a different file
+
+Pass `--config <path>`, or set `LABDASH_CONFIG`. A separate work and personal setup is two files.
+
+```bash
+labdash --config ~/work/labdash.yml
+```
+
+## What it holds
+
+Three areas, and nothing else.
+
+| Area | Keys | Reference |
+| --- | --- | --- |
+| Instances | `defaultHost`, `instances`, `repoPaths` | [Instances](/settings/instances) |
+| Your account | `tokenEnv`, per instance | [Instances](/settings/instances) |
+| Appearance | `theme`, `log`, `updateCheck` | [Appearance](/settings/appearance) |
+
+### Instances
+
+Which GitLab labdash talks to, and how to reach it: the host, `apiHost`, `subfolder`, an OAuth `clientId`, a CA certificate, a client certificate, a proxy, and custom headers. `repoPaths` records where your clones live on disk.
+
+### Your account
+
+Nothing in this file is secret. An instance names the environment variable that holds its token in `tokenEnv`, and that is the whole of it. Tokens live in the OS keyring, or in `credentials.json` at mode `0600` on a machine with no keyring. See [security](/help/security).
+
+### Appearance
+
+Theme name, icon set, row density, table separators, date format, timezone, spinner style, reduced motion, and the splash. Beside them sit two operational switches: `log` sets the log level, `updateCheck` turns the release check on or off.
+
+## The whole file, at its largest
+
+```yaml title="settings.yml"
+defaultHost: gitlab.example.com
+
+instances:
+  gitlab.example.com:
+    apiHost: api.example.com
+    subfolder: gitlab
+    clientId: <application id>
+    tokenEnv: GITLAB_WORK_TOKEN
+    caCert: /etc/ssl/corp-root.pem
+    proxy: http://proxy.corp:3128
+
+repoPaths:
+  platform/*: ~/code/platform/*
+
+theme:
+  name: ember
+  dateFormat: relative
+
+log:
+  level: warn
+```
+
+That is the ceiling rather than a starting point. Against gitlab.com, a machine with no settings file at all reaches a working dashboard.
+
+## Settings and state
+
+labdash keeps a second file for what it remembers: pinned views, collapsed groups, sort order, and the view you were last on. labdash writes that file itself, migrates it between versions, and resets it with a note if it ever becomes unreadable. Delete it and you lose your pins; nothing else changes. What a view contains comes from browsing, filtering, and pinning inside the application, not from the settings file.
+
+## Related pages
+
+<Cards>
+  <Card title="Instances" href="/settings/instances">Hosts, custom certificate authorities, client certificates, proxies, subfolders, headers.</Card>
+  <Card title="Appearance" href="/settings/appearance">Themes, icons, density, separators, dates, reduced motion.</Card>
+  <Card title="Keyboard reference" href="/keys/">Every key, grouped by tier.</Card>
+</Cards>

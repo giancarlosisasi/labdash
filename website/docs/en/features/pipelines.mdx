@@ -1,0 +1,94 @@
+---
+title: Pipelines
+description: Pipelines for any scope, with jobs by stage in the preview pane and the same keys as the merge-request view.
+---
+
+# Pipelines
+
+<div className="ld-lede">
+Pipelines are a top-level view, reached with <Keys>Tab</Keys>. The table shows the pipelines for whatever scope you browsed to: one project, a group and every subgroup under it, or every pipeline you triggered across the instance.
+</div>
+
+<Shot
+  id="pipelines-view"
+  alt="A pipelines dashboard at 120 by 32. The left pane lists pipelines from eight projects with status glyph, project, ref, pipeline number, duration, who triggered each one and the trigger source. The right pane shows the selected pipeline's jobs grouped by stage, two of them failed with their failure reasons, and the first failing assertion underneath."
+  caption="Screen S-08. The pipeline view has the same regions and the same keys as the merge-request view, so the spatial model carries over."
+/>
+
+## What you see
+
+The columns are project, ref, pipeline number, status, duration, who triggered it, the trigger source, and when it last changed. Coverage, queued duration and failure reason appear as the terminal gets wider. Columns drop by priority as it narrows, under the same rules as every other table.
+
+### Statuses
+
+Thirteen states. Each one has a glyph, a colour and a word, so meaning never rests on colour alone.
+
+| Status | Glyph | ASCII | Word |
+| --- | --- | --- | --- |
+| success | `✔` | `+` | passed |
+| failed | `✖` | `x` | failed |
+| running | `●` | `>` | running |
+| pending | `◌` | `.` | pending |
+| created | `○` | `-` | created |
+| preparing | `◌` | `.` | preparing |
+| waiting for resource | `◍` | `~` | waiting |
+| manual | `⏸` | `!` | manual |
+| scheduled | `◔` | `@` | scheduled |
+| canceling | `◐` | `/` | canceling |
+| canceled | `⊘` | `/` | canceled |
+| skipped | `»` | `>>` | skipped |
+| no pipeline | `⊘` | `-` | no pipeline |
+
+Every glyph has an ASCII fallback of the same display width, so a screen rendered in either mode has identical column boundaries.
+
+### The preview pane
+
+Selecting a pipeline shows its jobs grouped by stage, with per-job status, duration and allow-failure marking. Failed jobs carry their failure reason.
+
+`script_failure` is the code or the test. `runner_system_failure` is the infrastructure. `job_execution_timeout` is neither. The three read differently on screen, so a runner capacity problem and a flaky test suite do not look alike.
+
+Below the job list sits the [failure summary](/features/failure-summary): the first failing job and the lines around its error.
+
+## What you can do
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>R</Keys></td><td>retry the pipeline</td><td><Keys>L</Keys></td><td>logs of the first failing job</td></tr>
+<tr><td><Keys>x</Keys></td><td>cancel a running pipeline</td><td><Keys>m</Keys></td><td>play a manual job</td></tr>
+<tr><td><Keys>o</Keys></td><td>open in the browser</td><td><Keys>w</Keys></td><td>watch it</td></tr>
+<tr><td><Keys>Y</Keys></td><td>copy the URL</td><td><Keys>D</Keys></td><td>stage graph</td></tr>
+<tr><td><Keys>V</Keys></td><td>the variables it ran with</td><td><Keys>Ctrl+N</Keys></td><td>run a new pipeline</td></tr>
+</tbody>
+</table>
+
+Destructive actions confirm inline in the footer, with the action named in full:
+
+<Shot
+  id="confirm-footer"
+  alt="A confirmation line drawn inside the dashboard footer, reading: Cancel pipeline 88230 for ingest on feat/retry-budget? followed by y for yes, n for no and Esc to cancel."
+/>
+
+The confirm draws in the footer rather than as an overlay, so navigation still works underneath it.
+
+## Scope
+
+Your own failing pipelines are on [Home](/features/home). For anything wider, browse to a scope and filter it:
+
+| You want | Do this |
+| --- | --- |
+| Failed today, whole group | <Keys>b</Keys> to the group, <Keys>Tab</Keys> to pipelines, <Keys>2</Keys>, <Keys>P</Keys> |
+| One project's `main` | <Keys>b</Keys> to the project, <Keys>f</Keys> `ref:main`, <Keys>P</Keys> |
+| What you triggered this week | <Keys>f</Keys> `triggered:@me updated < 7d`, <Keys>P</Keys> |
+
+Scope comes from the same [browse tree](/features/browse) that scopes merge requests, and it survives switching between the two views.
+
+## Pipeline kinds
+
+GitLab creates several kinds of pipeline for one commit. labdash labels branch pipelines, merged-result pipelines and merge-train pipelines separately in the row rather than blending them into one list.
+
+Child and parent pipelines are reachable from the preview pane, so a multi-project pipeline is navigated downstream and upstream in place.
+
+:::tip Related
+[Group pipelines](/features/group-pipelines) · [Failure summary](/features/failure-summary) · [Job logs](/features/job-logs) · [Watch and notify](/features/watch-and-notify)
+:::

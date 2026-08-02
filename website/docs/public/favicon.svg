@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="labdash">
+  <defs>
+    <linearGradient id="ember" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E8A33D"/>
+      <stop offset="100%" stop-color="#F07178"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="#0F1117"/>
+  <rect x="6" y="7.5" width="3" height="17" rx="1.5" fill="url(#ember)"/>
+  <rect x="13" y="8.5" width="13" height="2.6" rx="1.3" fill="#E6E9EF"/>
+  <rect x="13" y="14.7" width="9" height="2.6" rx="1.3" fill="#A8B0C0"/>
+  <rect x="13" y="20.9" width="11" height="2.6" rx="1.3" fill="#7C8699"/>
+</svg>

@@ -1,0 +1,116 @@
+---
+title: Security
+description: Where the token lives, which scopes are requested, and what stays on your machine.
+---
+
+# Security
+
+<div className="ld-lede">
+labdash holds a credential to everything you can see in GitLab. This page says where that credential is stored, what it is allowed to do, and what leaves your machine.
+</div>
+
+## Scopes
+
+| Mode | Scopes |
+| --- | --- |
+| Default | `api`, `read_user` |
+| `--read-only` | `read_api`, `read_user` |
+
+`write_repository` is absent from both. labdash never pushes to a repository, so it never asks for permission to. For comparison, `glab` requests `openid profile read_user write_repository api`.
+
+`read_user` covers one call, `GET /api/v4/user`, which is what names you in the welcome line.
+
+:::info The OAuth application's scope list is a maximum, not a grant
+The registered application permits `api`, `read_api` and `read_user`. A login requests `api read_user`, or `read_api read_user` in read-only mode. Registering all three keeps both modes available without a second application.
+:::
+
+## Credential storage
+
+| OS | Store |
+| --- | --- |
+| Windows | Credential Manager |
+| macOS | Keychain |
+| Linux | Secret Service, where one is running |
+| No keyring available | `<config dir>/credentials.json`, mode `0600` |
+
+The keyring entry sits under the namespaced service `com.gitlab.labdash`, rather than a bare `labdash`. A keyring is one flat namespace shared by every program on the machine, and a generic service name is a credential another program can silently overwrite.
+
+The `0600` file is written temp-file-then-rename, so a crash cannot leave a truncated, unreadable credential behind.
+
+The settings file holds no secrets. It holds which instances exist and how to reach them.
+
+## Token handling
+
+| Never | Why |
+| --- | --- |
+| A token in a log file | Not in ours, not in an error string, not in a URL query parameter |
+| A token in `auth status` output | It prints the source and the expiry, never the value |
+| A token in an error message | `Credentials.String()` redacts, so `%v` cannot leak it |
+| A `--token <value>` flag | It would land in shell history and in the process list, visible to every user on the machine. stdin only |
+| Reading or writing `glab`'s configuration or keyring | labdash owns its own credential chain and leaves other tools' files alone |
+| Sending anything anywhere but your GitLab | No telemetry, no analytics, no crash reporting service |
+
+`Authorization`, `PRIVATE-TOKEN` and `JOB-TOKEN` are redacted in debug HTTP output before anything is written to disk.
+
+## The OAuth client ID
+
+labdash's OAuth Application ID ships in the source as a plain value. That is correct for a public PKCE client, and it is worth explaining because it looks wrong.
+
+RFC 6749 §2.2 states it outright: *"The client identifier is not a secret."* It travels in the URL of every authorization request, so the user reads it in their own address bar. `glab` ships its own in public source, and so does the GitHub CLI.
+
+Build-time embedding would change nothing. `-ldflags -X` puts the value in the binary's string table, where `strings` finds it in about a second. A `.env` file is worse for a distributed CLI, because it does not ship with the binary and every user would have to create one.
+
+What protects a public client is PKCE plus the redirect-URI allowlist, and labdash uses both. Someone holding the client ID still cannot obtain a token: the authorization code only ever lands on the victim's own `localhost:7171`, and without the PKCE verifier it cannot be exchanged. The device flow has no redirect at all, and its code is bound to a `device_code` an attacker never sees.
+
+The value is a `var` rather than a `const` for one reason, so that a fork can substitute its own application without editing the file:
+
+```bash
+go build -ldflags "-X github.com/giancarlosisasi/labdash/internal/gitlabauth.DefaultClientID=<id>"
+```
+
+That is packaging convenience, not secrecy.
+
+## The OAuth application
+
+The gitlab.com application is registered under the public group [gitlab.com/labdash](https://gitlab.com/labdash) rather than an individual's account. The application therefore outlives any single account, and the consent screen names the project.
+
+## Token lifetimes
+
+| | OAuth access token | Personal access token |
+| --- | --- | --- |
+| Lifetime | 2 hours | up to 365 days |
+| Renewal | automatic, five minutes early | none |
+| Revoke at | `/-/user_settings/applications` | `/-/user_settings/personal_access_tokens` |
+
+GitLab invalidates a refresh token the moment a new one is issued, so renewal persists the rotated token before returning. labdash owns its whole credential chain, which is what keeps that rotation consistent.
+
+## Read-only tokens
+
+A `read_api` token is a legitimate choice:
+
+- A dashboard that cannot merge cannot merge something by a mis-keyed <Keys>m</Keys>.
+- A group access token scoped to `read_api` gives a whole team a dashboard without giving a whole team write access.
+- Some organisations will not grant `api` to a desktop tool. That is a defensible position.
+
+[Read-only mode.](/guide/read-only)
+
+## Release verification
+
+Releases ship signed checksums and an SBOM, because self-managed corporate users ask for both.
+
+```bash
+cosign verify-blob --signature labdash_checksums.txt.sig labdash_checksums.txt
+sha256sum -c labdash_checksums.txt
+```
+
+Building from source is one `go build` with no CGO.
+
+## Vulnerability reports
+
+Open a private security advisory on [github.com/giancarlosisasi/labdash](https://github.com/giancarlosisasi/labdash), or email the address in the repository's `SECURITY.md`. Please do not open a public issue for something exploitable.
+
+:::danger If a token reaches a transcript, revoke it
+Not "mostly redacted", not "only the first few characters". A partially redacted token is a leaked token, and revoking takes ten seconds at `/-/user_settings/personal_access_tokens`.
+
+This applies to bug reports, chat logs, screen shares, and anything an AI coding assistant has read. labdash's own tests print token lengths, never values, for exactly this reason.
+:::

@@ -1,0 +1,71 @@
+---
+title: labdash and glab
+description: What each tool is for, how labdash reaches GitLab, and how to move a token across.
+---
+
+# labdash and glab
+
+<div className="ld-lede">
+<code>glab</code> is GitLab's official command-line client. labdash is a dashboard. They cover different jobs and most people run both.
+</div>
+
+## What glab is good at
+
+| | |
+| --- | --- |
+| Single operations | `glab mr create` from a branch, `glab ci trace`, `glab release download`. One invocation, one result |
+| Scripting and CI | `glab api`, `--output json`, and a stable interface for shell scripts and pipeline jobs |
+| Breadth | Releases, runners, package and container registries, snippets, cluster agents, variables |
+| Following GitLab | Maintained by GitLab and versioned with it |
+
+If the question is "how do I do X from a script", the answer is `glab`, and labdash's documentation keeps pointing there.
+
+## What labdash is good at
+
+| | |
+| --- | --- |
+| Aggregation | One table spanning a group tree or a whole instance, where `glab mr list` works a project at a time |
+| Standing context | The queue stays on screen and refreshes itself, with no command to retype |
+| [Merge blockers](/features/why-it-cant-merge) | `detailedMergeStatus` in the row as words: `conflicts`, `ci failed`, `needs 1`, `3 threads open` |
+| [Group pipelines](/features/group-pipelines) | Every failed pipeline in a nested group tree, in one wait |
+| Acting down a list | Move through rows approving, merging and retrying without reinvoking anything |
+
+## How labdash reaches GitLab
+
+labdash calls GitLab's GraphQL and REST endpoints directly over HTTPS. It spawns no subprocess and never runs `glab` or `gh`.
+
+It also reads and writes nothing that belongs to `glab`: not the configuration file, not the keyring entries, not the token. Your `glab` install behaves the same whether labdash is running or not.
+
+## Moving a token across
+
+labdash keeps its own credential, so logging in is a separate step:
+
+```bash
+labdash auth login                 # OAuth device flow
+labdash auth login --with-token    # a personal access token, read from stdin
+```
+
+A personal access token you already hold works with `--with-token`, provided it carries the `api` scope, or `read_api` for [read-only mode](/guide/read-only). Create one at `https://<host>/-/user_settings/personal_access_tokens`. Piping it in keeps the value out of your shell history:
+
+```bash
+echo "$GITLAB_TOKEN" | labdash auth login --with-token
+```
+
+labdash validates the token with `GET /user` before storing it, so a typo fails at login. It then keeps the credential in the OS keyring under `com.gitlab.labdash`. See [security](/help/security).
+
+## Instance settings
+
+`glab`'s per-host settings have equivalents in labdash's settings file, under camelCase names: `apiHost`, `subfolder`, `caCert`, `clientCert`, `clientKey`, `insecureSkipVerify`, `proxy`, `customHeaders`. A corporate instance you already configured for `glab` will look familiar. See [instances](/settings/instances).
+
+`GITLAB_TOKEN`, `GITLAB_ACCESS_TOKEN`, `OAUTH_TOKEN`, `GITLAB_HOST`, `GITLAB_URI` and `GL_HOST` are read under the same names `glab` uses, so an exported variable needs no renaming.
+
+## Using both
+
+```bash
+glab mr create --fill --yes    # do a thing
+labdash                        # watch what happens to it, and to everything else
+```
+
+:::tip Related
+[Related tools](/compare/) · [Other GitLab TUIs](/compare/vs-gitlab-tuis) · [Security](/help/security)
+:::

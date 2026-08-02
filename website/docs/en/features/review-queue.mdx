@@ -1,0 +1,66 @@
+---
+title: Your review queue
+description: Every merge request waiting on your review, across the whole instance, from a single query.
+---
+
+# Your review queue
+
+<div className="ld-lede">
+GitLab answers "what is waiting on my review" for a whole instance in one query, so labdash never walks your projects one at a time. The queue is the first group on [Home](/features/home) and it is there the moment you log in.
+</div>
+
+<Shot
+  id="review-queue"
+  alt="A section named Needs My Review holding twelve merge requests drawn from eight different projects, each row showing approvals, head pipeline status and a plain-language blocker."
+  caption="Twelve merge requests from eight projects, none of which you had to name."
+/>
+
+## What you see
+
+One query covers every project on the instance, including the ones you had forgotten you have access to. It returns in about 4.6 seconds on gitlab.com and costs 37 of the 250 complexity points GitLab allows a request.
+
+Three columns decide whether a row is yours to act on:
+
+- **`✓` approvals.** `2/2` means it has what it needs. `0/1` means it is still waiting.
+- **`CI`.** The head pipeline's status, returned with the merge request rather than fetched separately.
+- **`BLOCKER`.** [Why it cannot merge](/features/why-it-cant-merge), in words. `ci failed` and `conflicts` belong to the author, so the row can rule itself out without being opened.
+
+## What you can do
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>j</Keys> <Keys>k</Keys></td><td>move</td><td><Keys>v</Keys></td><td>approve or unapprove</td></tr>
+<tr><td><Keys>Enter</Keys></td><td>focus the preview</td><td><Keys>m</Keys></td><td>merge</td></tr>
+<tr><td><Keys>o</Keys></td><td>open in the browser</td><td><Keys>c</Keys></td><td>comment</td></tr>
+<tr><td><Keys>Y</Keys></td><td>copy the URL</td><td><Keys>C</Keys></td><td>check out the branch</td></tr>
+<tr><td><Keys>/</Keys></td><td>filter the loaded rows</td><td><Keys>r</Keys></td><td>refresh this section</td></tr>
+</tbody>
+</table>
+
+## Narrowing the queue
+
+One filter is worth adding: press <Keys>f</Keys> and add `draft:false`. A draft merge request with you on the reviewer list is a work in progress that names you, not a review request.
+
+The same question narrows to a group or a single project, and stays one query. Press <Keys>b</Keys>, <Keys>Enter</Keys> on `platform`, then <Keys>f</Keys> and `review:requested`. Press <Keys>P</Keys> and it is a tab.
+
+`review:unreviewed` separates the merge requests you have not looked at from the ones you looked at and sent back. GitLab's own substatus wording appears on the row either way.
+
+## The two sibling groups
+
+Same table, different relationship to you. Both are groups on Home:
+
+- **Your merge requests**, meaning what you authored or were assigned.
+- **Returned to you**, meaning reviewers responded and it is your move again.
+
+## The empty state
+
+<Shot
+  id="review-queue-empty"
+  alt="An empty section showing a glyph, the message 'Nothing needs your review', a restatement of the query that produced it, and two keys."
+  caption="An empty state restates the query behind it, so an empty list never reads as a wrong filter."
+/>
+
+:::tip Related
+[Home](/features/home) · [Merge blockers](/features/why-it-cant-merge) · [Filtering](/features/filtering) · [The review queue recipe](/recipes/review-queue)
+:::

@@ -1,0 +1,67 @@
+---
+title: Release day
+description: Three tabs for one release branch, holding what can merge now, what is still blocked, and what already landed.
+---
+
+# Release day
+
+You want the merge requests targeting one release branch split by what you can do with them: the ones that can go now, the ones still in the way, and the ones that already landed. Build the three tabs on the morning of the release, and change the branch name for the next one.
+
+<Shot
+  id="release-day"
+  alt="A recording of three release tabs being built in about a minute. Pressing b and Enter on the platform group scopes the dashboard to the whole group tree. Pressing f opens the filter bar and target:release/2.4 is typed; the branch completes from the instance after five characters. draft:false, approved:true and conflicts:false are added, and four merge requests remain, each with a green pipeline icon and a diff size. Pressing P names the tab 2.4 ready. The filter is reopened, approved:true is changed to approved:false and sort:updated-asc is added, leaving seven rows whose blocker column reads needs 1, conflicts or 3 threads open; P names that tab 2.4 blocked. The filter is reopened a third time as state:merged with merged over 14d, and P names the last tab 2.4 merged. The three tabs then sit side by side in the tab bar with their row counts."
+  caption="Three tabs answer the three release-day questions in order: what can merge now, who to chase, and what has already landed on the branch. Branch names complete from the instance, so a tab is never empty because of a typo."
+/>
+
+## Steps
+
+<table className="ld-keytable">
+<thead><tr><th>Step</th><th>Key</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><Keys>b</Keys> then <Keys>Enter</Keys> on <code>platform</code></td><td>The whole group tree</td></tr>
+<tr><td>2</td><td><Keys>f</Keys> then <code>target:release/2.4 draft:false approved:true conflicts:false</code></td><td>What can go now</td></tr>
+<tr><td>3</td><td><Keys>P</Keys>, named <em>2.4 ready</em></td><td>Tab one</td></tr>
+<tr><td>4</td><td><Keys>f</Keys>, change to <code>approved:false</code>, add <code>sort:updated-asc</code></td><td>What is in the way, oldest first</td></tr>
+<tr><td>5</td><td><Keys>P</Keys>, named <em>2.4 blocked</em></td><td>Tab two</td></tr>
+<tr><td>6</td><td><Keys>f</Keys> then <code>state:merged merged &gt; 14d</code></td><td>What already landed</td></tr>
+<tr><td>7</td><td><Keys>P</Keys>, named <em>2.4 merged</em></td><td>Tab three</td></tr>
+</tbody>
+</table>
+
+Next release, press <Keys>f</Keys> on each tab and change the branch. Three edits, and you see each result before you keep it.
+
+## What each tab answers
+
+**Ready** is the merge list. `approved:true` with `conflicts:false` means every row is one you can act on now, and the `diff` column gives the size of each one before you open it.
+
+**Blocked** is the chase list, oldest first. The blockers column names who to chase and for what: `needs 1` is a reviewer, `conflicts` is the author, `3 threads open` is a conversation.
+
+**Merged** is the release note. Two weeks of what landed on the branch, on a slow refresh interval because it does not change quickly.
+
+## Row actions
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>m</Keys></td><td>merge, with the squash and branch deletion named in the prompt</td><td><Keys>Y</Keys></td><td>copy the URL, to paste into the release thread</td></tr>
+<tr><td><Keys>v</Keys></td><td>approve</td><td><Keys>Space</Keys></td><td>multi-select, then act on all of them</td></tr>
+</tbody>
+</table>
+
+:::warning On a project with merge trains, the merge key queues rather than merges
+The prompt says so: *"Add !2914 to the merge train for release/2.4? It will merge after 2 MRs ahead of it."* The wording changes because the outcome changes. See [merge trains](/features/merge-trains).
+:::
+
+## Variations
+
+### One tab, sorted by readiness
+
+Drop the approval filters and add `sort:priority`. It puts what is closest to mergeable at the top, so the tab drains from the front.
+
+### Cherry-pick candidates still on main
+
+Filter to `state:merged target:main merged > 7d label:release-candidate` and pin it. These are the ones somebody asks about at 4pm.
+
+:::tip Related
+[Merge trains](/features/merge-trains) · [Merge blockers](/features/why-it-cant-merge) · [Filtering](/features/filtering) · [Pinned views](/features/pinned-views)
+:::

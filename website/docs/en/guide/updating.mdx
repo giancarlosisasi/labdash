@@ -1,0 +1,60 @@
+---
+title: Updating
+description: How to update per install route, how the version check works, and what a new binary does to your settings and pinned views.
+---
+
+# Updating
+
+<div className="ld-lede">
+labdash is one binary, an optional settings file, and a state file it owns. Updating replaces the binary.
+</div>
+
+## Per install route
+
+| Installed with | Update with |
+| --- | --- |
+| Homebrew | `brew upgrade labdash` |
+| Scoop | `scoop update labdash` |
+| winget | `winget upgrade labdash` |
+| AUR | `yay -Syu labdash` |
+| `go install` | `go install github.com/giancarlosisasi/labdash/cmd/labdash@latest` |
+| deb, rpm, apk | Download the new package and install it over the old one |
+| Binary download | `labdash update`, or download the new archive and replace the binary |
+| Docker | `docker pull ghcr.io/giancarlosisasi/labdash:latest` |
+
+## The version check
+
+`--version` prints build information and, when a newer release exists, one more line:
+
+```bash
+labdash --version
+# labdash 1.4.2 (2026-07-18, commit a9f3c21)
+# 1.5.0 is available
+```
+
+That check is a single request, cached, and it never blocks startup.
+
+## Settings and pinned views
+
+The settings file holds connection details, so a new binary reads the file you already have and never rewrites it without you asking.
+
+Your pinned views, collapsed groups, sort order and last view live in the state file, which labdash owns. It migrates that file silently between versions. A state file it cannot read resets with a note rather than a startup error, and the worst case is that you pin your tabs again.
+
+A settings file that no longer parses produces a pointed error naming the file, the line, the field, and the values allowed there. You can check one without launching the dashboard, which is how a platform team validates the file it ships to its developers:
+
+```bash
+labdash settings validate ./settings.yml
+```
+
+It exits non-zero on a bad file.
+
+## Rolling back
+
+Every release publishes signed checksums and an SBOM. Downgrading is the same command with a version pinned:
+
+```bash
+brew install labdash@1.4.2
+go install github.com/giancarlosisasi/labdash/cmd/labdash@v1.4.2
+```
+
+Your credential store, settings file and pinned views survive a downgrade. The keyring service name, the settings directory name, and the credential file name are frozen identifiers. Changing one would make every user silently appear logged out, with no error to explain it.

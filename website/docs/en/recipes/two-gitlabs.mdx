@@ -1,0 +1,103 @@
+---
+title: Two GitLab instances
+description: A work instance and gitlab.com in one dashboard, with each token read from the environment.
+---
+
+# Two GitLab instances
+
+You want your company's GitLab and gitlab.com in the same dashboard, with a tab for each and no token written to disk. Both instances become roots in the browse tree, and a pinned view remembers the root it came from.
+
+<Shot
+  id="two-gitlabs"
+  alt="A recording of one dashboard spanning two GitLab instances. Pressing b opens the browse tree and it has two roots, gitlab.example.com and gitlab.com, each expanding into its own groups. Enter on the platform group under gitlab.example.com scopes the table there, f filters it to state:opened draft:false, and P pins the tab as work · platform. Pressing b again selects gitlab.com, a filter for what you authored is applied, and P pins a second tab named oss. Home is then shown with rows from both instances merged into one list and sorted together, with an instance column naming the GitLab each row came from. The work instance is then disconnected: its rows carry an error marker while the gitlab.com rows keep refreshing."
+  caption="Each instance is a root in the browse tree, and a pinned tab stays bound to the root it was built from. Home merges both review queues into one sorted list and adds an instance column, so a mixed row set is never ambiguous about where a row came from."
+/>
+
+## The settings file
+
+labdash cannot guess your company's host or its private certificate authority, so those go in the settings file:
+
+```yaml title="settings.yml"
+defaultHost: gitlab.example.com
+
+instances:
+  gitlab.example.com:
+    tokenEnv: GITLAB_WORK_TOKEN
+    caCert: /etc/ssl/corp-root.pem
+  gitlab.com:
+    tokenEnv: GITLAB_OSS_TOKEN
+```
+
+Then, in your shell profile:
+
+```bash
+export GITLAB_WORK_TOKEN="$(pass show work/gitlab-pat)"
+export GITLAB_OSS_TOKEN="$(pass show oss/gitlab-pat)"
+```
+
+## Steps
+
+Everything you see is built in the terminal:
+
+<table className="ld-keytable">
+<thead><tr><th>Step</th><th>Key</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><Keys>b</Keys></td><td>Both instances are <strong>roots in the tree</strong>, side by side</td></tr>
+<tr><td>2</td><td><Keys>Enter</Keys> on <code>gitlab.example.com ▸ platform</code></td><td>Scopes to the work group tree</td></tr>
+<tr><td>3</td><td><Keys>f</Keys> then <code>state:opened draft:false</code>, then <Keys>P</Keys></td><td>Tab: <em>work · platform</em></td></tr>
+<tr><td>4</td><td><Keys>b</Keys> to <code>gitlab.com</code>, filter to what you authored, <Keys>P</Keys></td><td>Tab: <em>oss</em></td></tr>
+</tbody>
+</table>
+
+Which GitLab a tab queries is a place you navigate to, so a tab never quietly queries the wrong instance.
+
+## How the two instances stay separate
+
+**`tokenEnv` rather than a stored credential.** No token is written to disk by labdash, you keep both wherever you already keep secrets, and the settings file stays safe to commit. An instance's `tokenEnv` is the highest-precedence credential source, so it beats a credential from `labdash auth login`.
+
+:::warning Use a distinct variable per instance
+`GITLAB_TOKEN`, `GITLAB_ACCESS_TOKEN` and `OAUTH_TOKEN` apply to **the default host only**. They are not host-scoped, so applying one to a named instance would send your work token to gitlab.com. labdash refuses to.
+:::
+
+**`defaultHost`** decides which instance an unqualified action belongs to, and which one `GITLAB_TOKEN` may apply to.
+
+**The instance column** appears on its own in any table holding rows from more than one GitLab.
+
+**One instance going down affects only its own rows.** Each instance has its own HTTP client, its own concurrency budget and its own error state, so a dropped VPN degrades the work tabs and leaves the rest refreshing.
+
+## Variations
+
+### Different transport per instance
+
+Your corporate instance needs a certificate authority and a proxy; gitlab.com needs neither.
+
+```yaml
+instances:
+  gitlab.example.com:
+    tokenEnv: GITLAB_WORK_TOKEN
+    caCert: /etc/ssl/corp-root.pem
+    clientCert: /etc/ssl/client.pem
+    clientKey: /etc/ssl/client-key.pem
+    proxy: http://proxy.internal:3128
+  gitlab.com:
+    tokenEnv: GITLAB_OSS_TOKEN
+```
+
+See [behind a corporate proxy](/recipes/corporate-proxy).
+
+### Read-only at work, full access on your own projects
+
+Create the work token with `read_api` and the personal one with `api`. Actions are hidden on the work rows and available on the others.
+
+### Separate setups instead of one
+
+```bash
+labdash --config ~/dotfiles/labdash/work.yml
+labdash --config ~/dotfiles/labdash/oss.yml
+```
+
+Two windows, two dashboards, two independent sets of pinned views.
+
+:::tip Related
+[Multiple instances](/features/multi-instance) · [Instances](/settings/instances) · [Security](/help/security)
+:::

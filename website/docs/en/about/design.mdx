@@ -1,0 +1,235 @@
+---
+title: Design
+description: The tokens, the contrast rules, the status vocabulary, the key tiers, and the fallbacks.
+---
+
+# Design
+
+<div className="ld-lede">
+One palette, one status vocabulary, four key tiers, and a defined fallback for every terminal. This page is the reference for all four.
+</div>
+
+## Colour
+
+The palette is warm amber on cool slate. It nods to GitLab's tanuki without using GitLab's brand orange.
+
+Components name a **role**, never a hex value. Colour literals live in the theme package and nowhere else, so a token change reaches every screen at once.
+
+### Surfaces and borders
+
+<Palette group="surfaces" theme="dark" />
+
+### Text
+
+<Palette group="text" theme="dark" />
+
+### Meaning
+
+<Palette group="meaning" theme="dark" />
+
+### Contrast
+
+Every token clears WCAG AA against its own background: 4.5:1 for text, 3:1 for interface elements. The ratio beside each swatch is computed on every commit rather than eyeballed on one monitor. The lowest is `text.muted` at 5.09:1, and that headroom is what a small tweak spends.
+
+The `contrast` theme re-derives the whole palette at AAA, 7:1 for body text.
+
+### Light theme
+
+The same token names, different values, verified by the same computation.
+
+<Palette group="meaning" theme="light" />
+
+### Capability tiers
+
+labdash reads the terminal's capability once at startup and stores it on the theme, so no call site branches on colour depth.
+
+| Tier | Detected by | What happens |
+| --- | --- | --- |
+| Monochrome | `NO_COLOR`, or `TERM=dumb` | No colour. Hierarchy from glyphs, weight and layout |
+| 16 ANSI | `TERM` without `256color` | Indices 0–15. Your terminal's own theme supplies the hues |
+| 256 | `TERM` contains `256color` | Nearest match into the 256-colour cube |
+| True colour | `COLORTERM` is `truecolor` or `24bit` | The palette above, exactly |
+
+At the 16-colour tier the selected row is reverse video rather than a background colour, because reverse video is the one background every terminal theme renders reliably.
+
+`NO_COLOR` is honoured unconditionally, and no setting overrides it. `--no-color` does the same for a single run. At either, every state is still identifiable, because colour never carries a state on its own.
+
+## The status vocabulary
+
+Every state is a triple: glyph, colour, word. Remove any one and the other two still carry it.
+
+<Terminal
+  title="labdash · every pipeline status"
+  cols={78}
+  alt="A list of thirteen pipeline statuses, each shown with its Nerd Font glyph, its ASCII fallback of identical width, and its word."
+  caption="The same screen in ASCII mode has identical column boundaries."
+>{`
+  GLYPH   ASCII   WORD            TOKEN
+  ────────────────────────────────────────────────
+    ✔       +     passed          status.success
+    ✖       x     failed          status.error
+    ●       >     running         status.running
+    ◌       .     pending         status.pending
+    ○       -     created         status.neutral
+    ◌       .     preparing       status.pending
+    ◍       ~     waiting         status.pending
+    ⏸       !     manual          status.warning
+    ◔       @     scheduled       status.pending
+    ◐       /     canceling       status.neutral
+    ⊘       /     canceled        status.neutral
+    »      >>     skipped         status.neutral
+    ⊘       -     no pipeline     text.muted
+`}</Terminal>
+
+A job that failed with `allow_failure: true` renders as a warning. Red is reserved for the failures that stop a pipeline.
+
+Merge blockers use the same triple. Each value of GitLab's `detailedMergeStatus` maps to a phrase, a token and a glyph: `ready`, `conflicts`, `ci failed`, `ci running`, `needs 2`, `3 threads open`, `needs rebase`, `changes requested`, `policy blocked`. A value labdash does not recognise is title-cased and logged rather than dropped.
+
+## Nerd Font and ASCII
+
+Every Nerd Font glyph has an ASCII fallback of **the same display width**, so a screen rendered in either mode has identical column boundaries. A glyph that is one cell in one mode and two in the other is a layout bug.
+
+`theme.icons` takes `auto`, `nerd` or `ascii`. `auto` detects a Nerd Font; the other two force the answer when detection is wrong. In `ascii` mode no byte above `0x7F` reaches the screen, borders are `+ - |`, and the spinner is `|/-\`.
+
+## Type and borders
+
+There is one font: yours. What labdash controls is weight, case and glyph choice.
+
+| Device | Used for | Never |
+| --- | --- | --- |
+| **Bold** | The selected row's title, section headings, key caps | Whole rows, body text |
+| **Faint** | Stale rows, disabled actions, muted text | Anything read carefully |
+| **Reverse** | Selection, at the 16-colour tier only | As decoration |
+| **Underline** | Nothing | Terminals disagree, and it collides with links |
+| **Italic** | Nothing | Many terminals render it as reverse video |
+| **UPPERCASE** | Column headers, the view name | Data, ever |
+
+Borders use `╭ ╮ ╰ ╯ ─ │`; rounded reads softer without costing a cell. A focused pane changes colour and never geometry, because a border that thickens on focus shifts every column beside it.
+
+## Space
+
+| Name | Columns | Between |
+| --- | --- | --- |
+| tight | 1 | A glyph and its label |
+| normal | 2 | Table columns |
+| loose | 4 | Logical groups in the footer |
+
+Vertical space costs more than horizontal: one blank row between preview sections, never two, and no blank rows inside a table. Chrome takes four rows, the filter bar takes one more while it is open, and the rest is data.
+
+## Responsive columns
+
+The table decides its own layout at the width it is given.
+
+- `title`, `blockers` and `pipeline` are present at every width.
+- Every other column carries a priority and a minimum width, and drops in that order as the terminal narrows.
+- Text is left-aligned, numbers and durations right-aligned, a single-glyph status centred.
+- Truncation is always `…`, never a hard clip, and a wide glyph never shifts a column.
+
+The preview pane takes 34 to 40% of the width. `auto` puts it on the right at 120 columns or wider, and along the bottom below that.
+
+## Keys, in four tiers
+
+| Tier | Contains |
+| --- | --- |
+| **L0 universal** | <Keys>↑</Keys> <Keys>↓</Keys> <Keys>Enter</Keys> <Keys>Esc</Keys> <Keys>q</Keys> <Keys>?</Keys> <Keys>b</Keys> <Keys>f</Keys> <Keys>P</Keys> |
+| **L1 vim** | <Keys>j</Keys> <Keys>k</Keys> <Keys>h</Keys> <Keys>l</Keys> <Keys>g</Keys> <Keys>G</Keys> <Keys>/</Keys> |
+| **L2 actions** | One mnemonic key per verb |
+| **L3 power** | Chords |
+
+**L0 and L1 are complete alternatives to each other**, not a core plus an add-on. Nobody is locked out for not knowing vim, and nobody who does has to reach for an arrow key. Every action is reachable from the keyboard; the mouse only ever adds.
+
+Bindings are fixed. The [coherence rules](/keys/#coherence-rules) that make an unlearned key guessable are on the keyboard reference.
+
+## Motion
+
+Terminals redraw whole cells, so motion is cheap to add and expensive to live with.
+
+| Animate | Do not animate |
+| --- | --- |
+| A spinner on running work | Row insertion or removal |
+| A progress meter with real progress | Scrolling |
+| The splash gradient, once | Selection movement |
+| A toast appearing and dismissing | Colour transitions |
+
+| Rule | Value |
+| --- | --- |
+| Spinner frame rate | 10 fps |
+| Toast lifetime | 4 s, or any key |
+| Splash | 900 ms maximum, skipped by any key |
+| Any transition | 150 ms, or nothing |
+
+`theme.reducedMotion: true` replaces the spinner with a static marker and drops the gradient. State is still communicated: the task line still names what is running.
+
+## Copy
+
+Terse and factual. The user is mid-task and something failed. Say what happened and what to do.
+
+| Do | Do not |
+| --- | --- |
+| "gitlab.example.com timed out after 15s." | "Oops! Something went wrong 😅" |
+| "Your token expired on 2026-07-30." | "Uh oh, we couldn't authenticate you!" |
+| "Nothing needs your review." | "You're all caught up! 🎉" |
+| "needs 1 approval" | "This MR is not yet approved by a sufficient number of reviewers" |
+
+No exclamation marks. No emoji in prose, because glyphs are part of the status vocabulary and that is a different thing. Never blame the user, and never say "invalid" when "not recognised" is true.
+
+Every message follows a formula:
+
+| Kind | Formula | Example |
+| --- | --- | --- |
+| **Error** | *what failed*, then *why*, then *what to do* | `platform/* could not refresh — gitlab.example.com timed out after 15s. Press r to retry.` |
+| **Empty** | *nothing here, restating the query*. *one action* | `Nothing needs your review. This is currentUser.reviewRequested, open and non-draft.` |
+| **Confirm** | *verb* *object*, *consequence*? | `Merge !2841 into main, squashing 7 commits and deleting feat/retry-budget?` |
+| **Blocked** | *cannot verb*, then the specific reason | `Cannot merge — 2 threads are unresolved.` |
+
+GitLab's words, not ours: "merge request" never "pull request", "pipeline" never "build", "To-Do" capitalised as GitLab does. Someone who searches GitLab's documentation for a word they saw here finds it.
+
+## Identity
+
+The wordmark is figlet's **ANSI Shadow**, generated once and committed as a text file, so there is no font dependency and no startup cost.
+
+<Terminal
+  title="labdash · the wordmark"
+  cols={60}
+  alt="The labdash wordmark in ANSI Shadow block letters."
+>{`
+██╗      █████╗ ██████╗ ██████╗  █████╗ ███████╗██╗  ██╗
+██║     ██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔════╝██║  ██║
+██║     ███████║██████╔╝██║  ██║███████║███████╗███████║
+██║     ██╔══██║██╔══██╗██║  ██║██╔══██║╚════██║██╔══██║
+███████╗██║  ██║██████╔╝██████╔╝██║  ██║███████║██║  ██║
+╚══════╝╚═╝  ╚═╝╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
+`}</Terminal>
+
+The two-tone split is the identity: `lab` recedes into `text.muted`, and `dash` takes a horizontal gradient from `accent.primary` to `status.error`, amber to coral. It degrades by tier:
+
+| Tier | Treatment |
+| --- | --- |
+| True colour | The full gradient, interpolated per column |
+| 256 | Three fixed stops |
+| 16 | `lab` in ANSI 8, `dash` in ANSI 3 |
+| Monochrome | Plain: `lab` dim, `dash` bold |
+| ASCII mode | The figlet `Standard` art below |
+
+<Terminal
+  title="labdash · ASCII fallback"
+  cols={40}
+  alt="The labdash wordmark rendered in plain ASCII using figlet's Standard font."
+  caption="No byte above 0x7F. For serial consoles, CI logs, and restrictive corporate terminals."
+>{`
+ _       _         _           _
+| | __ _| |__   __| | __ _ ___| |__
+| |/ _' | '_ \\ / _' |/ _' / __| '_ \\
+| | (_| | |_) | (_| | (_| \\__ \\ | | |
+|_|\\__,_|_.__/ \\__,_|\\__,_|___/_| |_|
+`}</Terminal>
+
+The gradient lives on the splash and nowhere else. It never touches body text.
+
+### The mascot
+
+GitLab's own logo is a tanuki, a Japanese raccoon dog, so the correct nod is 🦝 rather than a fox. labdash draws its own, and uses neither GitLab's logo, nor its brand orange, nor any wording that implies endorsement.
+
+:::tip This site follows the same rules
+Every colour on these pages is one of the tokens above, and the terminal screens are rendered with the shipped palette.
+:::

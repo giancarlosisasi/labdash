@@ -1,0 +1,8 @@
+[
+  { "text": "Guide", "link": "/guide/", "activeMatch": "/guide/" },
+  { "text": "Features", "link": "/features/", "activeMatch": "/features/" },
+  { "text": "Recipes", "link": "/recipes/", "activeMatch": "/recipes/" },
+  { "text": "Keys", "link": "/keys/", "activeMatch": "/keys/" },
+  { "text": "Settings", "link": "/settings/", "activeMatch": "/settings/" },
+  { "text": "Help", "link": "/help/", "activeMatch": "/help/" }
+]

@@ -1,0 +1,62 @@
+---
+title: Finding flaky pipelines
+description: The pipelines you retried that failed again, with the runner failures separated from the test failures.
+---
+
+# Finding flaky pipelines
+
+You want the pipelines you already retried that failed anyway, and you want to see which of those failures came from a test and which came from a runner. A table that says only "failed" renders both the same way, and they have different owners and different fixes.
+
+<Shot
+  id="flaky-tests"
+  alt="A recording of a flaky-pipeline list being built and then read. Pressing b and Enter selects the platform group, and Tab moves to the pipelines view. Pressing f opens the filter bar and status:failed with retried:true and updated under 7d is typed. Twelve rows remain, from six projects, each showing project, ref, queued time, duration and failure reason. Pressing P pins the tab as Failed again. The cursor then moves down the reason column: seven rows read script_failure, and five read runner_system_failure or stuck_or_timeout_failure with queued times between nine and fourteen minutes. One project, gateway, appears three times in the week, twice on main, all script_failure."
+  caption="One tab holds every pipeline that was retried and failed again. Reading the reason column down the table splits it in two: the script failures belong to whoever owns the suite, and the runner failures belong to whoever owns the runners."
+/>
+
+## Steps
+
+<table className="ld-keytable">
+<thead><tr><th>Step</th><th>Key</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><Keys>b</Keys> then <Keys>Enter</Keys> on <code>platform</code>, then <Keys>Tab</Keys> to <strong>pipelines</strong></td><td>The group tree, CI view</td></tr>
+<tr><td>2</td><td><Keys>f</Keys> then <code>status:failed retried:true updated &lt; 7d</code></td><td>Retried, and failed anyway</td></tr>
+<tr><td>3</td><td><Keys>P</Keys>, named <em>Failed again</em></td><td>Keeps the list as a tab</td></tr>
+<tr><td>4</td><td>read the <strong>reason</strong> column</td><td>Splits the runner failures from the test failures</td></tr>
+</tbody>
+</table>
+
+Read the tab column-wise rather than row-wise. A project that appears three times in a week, twice on `main`, all `script_failure`, has one broken suite that keeps being retried until it passes by luck.
+
+## Reading the reason column
+
+"Flaky" names two problems that look identical in a list.
+
+**A retried failure that fails again with `script_failure`** is a test problem: either a genuinely non-deterministic test, or a broken one that occasionally passes. It belongs to whoever owns that suite.
+
+**A failure with `runner_system_failure` or `stuck_or_timeout_failure`** was never a test. The runners died, or none was free. A retry hides it, which is how a capacity problem gets reported as flaky tests.
+
+**The `queued` column confirms the second case.** Jobs that wait nine to fourteen minutes for a runner and then time out are a capacity problem with a specific fix, and nothing in the word "failed" says so.
+
+## Row actions
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>Enter</Keys></td><td>the failing assertion, without opening a log</td><td><Keys>L</Keys></td><td>the full log, when the assertion is not enough</td></tr>
+<tr><td><Keys>y</Keys></td><td>copy the failure block into an issue</td><td><Keys>/</Keys></td><td>narrow to one project to see the pattern</td></tr>
+</tbody>
+</table>
+
+## Variations
+
+### One project over time
+
+When you already suspect a project, press <Keys>b</Keys> down to `platform/gateway` and filter to `ref:main updated < 30d` with no status filter at all. Every run of one branch for a month, passes and failures together, is where a test that fails one run in five becomes obvious. The preview also carries a sparkline of the last runs for that ref, so a pipeline that has crept from four minutes to eleven shows up here.
+
+### Scheduled pipelines only
+
+Add `source:schedule` to the *Failed again* filter and pin that as a second tab. Nightly builds fail differently from merge request pipelines, and usually nobody is watching them.
+
+:::tip Related
+[Failure summary](/features/failure-summary) · [Everything red in a group](/recipes/failed-pipelines) · [Pipelines](/features/pipelines)
+:::

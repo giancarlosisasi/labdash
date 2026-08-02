@@ -1,0 +1,78 @@
+---
+title: Everything red in a group
+description: Every pipeline that failed in a group and its subgroups today, with the reason it failed in the row.
+---
+
+# Everything red in a group
+
+You want every pipeline that failed in a group and its subgroups since this morning, in one table, with the reason each one failed visible in the row. One node in the browse tree covers every project beneath it, so this is one wait rather than one wait per project.
+
+<Shot
+  id="group-pipelines"
+  alt="A recording of a group's failed pipelines being collected. Pressing b opens the browse tree; Enter on the platform group scopes the dashboard there and the context bar changes to platform. Tab moves to the pipelines view, which keeps the same scope. Pressing f opens the filter bar and status:failed with updated under 24h is typed. The table redraws with nine failed pipelines from nine different projects in the group tree, each row showing project, ref, status, duration, queued time, source and failure reason. Three of the rows read runner_system_failure or stuck_or_timeout_failure rather than script_failure. Pressing P pins the result as a tab named Failed today."
+  caption="One node in the browse tree puts nine projects on screen in a single fetch. The failure reason column separates a broken test from a runner that died, which is the difference between a bug report and a capacity ticket."
+/>
+
+## Steps
+
+<table className="ld-keytable">
+<thead><tr><th>Step</th><th>Key</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><Keys>b</Keys> then <Keys>Enter</Keys> on <code>platform</code></td><td>Scopes to the group <strong>and every subgroup beneath it</strong></td></tr>
+<tr><td>2</td><td><Keys>Tab</Keys> to <strong>pipelines</strong></td><td>Same scope, CI view</td></tr>
+<tr><td>3</td><td><Keys>f</Keys> then <code>status:failed updated &lt; 24h</code></td><td>Only what went red since this morning</td></tr>
+<tr><td>4</td><td><Keys>P</Keys></td><td>Pins it as <em>Failed today</em></td></tr>
+</tbody>
+</table>
+
+Next time, press <Keys>2</Keys> instead of typing `status:failed`. Failed CI is one of the five [quick filters](/features/filtering).
+
+## Reading the result
+
+**A group scope includes its subgroups.** Selecting one node in [Browse](/features/browse) is what puts nine projects on screen from a group tree rather than from a list you maintain.
+
+**The failure reason column turns a list into a diagnosis.** Three `runner_system_failure` and `stuck_or_timeout_failure` rows are a runner capacity problem, and they would be invisible if every row said only "failed".
+
+| Reason | What it means |
+| --- | --- |
+| `script_failure` | Your code or your test |
+| `runner_system_failure` | The runner died. A retry will probably work |
+| `job_execution_timeout` | It hung, or it got slower |
+| `stuck_or_timeout_failure` | No runner ever picked it up |
+| `runner_unsupported` | Tag mismatch. No runner matches this job |
+
+**The source column** shows how much of the red is scheduled dependency bumps. On many teams that is most of it.
+
+## Row actions
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>Enter</Keys></td><td>jobs by stage, plus the first failure inline</td><td><Keys>L</Keys></td><td>the failing job's log, scrolled to the error</td></tr>
+<tr><td><Keys>R</Keys></td><td>retry</td><td><Keys>w</Keys></td><td>watch it, and get notified when it lands</td></tr>
+</tbody>
+</table>
+
+<Keys>Enter</Keys> is usually enough. The [failure summary](/features/failure-summary) puts the failing assertion in the preview without opening a log at all.
+
+## Variations
+
+### Human-triggered pipelines only
+
+Add `source:push,merge-request` to the filter bar and the scheduled dependency bumps leave the table. On most teams this is the largest single change to the recipe.
+
+### The branch that must stay green
+
+Add `ref:main`, pin it as *main is red*, then set that tab's refresh interval to 30 seconds. [Each pinned view polls on its own schedule](/features/staying-fresh).
+
+### What is running right now
+
+Filter to `status:running,pending` and pin it. Read the **queued** column: it separates CI that is slow from runners that are busy. The two feel identical and have different fixes.
+
+### A group with hundreds of projects
+
+labdash bounds the fan-out across a group's projects itself. You never set a limit, and a very wide group still returns. See [group pipelines](/features/group-pipelines).
+
+:::tip Related
+[Group pipelines](/features/group-pipelines) · [Failure summary](/features/failure-summary) · [Finding flaky pipelines](/recipes/flaky-tests)
+:::

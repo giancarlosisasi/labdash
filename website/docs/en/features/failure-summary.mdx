@@ -1,0 +1,61 @@
+---
+title: Failure summary
+description: The failed jobs, their failure reasons, and the lines around the first error, in the pipeline preview pane.
+---
+
+# Failure summary
+
+<div className="ld-lede">
+Select a pipeline that has a failed job and the preview pane shows a failure summary: which jobs failed, why each one failed, and the lines around the first error.
+</div>
+
+## What you see
+
+Three blocks, in the order you need them.
+
+**Which jobs failed.** Grouped by stage, so a whole stage failing looks different from one flaky test. Allow-failure jobs are marked and rendered as warnings rather than errors, because the pipeline was told to tolerate them.
+
+**Why each one failed.** GitLab returns a `failureReason` on every failed job:
+
+| Reason | What it means |
+| --- | --- |
+| `script_failure` | Your code or your test. Read the log |
+| `runner_system_failure` | The runner died. Retrying will probably work |
+| `job_execution_timeout` | It hung, or it got slower |
+| `stuck_or_timeout_failure` | No runner picked it up |
+| `runner_unsupported` | Tag mismatch. No runner matches this job |
+| `missing_dependency_failure` | An earlier stage's artifact never arrived |
+
+Two rows on the same screen reading `script_failure` and `runner_system_failure` are two different incidents, and they render differently.
+
+**The first failure, in full.** The job, the line number, and the lines around the error, extracted from the trace and shown inline. For most failures this is the whole answer.
+
+## Where the lines come from
+
+GitLab's GraphQL `CiJobTrace` type exposes one field, `htmlSummary`, and it is a truncated tail. The full log comes from REST, `GET /projects/:id/jobs/:job_id/trace`, which returns every line the runner produced.
+
+The extraction runs over the tail of the trace and matches the shapes that common test runners and compilers emit. When nothing matches, it falls back to the last non-empty lines before the failure.
+
+## What you can do
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>L</Keys></td><td>the full log, scrolled to this error</td><td><Keys>R</Keys></td><td>retry the pipeline</td></tr>
+<tr><td><Keys>y</Keys></td><td>copy the failure block</td><td><Keys>o</Keys></td><td>open the job in the browser</td></tr>
+</tbody>
+</table>
+
+<Keys>L</Keys> goes from a failed pipeline row to the failing job's log, already scrolled to the error. It does not open at line 1 of 40,000, and it does not stop at a job list for you to choose from.
+
+## Where it appears
+
+The failure summary appears in the preview whenever the selected pipeline has a failed job. The columns that go with it, failure reason and queued duration and coverage, sit in the pipeline table under the same column priority rules as everywhere else.
+
+## Repeat failures
+
+A pipeline you already retried, that failed again, is a different queue from one that failed once. `status:failed retried:true updated < 7d` in the filter bar, then <Keys>P</Keys>, keeps that queue as a tab.
+
+:::tip Related
+[Job logs](/features/job-logs) · [Pipelines](/features/pipelines) · [The flaky-tests recipe](/recipes/flaky-tests)
+:::

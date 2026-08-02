@@ -1,0 +1,68 @@
+---
+title: Read-only mode
+description: A read_api token is a supported mode. A badge names it, mutating keys disappear, and everything else works as usual.
+---
+
+# Read-only mode
+
+<div className="ld-lede">
+A <code>read_api</code> token gives you the whole dashboard without giving labdash permission to change anything in GitLab.
+</div>
+
+## Turning it on
+
+Request the narrower scope at login:
+
+```bash
+labdash auth login --read-only
+```
+
+Or use a personal access token created with `read_api` instead of `api`. labdash records the scopes it was granted at login and behaves accordingly.
+
+## What changes
+
+<Shot
+  id="read-only-badge"
+  alt="A dashboard carrying a read-only badge in its context bar. The footer lists open, copy, search and help, and no approve or merge key appears anywhere on screen."
+  caption="The badge sits in the context bar, and the footer offers only the keys that will work."
+/>
+
+Three things happen, and nothing else:
+
+1. A `read-only` badge appears in the context bar, so the mode is always visible.
+2. Mutating keys are removed from the footer and from the <Keys>?</Keys> overlay. They are not shown and then refused.
+3. Everything else behaves exactly as it does with a full token.
+
+| Works | Hidden |
+| --- | --- |
+| Every view, every filter, every column | Approve and unapprove |
+| The preview pane and all its tabs | Merge |
+| Search, sort, load more | Retry and cancel a pipeline or job |
+| Job logs, follow, search, copy, save | Play a manual job |
+| Open in browser, copy URL and branch | Comment, assign, label, close, reopen |
+| Local git checkout and worktrees | Mark a to-do done |
+| Watch a pipeline, desktop notifications | Create a merge request or run a pipeline |
+
+The left column is most of the product. A read-only labdash still reports what is waiting, what is blocked and why, and which assertion failed.
+
+## A 403 from a mutation
+
+Scopes are recorded at login, so labdash usually knows before it tries. If a mutation does come back `403`, because the token was narrowed after login or the instance disagrees, the message names the cause:
+
+```
+Cannot approve !2841: your token is read-only.
+Create one with the `api` scope at
+https://gitlab.example.com/-/user_settings/personal_access_tokens
+```
+
+The message is never a raw API error and never a silent no-op.
+
+## Reasons to use it
+
+- **Least privilege.** A dashboard that only reads cannot merge anything through a mis-keyed <Keys>m</Keys>.
+- **Shared credentials.** A group access token scoped to `read_api` gives a whole team a dashboard without giving a whole team write access.
+- **Policy.** Some organisations do not grant `api` to a desktop tool.
+
+:::tip Related
+[Scopes and credential storage](/help/security) · [Instance settings](/settings/instances)
+:::

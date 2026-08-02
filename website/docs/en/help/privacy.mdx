@@ -1,0 +1,101 @@
+---
+title: Privacy
+description: What labdash sends and where, what stays on your machine, and what this site records.
+---
+
+# Privacy
+
+<div className="ld-lede">
+labdash runs on your machine and talks to your GitLab. There is no labdash server, no labdash account, and no telemetry.
+</div>
+
+## What labdash sends
+
+| Destination | What it sends | When |
+| --- | --- | --- |
+| Your GitLab instance | GraphQL and REST requests for the rows on screen, authenticated with your own token | While the dashboard is open, and on every refresh |
+| `api.github.com` | A request for the latest release tag, carrying nothing beyond the HTTP request itself | At most once a day, cached, never blocking startup |
+
+That is the whole list. There is no analytics endpoint, no crash-reporting service, no usage ping, and no "anonymous statistics" switch that arrives switched on.
+
+The release check is the only request that does not go to your own GitLab. Turn it off and labdash talks to exactly one host for the rest of its life:
+
+```yaml title="settings.yml"
+updateCheck: false
+```
+
+## What stays on your machine
+
+| What | Where it lives |
+| --- | --- |
+| Your credential | The OS keyring, or `credentials.json` at mode `0600` |
+| Which GitLab, and how to reach it | `settings.yml` |
+| Pinned views, collapsed groups, sort order, last view | The state file beside it |
+| The log file | The same directory, at the level `log.level` sets |
+| Cached rows for a warm start | The same directory |
+| A crash report | Written to a file, with the path printed to your terminal |
+
+None of it is uploaded, and no part of labdash can upload it. `labdash auth logout` removes the credential. Deleting the `labdash` directory removes everything else. `labdash settings path` prints the location.
+
+## The OAuth application
+
+Signing in on gitlab.com uses an OAuth application registered under the public group [gitlab.com/labdash](https://gitlab.com/labdash). That application identifies the software. It does not identify you, and it gives the project no access to your account.
+
+- GitLab issues the token to you, and labdash stores it on your machine. The application owner never receives it.
+- GitLab does not report to an application owner which accounts have authorised it. There is no list, no count, and no API for it.
+- You can withdraw access at any time at `/-/user_settings/applications` on your instance.
+
+On a self-managed GitLab the application is one your own administrator registers, so the project is not in the path at all. Signing in with a [personal access token](/guide/first-run) skips OAuth entirely.
+
+## This documentation site
+
+The site is a set of static files. It is separate from the application, and the two share nothing.
+
+### Analytics, only if you accept
+
+The site can use **Google Analytics** to count page views. It is the only third-party service here, and it does not run until you accept it.
+
+| | |
+| --- | --- |
+| What Google receives | Your IP address, your browser and operating system, the pages you read, how long you stay, and an approximate location derived from the IP address |
+| What it stores on your device | An identifier, so a second visit is recognised as the same browser |
+| When it loads | Only after you press **Accept**. Before that, the script is never requested and nothing is stored |
+| If you press Reject | Nothing loads and nothing is stored. Only your choice is remembered |
+| Changing your mind | The **Cookies** link in the footer of every page reopens the choice |
+
+Your choice is kept in your browser's own storage, under `labdash.analytics-consent`. It never leaves your device. Clearing your browser data resets it and the question comes back.
+
+Google acts as the data processor for this. Transfers to the United States rely on the EU-US Data Privacy Framework, under which Google LLC is certified. Google's own [privacy policy](https://policies.google.com/privacy) covers what it does with the data it receives.
+
+### Everything else about the site
+
+- **No other third party.** No tag manager, no advertising, no session recording, no embedded video, no comment widget.
+- **No third-party requests on load.** The typeface is served from this origin, and search runs against an index built when the site is compiled and shipped with the page. Nothing you type into the search box leaves your browser.
+- **One more stored value.** The light or dark theme you pick with the toggle. It stays in your browser and needs no consent, because it only remembers a preference you set.
+
+{/* TODO: name the hosting provider and its log retention once hosting is chosen. */}
+The hosting provider keeps standard web-server access logs, which include IP addresses and requested paths, to serve the site and keep it available. Those logs exist whether or not you accept analytics.
+
+## Data protection law
+
+What follows describes where the data flows above leave this project. It is a description of the software rather than legal advice, and it does not replace your own organisation's assessment of its own use of GitLab.
+
+**GDPR and UK GDPR.** The duties fall on whoever decides the purposes and means of processing personal data, and on whoever processes it on their behalf. labdash receives nothing from you, so the project is neither of those for anything you do in the dashboard. The names, merge requests and pipelines you read belong to your employer's GitLab and stay your employer's responsibility, exactly as they are in a browser tab.
+
+This website is the exception. The project decides that the site exists and that it can count page views, so the project is the controller for the access logs and for any analytics you accept. That is the whole of it.
+
+**The ePrivacy rule behind cookie banners.** It covers storing information on your device, and it draws a line at "strictly necessary". Storing a token you asked labdash to fetch sits on the necessary side, so the application asks you nothing. Analytics on this website sits on the other side, which is why the site asks before it loads anything and treats Reject as the equal of Accept.
+
+**CCPA and CPRA.** They apply to a for-profit business over a revenue or volume threshold. This project is not a business and meets none of them.
+
+**LGPD, PIPL, India's DPDP Act, Quebec's Law 25, POPIA.** Each one attaches to an organisation that processes personal data. The same fact answers all of them: none of your data reaches this project.
+
+**Filing a bug report.** An issue or a security advisory carries whatever you type into it, along with your GitHub account. That is the one place where the project does receive personal data about you, and GitHub's own terms cover it. `labdash doctor` output contains your instance host, your GitLab version and your terminal, and never a token.
+
+## Contact
+
+Open an issue at [github.com/giancarlosisasi/labdash](https://github.com/giancarlosisasi/labdash), or use the address in the repository's `SECURITY.md` for anything you would rather not post in public.
+
+:::tip Related
+[Security](/help/security) · [Signing in](/guide/first-run) · [Diagnostics](/help/diagnostics)
+:::

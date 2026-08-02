@@ -1,0 +1,55 @@
+---
+title: Recipes
+description: One task per page, with the keys that build the screen and what to press once it is there.
+---
+
+# Recipes
+
+<div className="ld-lede">
+Each page below is one task: the screen you want, the keys that build it, and what to press once it is on screen.
+</div>
+
+[Home](/features/home) shows what needs you, with no setup. These recipes cover the questions Home does not answer: a team's queue, one release branch, a group's CI, a second GitLab.
+
+<Cards>
+  <Card title="Clearing your review queue" href="/recipes/review-queue">
+    Every merge request waiting on your review, oldest first, with the drafts left out.
+  </Card>
+  <Card title="Everything red in a group" href="/recipes/failed-pipelines">
+    Every pipeline that failed in a group and its subgroups today, with the failure reason on each row.
+  </Card>
+  <Card title="Release day" href="/recipes/release-day">
+    Three tabs for one release branch: ready to merge, still blocked, already merged.
+  </Card>
+  <Card title="Finding flaky pipelines" href="/recipes/flaky-tests">
+    The pipelines you retried that failed again, and the failures that were never tests.
+  </Card>
+  <Card title="Two GitLab instances" href="/recipes/two-gitlabs">
+    A work instance and gitlab.com in one dashboard, with each token read from the environment.
+  </Card>
+  <Card title="Behind a corporate proxy" href="/recipes/corporate-proxy">
+    A private certificate authority, an egress proxy, an access-gateway header, and a read-only token.
+  </Card>
+  <Card title="Piping a view into a script" href="/recipes/scripting">
+    The rows of a pinned view as JSON, on standard output.
+  </Card>
+</Cards>
+
+## The three keys
+
+Every recipe is the same three moves in the same order.
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>What it decides</th></tr></thead>
+<tbody>
+<tr><td><Keys>b</Keys></td><td><strong>Where to look.</strong> A group, a subgroup tree, a project, or nothing at all when the answer is instance-wide</td></tr>
+<tr><td><Keys>f</Keys></td><td><strong>What to keep.</strong> State, draft, labels, authors, approvals, dates</td></tr>
+<tr><td><Keys>P</Keys></td><td><strong>How to keep it.</strong> The result becomes a tab, and it is still there tomorrow</td></tr>
+</tbody>
+</table>
+
+Each recipe names the scope for <Keys>b</Keys>, the filter for <Keys>f</Keys>, and the tab name for <Keys>P</Keys>.
+
+## Filter values
+
+Label names, usernames, branch names and project paths complete from your own instance as you type, so a recipe never depends on you spelling a value from memory. A value that does not exist cannot be submitted, and an empty result restates the query that produced it. See [Filtering](/features/filtering).

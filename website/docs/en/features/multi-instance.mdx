@@ -1,0 +1,50 @@
+---
+title: Multiple instances
+description: Several GitLab instances in one dashboard, each with its own transport, credentials and failure state.
+---
+
+# Multiple instances
+
+<div className="ld-lede">
+labdash talks to any number of GitLab instances at once: a self-managed instance at work, gitlab.com for open source, and as many more as you configure.
+</div>
+
+## Instance roots in the browse tree
+
+Each configured instance is a root in the [browse tree](/features/browse). <Keys>b</Keys> shows them side by side with their groups beneath them, so choosing a GitLab is a place you navigate to. A view you pin under one root records the instance it came from, so a tab always queries the GitLab it was built from.
+
+## Mixed-instance tables
+
+One table can draw rows from more than one instance, merged into a single list and sorted together. Your review queue on [Home](/features/home) spans every instance you are logged in to. When rows come from more than one place an **instance column** appears automatically, so no row is ambiguous about where it lives.
+
+<Keys>Ctrl+T</Keys> switches which instance an unqualified action belongs to.
+
+## Failure isolation
+
+One unreachable instance degrades its own rows and nothing else. When a VPN drops, the rows from the instance behind it go stale with a reason in the context bar, and every other instance keeps refreshing. The section keeps the rows it has, and the rest of the dashboard is untouched.
+
+## Per-instance transport
+
+Every instance gets its own `*http.Client`, with its own CA pool, client certificate, proxy, custom headers and concurrency budget. Credential resolution is per instance too, so a work token and a gitlab.com token never cross.
+
+```yaml title="settings.yml"
+instances:
+  gitlab.example.com:
+    tokenEnv: GITLAB_WORK_TOKEN
+    caCert: /etc/ssl/corp-root.pem
+    proxy: http://proxy.internal:3128
+  gitlab.com:
+    tokenEnv: GITLAB_OSS_TOKEN
+```
+
+Every key is documented on [Instances](/settings/instances).
+
+## Instances at different GitLab versions
+
+gitlab.com runs a pre-release build. A self-managed instance usually runs months behind it, so a field present on one may be absent on the other.
+
+labdash reads `GET /version` when it connects and keeps a table of which field needs which GitLab version. A column the instance cannot fill degrades on its own and the section keeps working, instead of the whole query failing on a schema error. An instance below the supported floor gets a message naming its version.
+
+:::tip Related
+[Instances](/settings/instances) · [Self-managed GitLab](/guide/self-hosted) · [The two-GitLabs recipe](/recipes/two-gitlabs)
+:::

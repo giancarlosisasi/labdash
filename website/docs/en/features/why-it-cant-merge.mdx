@@ -1,0 +1,85 @@
+---
+title: Merge blockers
+description: GitLab's merge-status values rendered in the row as words, so a blocked merge request says what is blocking it.
+---
+
+# Merge blockers
+
+<div className="ld-lede">
+GitLab reports why a merge request cannot merge, as one of 24 `detailedMergeStatus` values. labdash maps every one of them to a phrase, a colour token and a glyph, and prints it in the row.
+</div>
+
+<Shot
+  id="blocker-column"
+  alt="A merge request table whose rightmost data column gives a plain-language reason each row cannot merge: ready, ci failed, conflicts, needs 1, 3 threads open, blocked by 2, changes requested, draft, and checking."
+  caption="Nine merge requests, nine different reasons, all readable from the table."
+/>
+
+## The values
+
+| GitLab value | Shown as | Meaning |
+| --- | --- | --- |
+| `MERGEABLE` | `ready` | Nothing is in the way |
+| `CONFLICT` | `conflicts` | Needs a rebase or a manual resolution |
+| `CI_MUST_PASS` | `ci failed` | The pipeline is red and the project requires it |
+| `CI_STILL_RUNNING` | `ci running` | Waiting on the pipeline |
+| `NOT_APPROVED` | `needs 1` | The count is the number of approvals still required |
+| `DISCUSSIONS_NOT_RESOLVED` | `3 threads open` | The count is unresolved threads |
+| `DRAFT_STATUS` | `draft` | Marked as a work in progress |
+| `NEED_REBASE` | `needs rebase` | Fast-forward-only project, behind the target |
+| `BLOCKED_STATUS` | `blocked by 2` | Another merge request must land first |
+| `REQUESTED_CHANGES` | `changes requested` | A reviewer asked for changes |
+| `CHECKING` / `UNCHECKED` | `checking…` | GitLab is still working it out |
+| `BROKEN_STATUS` | `cannot merge` | The merge itself would fail |
+| `NOT_OPEN` | `closed` | Not open |
+| `EXTERNAL_STATUS_CHECKS` | `external check` | An external status check has not passed |
+| `POLICIES_DENIED` | `policy blocked` | A security or compliance policy denied it |
+
+No value falls through to the raw enum. A test fails while any value in the pinned schema is unmapped, and a value added by a future GitLab release is title-cased and logged rather than dropped, so the cell stays readable.
+
+## Colours and glyphs
+
+Every state carries a glyph, a colour and a word, so the column survives a colour-blind reader, a `NO_COLOR` terminal, and a screenshot.
+
+| Blocker | Colour | Whose move |
+| --- | --- | --- |
+| `conflicts` · `ci failed` · `cannot merge` · `blocked by n` · `changes requested` | error | The author's |
+| `needs 1` · `n threads open` · `needs rebase` · `external check` | warning | Usually a reviewer's |
+| `ci running` | running | Nobody's |
+| `ready` | success | Yours, if you are the one who merges it |
+| `draft` · `checking…` · `closed` | muted | Not actionable |
+
+A failed job marked `allow_failure` renders as a warning rather than an error, so red keeps meaning something is broken.
+
+## What you can do
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>v</Keys></td><td>approve, which clears <code>needs n</code></td><td><Keys>U</Keys></td><td>update the branch, which clears <code>needs rebase</code></td></tr>
+<tr><td><Keys>R</Keys></td><td>retry the head pipeline, for <code>ci failed</code></td><td><Keys>L</Keys></td><td>jump to the failing job's log</td></tr>
+<tr><td><Keys>]</Keys></td><td>preview tab: which approval rule is unmet</td><td><Keys>o</Keys></td><td>open in the browser, for conflicts</td></tr>
+</tbody>
+</table>
+
+## Filtering on a blocker
+
+The column is always drawn, and it never drops on a narrow terminal. Two filters worth a tab:
+
+- **Ready to merge.** Browse to your group, then `state:opened draft:false approved:true`, then <Keys>P</Keys>.
+- **Stuck on me.** From the review queue, `approved-by-me:false`, then <Keys>P</Keys>.
+
+<Keys>5</Keys> is the `conflicts` [quick filter](/features/filtering), for the same thing without typing.
+
+## Approval rule detail
+
+`needs 1` gives the count. The preview's Approvals tab names the rule:
+
+<Shot
+  id="approvals-tab"
+  alt="A preview pane approvals tab showing that one approval from the backend-owners group is still required, and that two other rules are satisfied."
+/>
+
+:::tip Related
+[Your review queue](/features/review-queue) · [Merge trains](/features/merge-trains) · [Filtering](/features/filtering)
+:::

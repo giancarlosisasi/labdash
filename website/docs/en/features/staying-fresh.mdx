@@ -1,0 +1,97 @@
+---
+title: Refresh and caching
+description: How labdash fetches sections, what it caches, when it refreshes, and how it behaves offline or rate-limited.
+---
+
+# Refresh and caching
+
+<div className="ld-lede">
+A GitLab section takes <strong>4.4 to 6.6 seconds</strong> to come back. labdash fetches every section concurrently, paints the rows it already has while the new ones load, and refreshes each view on its own interval.
+</div>
+
+## Measured timings
+
+Seven probes against gitlab.com with a real account, at page size 50. These numbers measure GitLab's API.
+
+| Probe | Complexity | Elapsed | Result |
+| --- | --- | --- | --- |
+| `currentUser` | 6 / 250 | 0.23 s | authenticated |
+| `currentUser.groups(first: 50)` | 8 / 250 | 0.43 s | 2 groups |
+| Group merge requests + head pipeline, subgroups, 18 fields | 59 / 250 | 6.61 s | 1,447 open, 50 returned |
+| `currentUser.reviewRequestedMergeRequests` | 37 / 250 | 4.65 s | 35 awaiting review, instance-wide |
+| `group.projects(50).nodes.pipelines(50)` | 52 / 250 | 4.39 s | 945 pipelines from 50 projects |
+| `GET /version` | n/a | 0.17 s | GitLab 19.3.0-pre |
+| `GET /merge_requests?per_page=50` | n/a | 2.02 s | rate limit 1993 of 2000 remaining |
+
+GitLab scores query complexity by the number of fields in the document. Record count leaves the score alone: the pipelines probe asked for up to 2,500 nodes and still scored lower than the merge-request probe, which asked for 50 nodes with more fields on each. Page size is a latency and render-cost choice, and labdash pages at 50 everywhere.
+
+Field count is the knob that costs. So a table query selects only the fields the visible columns render, and the preview pane fetches its extra detail for the selected row alone.
+
+## The fetch model
+
+<Cards>
+  <Card title="Concurrent per-section fetches">
+    Every section fires at once. The slowest one governs, so six sections at about four seconds each reach last paint in about four seconds.
+  </Card>
+  <Card title="Stale-while-refreshing">
+    The rows you already have render immediately while the new ones load behind a per-section spinner. You read real data during the wait.
+  </Card>
+  <Card title="Task-id guard">
+    A reply whose task id is not the current one is dropped, so a filter retyped mid-flight is never overwritten by the earlier result.
+  </Card>
+  <Card title="Per-fetch timeouts">
+    A fetch that runs past its timeout produces an error state with a retry key, rather than a spinner that never ends.
+  </Card>
+</Cards>
+
+Each instance also carries its own concurrency cap, so six sections never open six connections against one small self-managed box.
+
+## Cold start
+
+The shell paints immediately. With an empty cache, sections show skeleton rows and each tab shows a spinner in place of its count:
+
+<Shot
+  id="cold-start"
+  alt="A dashboard on a cold start. Each section tab shows a spinner in place of its row count, and the table below is filled with shaded placeholder blocks in the shape of the columns."
+/>
+
+With a disk cache, real rows appear instead of skeletons and the spinner moves into the section tab. The `⟳` reading in the context bar gives the age of what you are looking at. The first frame renders in under 150 ms either way.
+
+## Refresh intervals
+
+Each pinned view carries its own interval, set on the tab. A running-pipelines tab is worth 20 seconds; a merged-this-quarter tab is worth an hour. Views that contain running pipelines poll faster on their own, and polling pauses when the terminal loses focus and catches up when focus returns.
+
+<Keys>r</Keys> refreshes the current section. <Keys>Ctrl+R</Keys> refreshes every section.
+
+## Rate limits
+
+gitlab.com allows 2,000 authenticated API requests per minute per user. A 30-second refresh across six sections is about 12 requests per minute, or 0.6% of that budget.
+
+labdash reads the rate-limit headers on every response and shows the headroom in the context bar. Self-managed administrators set their own limits, so on a 429 labdash backs off with jitter and marks the rows stale instead of retrying straight away.
+
+<Shot
+  id="context-bar"
+  alt="The context bar along the top of the dashboard, showing the instance host, the signed-in user, the seconds since the last refresh, and a rate-limit meter reading 1993 of 2000."
+/>
+
+## Section errors
+
+Failure is per section. A section that errors has its rows replaced by an error block naming what failed and why, while every other section keeps refreshing on its own task.
+
+<Shot
+  id="section-error"
+  alt="One section's rows replaced by an error block: a warning glyph, the scope that failed, the instance and the timeout that caused it, a note that rows from four minutes ago are still shown, and three keys for retry, details and filter."
+  caption="What failed, why, and what to do next. Never a raw Go error, and never an endless spinner."
+/>
+
+## Offline mode
+
+With no network, labdash shows cached rows dimmed one step, an `offline` badge in the context bar, and actions disabled with a reason attached. Work resumes when the network returns.
+
+## Row limits
+
+A section holds a capped number of rows and releases the head as you page past it. The reference case is a group with 1,447 open merge requests, paged to 2,000 rows.
+
+:::tip Related
+[Pipelines](/features/pipelines) · [Pinned views](/features/pinned-views) · [The design system](/about/design) · [Diagnostics](/help/diagnostics)
+:::

@@ -1,0 +1,113 @@
+---
+title: Signing in
+description: Approve a device code in a browser, or pipe a personal access token from standard input. labdash then owns and renews the credential itself.
+---
+
+# Signing in
+
+<div className="ld-lede">
+There are two ways in. On gitlab.com an OAuth application is already registered, so one command is enough. On any other instance, a personal access token is the path.
+</div>
+
+## The device flow on gitlab.com
+
+```bash
+labdash auth login
+```
+
+That prints a short code, opens your browser, and waits.
+
+<Shot
+  id="device-flow"
+  alt="A login screen with an eight-character device code in a bordered box, a spinner reading 'waiting for approval', a countdown to the code's expiry, and a note that GitLab redisplays its empty device form after you approve."
+/>
+
+Enter the code, approve it, and the terminal picks the token up by itself. The device flow is the default because it needs no callback to `localhost`, which is what makes it work over SSH, inside WSL, and in a container.
+
+## GitLab's device page after you approve
+
+GitLab shows "Device successfully authorized" and then re-renders its empty device-code form. That reads like a second prompt, and it looks like the login failed. It did not. The page belongs to GitLab, and RFC 8628 defines no redirect to request, so labdash says what will happen instead, both on the login screen and in the terminal once the token arrives:
+
+```
+  You can close the browser tab. GitLab redisplays its device
+  form after authorizing, but nothing more is needed there.
+```
+
+## The loopback flow
+
+Instances older than GitLab 17.9 have no device authorization grant. labdash falls back to a loopback browser flow with PKCE on port 7171 automatically, and you can ask for it on any instance:
+
+```bash
+labdash auth login --web
+```
+
+## Personal access tokens
+
+The gitlab.com application id means nothing on `gitlab.example.com`. Unless an administrator has registered an application there, a personal access token is the way in, and it lasts a great deal longer than an OAuth token does.
+
+Create one at `https://<your-host>/-/user_settings/personal_access_tokens` with the `api` scope, or `read_api` for [read-only mode](/guide/read-only). Then:
+
+```bash
+labdash auth login --hostname gitlab.example.com --with-token
+```
+
+The prompt does not echo. To pipe the token from a script or from CI:
+
+```bash
+echo "$TOKEN" | labdash auth login --hostname gitlab.example.com --with-token
+```
+
+labdash validates the token against the instance before storing it, so a typo fails at login rather than on the first refresh of the dashboard.
+
+:::danger There is no `--token <value>` flag
+A flag value lands in your shell history and is visible in the process list to every other user on the machine. labdash reads a token from standard input only. Interactive input goes through a no-echo read, so the token does not reach your scrollback either.
+:::
+
+## The two token types
+
+| | OAuth access token | Personal access token |
+| --- | --- | --- |
+| Who creates it | `labdash auth login`, automatically | you, by hand, in GitLab's UI |
+| Lifetime | 2 hours | up to 365 days |
+| Renewal | automatic, from a refresh token | none; you create a new one |
+| Needs a registered OAuth application | yes | no |
+| Looks like | 64 hex characters | `glpat-…` |
+
+A two-hour lifetime suits a dashboard you leave open all day. labdash renews the token five minutes before it expires, and persists the rotated refresh token before returning. GitLab invalidates the old refresh token the moment it issues a new one, which is why labdash owns the whole chain rather than borrowing a credential another tool is also renewing.
+
+## Checking a credential
+
+```bash
+labdash auth status
+```
+
+It prints who the credential belongs to, where it is stored, when it expires, and which settings file was read. It never prints the token. Add `--offline` to skip the network call.
+
+```bash
+labdash auth logout      # removes ours, and says so when there was nothing to remove
+labdash settings path    # where the settings file lives
+labdash settings show    # the configured instances, never a credential
+```
+
+## Where the credential is stored
+
+| OS | Store |
+| --- | --- |
+| Windows | Windows Credential Manager |
+| macOS | Keychain |
+| Linux | Secret Service, where one is running |
+| No keyring (headless, most containers) | `<config dir>/credentials.json` at mode `0600`, written temp-file-and-rename so a crash cannot truncate it |
+
+The keyring entry lives under the namespaced service `com.gitlab.labdash` rather than a bare `labdash`. A keyring is one flat namespace shared by every program on the machine, so a generic name is a credential another program can silently overwrite.
+
+The settings file holds no secrets. It records which instances exist and how to reach them, and against gitlab.com it does not need to exist at all. See [what is a setting](/settings/).
+
+## Scopes
+
+labdash requests `api` and `read_user`. With `--read-only` it requests `read_api` and `read_user`.
+
+`read_user` covers `GET /api/v4/user`, which is what names you in the greeting and in `auth status`. labdash never pushes to a repository, so it never asks for `write_repository`. More at [security](/help/security).
+
+:::tip Next
+[Take the tour](/guide/tour).
+:::

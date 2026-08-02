@@ -1,0 +1,62 @@
+---
+title: Getting help
+description: Where to look first, and what to include when you report something.
+---
+
+# Getting help
+
+<Cards>
+  <Card title="FAQ" href="/help/faq">
+    glab, self-managed GitLab, Windows, repository access, and what labdash sends where.
+  </Card>
+  <Card title="Troubleshooting" href="/help/troubleshooting">
+    Symptom, cause and fix, for the failures that happen in practice.
+  </Card>
+  <Card title="Diagnostics" href="/help/diagnostics">
+    <code>doctor</code>, the debug HTTP log, the application log, and what to put in a report.
+  </Card>
+  <Card title="Terminal support" href="/help/terminal-support">
+    The matrix: terminal, colour, mouse, clipboard, resize.
+  </Card>
+  <Card title="Security" href="/help/security">
+    Where the token lives, which scopes are requested, and what stays on your machine.
+  </Card>
+  <Card title="Privacy" href="/help/privacy">
+    What labdash sends and where, what this site records, and where that leaves you under data protection law.
+  </Card>
+</Cards>
+
+## labdash doctor
+
+```bash
+labdash doctor
+```
+
+One command, one paste. It reports whether the settings file was found and is valid, whether a credential is present and unexpired, whether the instance is reachable, the GitLab version, your terminal's capabilities, and whether a Nerd Font was detected.
+
+It never prints a token.
+
+## Bug reports
+
+Include the `doctor` output, what you expected, and what happened. For a rendering problem, the terminal name and version matter most.
+
+If the problem involves a request, add the debug log:
+
+```bash
+LABDASH_DEBUG_HTTP=1 labdash
+```
+
+Requests go to a file with `Authorization`, `PRIVATE-TOKEN` and `JOB-TOKEN` redacted before anything reaches the disk. See [diagnostics](/help/diagnostics).
+
+:::danger Never paste a token into an issue
+Not into a bug report, not into a chat, not "with most of it removed". A partially redacted token is a leaked token. If one reaches a transcript, revoke it at `https://<host>/-/user_settings/personal_access_tokens`, which takes ten seconds.
+:::
+
+## Where things live
+
+| | |
+| --- | --- |
+| Source and issues | [github.com/giancarlosisasi/labdash](https://github.com/giancarlosisasi/labdash) |
+| Why it looks the way it does | [Design](/about/design) |
+| How to contribute | [Contributing](/about/contributing) |
+| Tools people use alongside it | [Related tools](/compare/) |

@@ -1,0 +1,70 @@
+---
+title: Merge trains
+description: Train position in the row, and a merge prompt that says the merge request will queue rather than merge.
+---
+
+# Merge trains
+
+<div className="ld-lede">
+A merge request on a merge train is approved, green, and not merged. labdash shows its place in the queue in the blockers column, and changes the merge prompt to match what pressing merge will do.
+</div>
+
+<Shot
+  id="train-row"
+  alt="A merge request table where three rows show a train position in place of a blocker phrase: train 1 of 7, train 3 of 7 and train 6 of 7."
+  caption="A merge request on a train is third in a queue for its target branch, and the row says so."
+/>
+
+## The train position
+
+`train 3/7` in the blockers column means third of seven in the queue for that target branch. It answers the three questions the state raises:
+
+- **Is it going to merge?** Yes, unless something ahead of it fails.
+- **When?** After two more.
+- **Do you need to do anything?** No.
+
+The position comes back with the merge request itself, as `mergeTrainIndex` and `mergeTrainsCount`, so the column costs no extra request.
+
+## The merge prompt
+
+Pressing <Keys>m</Keys> on an ordinary merge request:
+
+<Shot
+  id="merge-prompt"
+  alt="A footer confirmation reading: Merge !2841 into main, squashing 7 commits and deleting feat slash retry-budget?"
+/>
+
+Pressing <Keys>m</Keys> on a merge request whose project uses merge trains:
+
+<Shot
+  id="train-prompt"
+  alt="A footer confirmation reading: Add !2914 to the merge train for main? It will merge after 2 merge requests ahead of it."
+/>
+
+The wording changes because the outcome changes. The prompt names the queue and the number of merge requests ahead.
+
+## Merge-train pipelines
+
+GitLab creates several kinds of pipeline for the same commit: a branch pipeline, a merged-result pipeline, and a merge-train pipeline. They carry different refs and mean different things, so the pipelines view distinguishes them in the row rather than blending them into one list.
+
+## What you can do
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>m</Keys></td><td>add to the train, with the prompt above</td><td><Keys>o</Keys></td><td>open in the browser, to remove it from the train</td></tr>
+<tr><td><Keys>Enter</Keys></td><td>preview, including position and what is ahead</td><td><Keys>r</Keys></td><td>refresh, because positions move</td></tr>
+</tbody>
+</table>
+
+## Watching a train
+
+The column and the prompt change by themselves on a project that uses trains. To keep a train on screen, press <Keys>b</Keys> to the group, <Keys>f</Keys> and `train:true`, then <Keys>P</Keys> to hold it as a tab called *On the train*.
+
+:::info Requires GitLab Premium or Ultimate
+Merge trains are a paid GitLab feature. On an instance without them the column stays empty and the merge prompt keeps its ordinary wording.
+:::
+
+:::tip Related
+[Merge blockers](/features/why-it-cant-merge) · [Merge requests](/features/merge-requests) · [Release day](/recipes/release-day)
+:::

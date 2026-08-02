@@ -1,0 +1,62 @@
+---
+title: Pinned views
+description: One key turns the scope and filter you are looking at into a tab that survives a restart.
+---
+
+# Pinned views
+
+<div className="ld-lede">
+Browse to a scope, filter it, then press <Keys>P</Keys>. The result becomes a tab beside the built-in ones, and it is still there on the next run.
+</div>
+
+<Shot
+  id="pinned-tabs"
+  alt="A tab bar showing Home followed by four pinned views named Needs my review, platform failing, Release, and Mine, each with its row count."
+  caption="Each tab is a scope plus a filter. The count comes from the connection itself, so the size is known before the rows arrive."
+/>
+
+## The three keys
+
+| Step | Key | What happens |
+| --- | --- | --- |
+| 1 | <Keys>b</Keys> | [Browse](/features/browse) to a group or project |
+| 2 | <Keys>f</Keys> | [Filter](/features/filtering) it down to what you want |
+| 3 | <Keys>P</Keys> | Pin it, with a name prefilled from the scope and the filter |
+
+A view is built by browsing, filtering, and pinning rather than by editing a file.
+
+## What a pin remembers
+
+- The **scope**, meaning the group or project you were standing in, subgroups included.
+- The **filter**, as typed values rather than a string.
+- The **sort order**, and how often the view refreshes.
+- Which **GitLab instance** it came from, once you have more than one.
+
+## Managing pins
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>P</Keys></td><td>pin the current view</td><td><Keys>h</Keys> <Keys>l</Keys></td><td>move between tabs</td></tr>
+<tr><td><Keys>P</Keys></td><td>on a pinned tab, unpin it, with undo</td><td><Keys>r</Keys></td><td>refresh this one</td></tr>
+</tbody>
+</table>
+
+Unpinning always offers an undo, because one key is easy to press twice.
+
+Each view carries its own refresh interval. A "failed today" tab polls every thirty seconds while a "merged this quarter" tab checks hourly. See [refresh and caching](/features/staying-fresh).
+
+## The state file
+
+labdash writes your pins to a state file beside your [settings](/settings/). The application owns that file:
+
+- **labdash writes it, you do not.** It has no documented schema.
+- **It is written atomically.** A crash during a write cannot cost you your pins.
+- **It migrates silently.** A new version reads a file written by an older one.
+- **A corrupt file resets with a note.** It never becomes a startup error.
+
+Delete it and you lose your pins. Nothing else changes.
+
+:::tip Related
+[Browse](/features/browse) · [Filtering](/features/filtering) · [Refresh and caching](/features/staying-fresh) · [Settings](/settings/)
+:::

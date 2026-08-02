@@ -1,0 +1,10 @@
+[
+  { "type": "file", "name": "index", "label": "Recipes" },
+  "review-queue",
+  "failed-pipelines",
+  "release-day",
+  "flaky-tests",
+  "two-gitlabs",
+  "corporate-proxy",
+  "scripting"
+]

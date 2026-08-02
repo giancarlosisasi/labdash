@@ -1,0 +1,62 @@
+---
+title: Browse
+description: Your GitLab group tree in the terminal, where selecting a node scopes the tables below it.
+---
+
+# Browse
+
+<div className="ld-lede">
+Press <Keys>b</Keys> from anywhere. Browse draws your groups, subgroups, and projects as a tree, and the node you select becomes the scope of the merge request and pipeline views.
+</div>
+
+<Shot
+  id="browse-tree"
+  alt="A tree with a Frecent branch listing three recently used groups and projects, Your groups expanded to show the platform group and its projects, and a collapsed Starred branch, beside a panel summarising the highlighted project."
+  caption="The Frecent branch is GitLab's own frequency-and-recency ranking of the groups and projects you visit."
+/>
+
+## Branches
+
+| Branch | Where it comes from |
+| --- | --- |
+| **Frecent** | GitLab's frequency-and-recency ranking of the groups and projects you visit, computed server-side |
+| **Your groups** | Every group you are a member of, then subgroups one level at a time |
+| **Starred** | Projects you have starred |
+
+Frecent is the top branch. On a first launch, before anything is pinned, it is already a working list of what you open the tool for.
+
+## What you can do
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>j</Keys> <Keys>k</Keys></td><td>move</td><td><Keys>Enter</Keys></td><td>scope the dashboard here</td></tr>
+<tr><td><Keys>l</Keys> <Keys>→</Keys></td><td>expand a node</td><td><Keys>P</Keys></td><td>pin it as a tab</td></tr>
+<tr><td><Keys>h</Keys> <Keys>←</Keys></td><td>collapse a node</td><td><Keys>o</Keys></td><td>open in the browser</td></tr>
+<tr><td><Keys>/</Keys></td><td>search the tree</td><td><Keys>Esc</Keys></td><td>back where you came from</td></tr>
+</tbody>
+</table>
+
+In Browse, <Keys>h</Keys> and <Keys>l</Keys> fold and unfold tree nodes instead of switching section tabs, because Browse has no section tabs.
+
+## Scoping and pinning
+
+<Keys>Enter</Keys> scopes the dashboard to the highlighted node and takes you back to it. The scope is temporary: the next <Keys>Enter</Keys> replaces it, and nothing is written to disk.
+
+<Keys>P</Keys> [pins it](/features/pinned-views) as a tab, named from the node you were standing on, and that pin survives a restart.
+
+Scope to `platform/ingest`, switch from merge requests to pipelines and back, and you stay where you were. The breadcrumb in the context bar names the current scope.
+
+## Loading
+
+- **One level per keypress.** Subgroups and projects are fetched when you open their parent, so a tree with two thousand projects costs one query to draw its root. `currentUser.groups` returns in 0.43 s.
+- **Cached to disk.** A cold start paints the tree from cache and refreshes behind it, the same way [the tables do](/features/staying-fresh).
+- **Search falls through.** Typing filters the nodes already loaded, then asks GitLab for the ones that are not.
+
+## More than one GitLab
+
+Each GitLab in your settings is a root in the tree, so moving between instances is navigation. A view pinned under one root remembers which instance it came from. See [multiple instances](/features/multi-instance).
+
+:::tip Related
+[Home](/features/home) · [Filtering](/features/filtering) · [Pinned views](/features/pinned-views) · [Group pipelines](/features/group-pipelines)
+:::

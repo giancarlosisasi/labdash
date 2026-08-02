@@ -1,0 +1,74 @@
+---
+title: Coming from gh-dash
+description: How gh-dash concepts map onto labdash, and what GitLab adds to the same shape.
+---
+
+# Coming from gh-dash
+
+<div className="ld-lede">
+labdash has the shape <a href="https://github.com/dlvhdr/gh-dash">gh-dash</a> established: a query rendered as a table, several of those tables side by side, and a preview pane for the selected row. If you know one, this page maps it onto the other.
+</div>
+
+## Concepts
+
+| gh-dash | labdash |
+| --- | --- |
+| `prSections` in the config file | The [Home](/features/home) groups, built in, plus the tabs you pin yourself |
+| Editing the config to add a queue | <Keys>b</Keys> [browse](/features/browse), <Keys>f</Keys> [filter](/features/filtering), <Keys>P</Keys> [pin](/features/pinned-views) |
+| `issuesSections` | The [To-dos](/features/todos) view, built the same way |
+| `org:my-org` | Select the group in the browse tree. Its subgroups come with it |
+| `review-requested:@me` | [Your review queue](/features/review-queue), the first group on Home |
+| `author:@me` | The "Your merge requests" group on Home |
+| GitHub search syntax in `filters` | Typed filter arguments, completed from your instance and checked at the keystroke |
+| `layout:` widths, order, visibility | Columns drop by priority as the terminal narrows |
+| `theme.colors` | [Appearance settings](/settings/appearance): theme, density, icon set, date format, timezone |
+| `keybindings:` | Keys are fixed. The full list is the [keyboard cheatsheet](/keys/) |
+| `repoPaths` | `repoPaths` in [settings](/settings/instances), with the same glob support |
+| `--config` | `--config`, pointing at a settings file that holds instances, your account and appearance |
+
+## Keys that carry over
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>j</Keys> <Keys>k</Keys></td><td>move down and up</td><td><Keys>o</Keys></td><td>open in the browser</td></tr>
+<tr><td><Keys>h</Keys> <Keys>l</Keys></td><td>previous and next section</td><td><Keys>y</Keys> <Keys>Y</Keys></td><td>copy branch, copy URL</td></tr>
+<tr><td><Keys>Tab</Keys></td><td>next view</td><td><Keys>p</Keys></td><td>preview on or off</td></tr>
+<tr><td><Keys>/</Keys></td><td>search loaded rows</td><td><Keys>?</Keys></td><td>help</td></tr>
+<tr><td><Keys>r</Keys></td><td>refresh this section</td><td><Keys>q</Keys></td><td>quit</td></tr>
+</tbody>
+</table>
+
+Three keys are new, and they are the ones that build a view: <Keys>b</Keys>, <Keys>f</Keys> and <Keys>P</Keys>. See the [keyboard cheatsheet](/keys/).
+
+## Where views live
+
+A pinned view is written to a state file that labdash owns, next to your settings. It records the scope, the filter, the sort and the name, and it survives an upgrade.
+
+There is no view file to commit to a repository, so a shared team dashboard is not something you check in. Each person builds their tabs in three keystrokes on their own machine.
+
+## What GitLab adds
+
+### Nested groups
+
+`Group.mergeRequests(includeSubgroups: true)` returns every merge request in a nested group tree in one call. Selecting `platform` in the browse tree covers `platform/core`, `platform/ingest` and everything below them, in one wait rather than one per project. GitHub's `org:` is flat and has no equivalent.
+
+### Typed filter arguments
+
+GitLab's merge request connection takes 46 typed arguments with real enums: state, draft, labels, author, reviewer, approvers, milestone, dates. labdash sends them as GraphQL variables and completes label, user and project names from your own instance, so a value cannot be misspelled and an impossible enum is rejected as you type it. See [filtering](/features/filtering).
+
+### detailedMergeStatus
+
+GitLab answers why a merge request cannot merge, across 24 enum values, and labdash prints that answer in the row: `conflicts`, `ci failed`, `needs 1`, `3 threads open`, `blocked by 2`. See [merge blockers](/features/why-it-cant-merge).
+
+### Merge trains
+
+`train 3/7` in the row, and a merge prompt that says it will queue the merge request rather than merge it. See [merge trains](/features/merge-trains).
+
+### To-dos
+
+GitLab's to-do list is a queue with its own API: mark done, mark all done, snooze, restore, and filter by action or target. labdash gives it a view of its own, with a count badge on the switcher. See [to-dos](/features/todos).
+
+:::tip Related
+[Related tools](/compare/) · [Merge blockers](/features/why-it-cant-merge) · [Merge trains](/features/merge-trains)
+:::

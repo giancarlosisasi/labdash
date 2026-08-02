@@ -1,0 +1,74 @@
+---
+title: Watch and notify
+description: Watch a pipeline until it reaches a terminal state and get a desktop notification when it lands.
+---
+
+# Watch and notify
+
+<div className="ld-lede">
+<Keys>w</Keys> marks a pipeline as watched. It then polls faster than its section until it reaches a terminal state, stops on its own, and sends a desktop notification.
+</div>
+
+## What you see
+
+A watched pipeline carries a `◉` marker in its row and a line in the footer's task area naming the stage and job it is on. You can watch several pipelines at once, and each one gets its own task line.
+
+Polling stops the moment the pipeline reaches a terminal state, so a watched pipeline that finished leaves no poller running behind it.
+
+## The notification
+
+| Platform | Delivered through |
+| --- | --- |
+| macOS | Notification Center |
+| Windows | Toast notification |
+| Linux | Any `libnotify`-compatible daemon |
+
+Delivery is CGO-free and uses no daemon of ours. The message names the project, the ref and the outcome, which is enough to decide whether to switch back:
+
+```
+labdash
+platform/ingest · feat/retry-budget
+Pipeline #88230 failed after 4m 12s in e2e
+```
+
+## What you can do
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>w</Keys></td><td>watch, or stop watching</td><td><Keys>L</Keys></td><td>logs, following live while it runs</td></tr>
+<tr><td><Keys>x</Keys></td><td>cancel the watched pipeline</td><td><Keys>R</Keys></td><td>retry it when it lands red</td></tr>
+</tbody>
+</table>
+
+## Notification switches
+
+Three switches live in settings:
+
+```yaml title="settings.yml"
+notifications:
+  onWatchedPipeline: true    # a pipeline you watched finished
+  onViewFailure: false       # a view's failure count went up
+  onNewTodo: false           # a new to-do arrived
+```
+
+Two of the three are off. The one that is on fires only for a pipeline you pointed at yourself.
+
+## Adaptive refresh
+
+Separately from watching, sections that contain running pipelines poll faster than settled ones. A "Failed today" section full of finished pipelines polls slowly; a "Running" section polls fast.
+
+Each pinned view also carries its own interval, and each instance has its own concurrency cap. See [Refresh and caching](/features/staying-fresh).
+
+## Reduced motion
+
+With reduced motion on, spinners become static markers and nothing animates. The task line still names what is running and what stage it reached.
+
+```yaml title="settings.yml"
+theme:
+  reducedMotion: true
+```
+
+:::tip Related
+[Pipelines](/features/pipelines) · [Failure summary](/features/failure-summary) · [Job logs](/features/job-logs) · [Appearance](/settings/appearance)
+:::

@@ -1,0 +1,66 @@
+---
+title: Clearing your review queue
+description: One tab holding every merge request that waits on your review, oldest first, with the drafts removed.
+---
+
+# Clearing your review queue
+
+You want one screen holding every merge request that waits on your review, across every project on the instance, with the oldest at the top. [Home](/features/home) shows that set on launch, and two filters plus a pin turn it into a tab you keep.
+
+<Shot
+  id="review-queue"
+  alt="A recording of a review queue being built. labdash opens on Home with the Review requested group at the top, holding fourteen rows drawn from eight projects. Pressing f opens the filter bar; draft:false is typed, the completion list narrows to the two valid values, and four draft rows leave the table. Pressing f again adds sort:updated-asc and the order reverses, putting a merge request that has waited six days at the top. Nine rows remain, each showing approvals, head pipeline status and a plain-language blocker such as needs 1, conflicts or ci failed. Pressing P opens the pin prompt with a name already filled in, the name is accepted, and a new tab appears beside the built-in ones."
+  caption="The queue starts as a built-in group on Home and becomes a tab in three keystrokes. Its rows come from every project on the instance, including ones you had forgotten you could see, and the blocker column marks the rows that are waiting on somebody else."
+/>
+
+## Steps
+
+<table className="ld-keytable">
+<thead><tr><th>Step</th><th>Key</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>launch labdash</td><td><strong>Review requested</strong> is the first group on Home, and it covers the whole instance</td></tr>
+<tr><td>2</td><td><Keys>f</Keys> then <code>draft:false</code></td><td>Drops the drafts that name you as a reviewer</td></tr>
+<tr><td>3</td><td><Keys>f</Keys> then <code>sort:updated-asc</code></td><td>Oldest first</td></tr>
+<tr><td>4</td><td><Keys>P</Keys></td><td>Keeps the result as a tab</td></tr>
+</tbody>
+</table>
+
+## The filters, and what each removes
+
+**`draft:false`** removes the merge requests that name you as a reviewer while the author is still working on them. They are a large part of a busy queue, and none of them is a review request yet.
+
+**`sort:updated-asc`** puts the oldest at the top. Newest-first sends the row that has waited three days to the bottom of the table, where it stays.
+
+**The blocker column** answers the rest. `ci failed` and `conflicts` are the author's work, so a row disqualifies itself without being opened. See [merge blockers](/features/why-it-cant-merge).
+
+## Row actions
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>Enter</Keys></td><td>read the description beside the list</td><td><Keys>v</Keys></td><td>approve the trivial ones without leaving the table</td></tr>
+<tr><td><Keys>o</Keys></td><td>open the ones that need real reading</td><td><Keys>/</Keys></td><td>narrow to one project instantly</td></tr>
+</tbody>
+</table>
+
+## Variations
+
+### Reviews you have yet to open
+
+Add `review:unreviewed`. It separates "I have not looked at this" from "I asked for changes and it is the author's move".
+
+### Only what is ready for you
+
+`conflicts:false status:mergeable,not-approved,discussions-not-resolved` removes everything that is blocked on the author.
+
+### Two tabs by age
+
+Pin the queue, press <Keys>f</Keys> again, add `updated < 3d`, and pin that as a second tab. One tab holds what has been waiting a while, the other holds what arrived today.
+
+### Approvals you owe as a code owner
+
+<Keys>b</Keys> to your group, then `approver:@me approved:false` in the filter bar. Pin it.
+
+:::tip Related
+[Your review queue](/features/review-queue) · [Home](/features/home) · [Merge blockers](/features/why-it-cant-merge) · [Filtering](/features/filtering)
+:::

@@ -1,0 +1,864 @@
+/*
+ * labdash site components.
+ *
+ * Four earn their place on doc pages — <Terminal>, <Status>, <Keys>, <Swatch> —
+ * plus the wordmark and the home-page furniture. Everything reads from the
+ * tokens in tokens.css; there is no colour literal below this line.
+ */
+
+/* ==========================================================================
+   Wordmark — ANSI Shadow figlet, `lab` receding, `dash` amber → coral. §11.3/§11.4
+   ========================================================================== */
+
+.ld-wordmark {
+  container-type: inline-size;
+  display: block;
+  width: 100%;
+}
+
+.ld-wordmark__art {
+  display: block;
+  margin: 0;
+  font-family: var(--ld-font-mono);
+  font-weight: 800;
+  font-size: clamp(5px, calc(100cqw / 37.5), 26px);
+  line-height: 1.05;
+  white-space: pre;
+  transform: skewX(-9deg);
+  transform-origin: left center;
+  padding-left: 0.35em;
+}
+
+.ld-wordmark__lab {
+  color: var(--ld-text-muted);
+  -webkit-text-fill-color: var(--ld-text-muted);
+}
+
+.ld-wordmark__dash {
+  background: linear-gradient(
+    90deg,
+    var(--ld-accent-primary) 0%,
+    var(--ld-status-error) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Paints on top of the parent's clipped gradient, so the sweep stays whole. */
+.ld-wordmark__shadow {
+  -webkit-text-fill-color: var(--ld-border-default);
+  color: var(--ld-border-default);
+}
+
+.ld-wordmark__rule {
+  height: 1px;
+  margin: 0.9rem 0 0.85rem;
+  background: linear-gradient(
+    90deg,
+    var(--ld-accent-primary) 0%,
+    var(--ld-status-error) 100%
+  );
+  opacity: 0.4;
+}
+
+.ld-wordmark__tagline {
+  font-family: var(--ld-font-mono);
+  font-size: clamp(0.62rem, calc(100cqw / 62), 1.02rem);
+  font-weight: 400;
+  letter-spacing: 0.26em;
+  word-spacing: 0.5em;
+  color: var(--ld-text-secondary);
+  white-space: nowrap;
+}
+
+/* ---- Nav mark: `▍labdash`, six cells. §11.3 ------------------------------ */
+
+.ld-navmark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+  font-family: var(--ld-font-mono);
+  font-size: 1.06rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+  line-height: 1;
+}
+
+.ld-navmark__bar {
+  color: var(--ld-accent-primary);
+  font-weight: 400;
+  margin-right: 0.28rem;
+}
+
+.ld-navmark__lab {
+  color: var(--ld-text-muted);
+}
+
+.ld-navmark__dash {
+  background: linear-gradient(
+    90deg,
+    var(--ld-accent-primary) 0%,
+    var(--ld-status-error) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ==========================================================================
+   Terminal — the picture on every feature page.
+   ========================================================================== */
+
+.ld-term {
+  container-type: inline-size;
+  margin: 1.6rem 0;
+  border: 1px solid var(--ld-border-default);
+  border-radius: var(--ld-radius);
+  background: var(--ld-bg-base);
+  box-shadow: var(--ld-shadow-terminal);
+  overflow: hidden;
+}
+
+.ld-term--focus {
+  border-color: var(--ld-border-focus);
+}
+
+.ld-term__chrome {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.8rem;
+  background: var(--ld-bg-surface);
+  border-bottom: 1px solid var(--ld-border-faint);
+  font-family: var(--ld-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--ld-text-muted);
+}
+
+.ld-term__bar {
+  color: var(--ld-accent-primary);
+}
+
+.ld-term__title {
+  color: var(--ld-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ld-term__dims {
+  margin-left: auto;
+  flex: none;
+  color: var(--ld-text-muted);
+  opacity: 0.75;
+}
+
+.ld-term__body {
+  padding: 0.85rem 1rem;
+  overflow-x: auto;
+}
+
+.ld-term__pre {
+  margin: 0;
+  font-family: var(--ld-font-mono);
+  /* Auto-fit the screen to its container: a monospace advance is 0.6em, so
+     dividing the container width by (columns x advance) lands the ASCII at
+     exactly the right size. Below the 9px floor it scrolls instead of
+     shrinking into illegibility. */
+  font-size: clamp(
+    9px,
+    calc((100cqw - 2rem) / (var(--ld-cols, 120) * 0.615)),
+    13px
+  );
+  /* Exactly 1. Box-drawing glyphs fill the em box and no more, so any leading
+     breaks `│` into dashes and the pane divider stops being a line. */
+  line-height: 1;
+  white-space: pre;
+  color: var(--ld-text-primary);
+  tab-size: 4;
+}
+
+/* On a wide screen the prose column is deliberately narrow for readability,
+   but a 120-column terminal is not prose. Let it use the gutter. */
+@media (min-width: 1200px) {
+  .rspress-doc .ld-term {
+    margin-left: -1rem;
+    margin-right: -3.5rem;
+  }
+}
+
+.ld-term__caption {
+  padding: 0.55rem 1rem 0.7rem;
+  border-top: 1px solid var(--ld-border-faint);
+  background: var(--ld-bg-surface);
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--ld-text-muted);
+}
+
+/* ---- Shot: the media slot on a content page ----------------------------- */
+
+.ld-shot__body {
+  padding: 0.85rem 1rem;
+}
+
+.ld-shot__media {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--ld-radius);
+}
+
+/* No capture yet: the frame carries the screen description instead, so the
+   page reads the same for a reader who cannot see an image. */
+.ld-shot__frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  aspect-ratio: var(--ld-shot-aspect, 120 / 32);
+  border: 1px dashed var(--ld-border-default);
+  border-radius: var(--ld-radius);
+  padding: 1.25rem 2rem;
+  text-align: center;
+  font-family: var(--ld-font-mono);
+}
+
+.ld-shot__id {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ld-text-muted);
+}
+
+.ld-shot__note {
+  max-width: 62ch;
+  font-family: var(--ld-font-sans, inherit);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--ld-text-secondary);
+}
+
+/* ---- Terminal token colours — glyph, colour, word travel together (§3) --- */
+
+/* A terminal draws its frame with a full-brightness cell; a browser draws a
+   1px stem at 13px. Lifting the rule toward text.muted is what makes the two
+   look the same, and it is still a mix of two palette tokens, not a new hue. */
+.ld-term .t-border {
+  color: color-mix(in srgb, var(--ld-border-default) 40%, var(--ld-text-muted));
+}
+.ld-term .t-faint {
+  color: color-mix(in srgb, var(--ld-border-faint) 55%, var(--ld-text-muted));
+}
+.ld-term .t-mut {
+  color: var(--ld-text-muted);
+}
+.ld-term .t-sec {
+  color: var(--ld-text-secondary);
+}
+.ld-term .t-acc {
+  color: var(--ld-accent-primary);
+}
+.ld-term .t-link {
+  color: var(--ld-accent-secondary);
+}
+.ld-term .t-ok {
+  color: var(--ld-status-success);
+}
+.ld-term .t-err {
+  color: var(--ld-status-error);
+}
+.ld-term .t-warn {
+  color: var(--ld-status-warning);
+}
+.ld-term .t-run {
+  color: var(--ld-status-running);
+}
+.ld-term .t-pend {
+  color: var(--ld-status-pending);
+}
+.ld-term .t-neu {
+  color: var(--ld-status-neutral);
+}
+.ld-term .t-add {
+  color: var(--ld-diff-added);
+}
+.ld-term .t-del {
+  color: var(--ld-diff-removed);
+}
+.ld-term .t-hdr {
+  color: var(--ld-text-muted);
+  font-weight: 600;
+}
+.ld-term .t-sel {
+  color: var(--ld-text-primary);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Key caps — so a binding looks like a key, not like code. §7.3
+   ========================================================================== */
+
+.ld-key {
+  display: inline-block;
+  font-family: var(--ld-font-mono);
+  font-size: 0.78em;
+  font-weight: 600;
+  line-height: 1.5;
+  min-width: 1.65em;
+  text-align: center;
+  padding: 0.05em 0.42em;
+  margin: 0 0.08em;
+  color: var(--ld-text-primary);
+  background: var(--ld-bg-surface);
+  border: 1px solid var(--ld-border-default);
+  border-bottom-width: 2px;
+  border-radius: var(--ld-radius-sm);
+  white-space: nowrap;
+}
+
+.ld-keys {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+/* A key table: two narrow key columns and two action columns. */
+.rspress-doc table.ld-keytable td:first-child,
+.rspress-doc table.ld-keytable td:nth-child(3) {
+  white-space: nowrap;
+  width: 1%;
+}
+
+/* ==========================================================================
+   Palette swatches — used on /about/design
+   ========================================================================== */
+
+.ld-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 1px;
+  background: var(--ld-border-faint);
+  border: 1px solid var(--ld-border-faint);
+  border-radius: var(--ld-radius-sm);
+  overflow: hidden;
+  margin: 1.4rem 0;
+}
+
+.ld-swatch {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.8rem;
+  background: var(--ld-bg-base);
+}
+
+.ld-swatch__chip {
+  flex: none;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: var(--ld-radius-sm);
+  border: 1px solid var(--ld-border-faint);
+}
+
+.ld-swatch__meta {
+  min-width: 0;
+  font-family: var(--ld-font-mono);
+  line-height: 1.35;
+}
+
+.ld-swatch__name {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--ld-text-primary);
+}
+
+.ld-swatch__val {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--ld-text-muted);
+}
+
+/* ==========================================================================
+   Cards
+   ========================================================================== */
+
+.ld-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+  gap: 0.9rem;
+  margin: 1.6rem 0;
+}
+
+.ld-cards--tight {
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+.ld-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 1.05rem 1.1rem;
+  background: var(--ld-bg-surface);
+  border: 1px solid var(--ld-border-faint);
+  border-radius: var(--ld-radius);
+  text-decoration: none;
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease;
+}
+
+a.ld-card:hover {
+  border-color: var(--ld-border-focus);
+  background: var(--ld-bg-overlay);
+}
+
+.ld-card__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--ld-font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ld-text-muted);
+}
+
+.ld-card__title {
+  font-family: var(--ld-font-mono);
+  font-size: 0.98rem;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  color: var(--ld-text-primary);
+  margin: 0;
+}
+
+.ld-card__body {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--ld-text-secondary);
+  margin: 0;
+}
+
+.ld-card__foot {
+  margin-top: auto;
+  padding-top: 0.5rem;
+  font-family: var(--ld-font-mono);
+  font-size: 0.74rem;
+  color: var(--ld-accent-primary);
+}
+
+/* ==========================================================================
+   Stat strip — numbers, not adjectives. §5.1
+   ========================================================================== */
+
+.ld-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+  gap: 1px;
+  background: var(--ld-border-faint);
+  border: 1px solid var(--ld-border-faint);
+  border-radius: var(--ld-radius);
+  overflow: hidden;
+  margin: 1.6rem 0;
+}
+
+.ld-stat {
+  background: var(--ld-bg-base);
+  padding: 1.05rem 1.1rem;
+}
+
+.ld-stat__value {
+  display: block;
+  font-family: var(--ld-font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--ld-accent-primary);
+  line-height: 1.1;
+}
+
+.ld-stat__label {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--ld-text-muted);
+}
+
+/* ==========================================================================
+   Home page
+   ========================================================================== */
+
+.ld-page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 1.5rem 5rem;
+  overflow-x: clip; /* a wide child scrolls in its own box, never the page */
+}
+
+@media (max-width: 560px) {
+  .ld-page {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+.ld-hero {
+  padding: 3.5rem 0 1rem;
+  text-align: center;
+}
+
+.ld-hero__mark {
+  max-width: 660px;
+  margin: 0 auto;
+}
+
+.ld-hero__pitch {
+  max-width: 62ch;
+  margin: 2rem auto 0;
+  font-size: 1.12rem;
+  line-height: 1.66;
+  color: var(--ld-text-secondary);
+}
+
+.ld-hero__pitch strong {
+  color: var(--ld-text-primary);
+  font-weight: 650;
+}
+
+.ld-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-top: 1.8rem;
+}
+
+.ld-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--ld-font-mono);
+  font-size: 0.86rem;
+  font-weight: 600;
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--ld-radius-sm);
+  border: 1px solid var(--ld-border-default);
+  color: var(--ld-text-primary);
+  text-decoration: none;
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease;
+}
+
+.ld-btn:hover {
+  border-color: var(--ld-border-focus);
+  background: var(--ld-bg-surface);
+}
+
+.ld-btn--primary {
+  background: var(--ld-accent-primary);
+  border-color: var(--ld-accent-primary);
+  color: var(--ld-text-inverted);
+}
+
+.ld-btn--primary:hover {
+  background: color-mix(in srgb, var(--ld-accent-primary) 88%, white);
+  border-color: var(--ld-accent-primary);
+}
+
+.ld-section {
+  margin-top: 4.5rem;
+}
+
+.ld-section__eyebrow {
+  font-family: var(--ld-font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ld-accent-primary);
+  margin-bottom: 0.6rem;
+}
+
+.ld-section__title {
+  font-family: var(--ld-font-mono);
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--ld-text-primary);
+  margin: 0 0 0.7rem;
+  line-height: 1.25;
+}
+
+.ld-section__lede {
+  max-width: 66ch;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--ld-text-secondary);
+  margin: 0;
+}
+
+.ld-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.4rem;
+  align-items: start;
+  margin-top: 1.6rem;
+}
+
+@media (max-width: 860px) {
+  .ld-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.ld-split__note {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--ld-text-secondary);
+}
+
+.ld-split__note p {
+  margin: 0 0 0.9rem;
+}
+
+.ld-split__note p:last-child {
+  margin-bottom: 0;
+}
+
+/* Home-page code blocks sit inside plain divs, so give them a frame. */
+.ld-page .rp-codeblock,
+.ld-page pre {
+  border-radius: var(--ld-radius);
+}
+
+.ld-install {
+  display: inline-block;
+  max-width: 100%;
+  text-align: left;
+  margin-top: 1.6rem;
+  border: 1px solid var(--ld-border-faint);
+  border-radius: var(--ld-radius);
+  background: var(--ld-bg-surface);
+  overflow: hidden;
+}
+
+.ld-install__row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.55rem 1rem;
+  font-family: var(--ld-font-mono);
+  font-size: 0.84rem;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.ld-install__row + .ld-install__row {
+  border-top: 1px solid var(--ld-border-faint);
+}
+
+.ld-install__label {
+  flex: none;
+  font-size: 0.66rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ld-text-muted);
+  min-width: 5.6rem;
+}
+
+.ld-install__cmd {
+  color: var(--ld-text-primary);
+}
+
+.ld-install__prompt {
+  color: var(--ld-accent-primary);
+  user-select: none;
+}
+
+/* ==========================================================================
+   Small helpers
+   ========================================================================== */
+
+.ld-note {
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--ld-text-muted);
+}
+
+.ld-center {
+  text-align: center;
+}
+
+.ld-glyph-ok {
+  color: var(--ld-status-success);
+}
+.ld-glyph-err {
+  color: var(--ld-status-error);
+}
+.ld-glyph-warn {
+  color: var(--ld-status-warning);
+}
+.ld-glyph-run {
+  color: var(--ld-status-running);
+}
+.ld-glyph-pend {
+  color: var(--ld-status-pending);
+}
+.ld-glyph-neu {
+  color: var(--ld-status-neutral);
+}
+.ld-glyph-acc {
+  color: var(--ld-accent-primary);
+}
+
+/* ==========================================================================
+   Site footer — every page, via the Layout `bottom` slot
+   ========================================================================== */
+
+.ld-footer {
+  border-top: 1px solid var(--ld-border-faint);
+  margin-top: 2rem;
+  padding: 1.75rem 1.5rem 2.5rem;
+}
+
+.ld-footer__inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem 2rem;
+}
+
+.ld-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  font-family: var(--ld-font-mono);
+  font-size: 0.78rem;
+}
+
+.ld-footer__links a {
+  color: var(--ld-text-secondary);
+  text-decoration: none;
+  text-underline-offset: 0.25em;
+}
+
+.ld-footer__links a:hover {
+  color: var(--ld-accent-primary);
+  text-decoration: underline;
+}
+
+.ld-footer__note {
+  flex: 1 1 32ch;
+  margin: 0;
+  max-width: 62ch;
+  font-size: 0.74rem;
+  line-height: 1.6;
+  color: var(--ld-text-muted);
+}
+
+/* ==========================================================================
+   Analytics consent — Reject and Accept carry identical weight on purpose
+   ========================================================================== */
+
+.ld-consent {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  background: var(--ld-bg-surface);
+  border-top: 1px solid var(--ld-border-default);
+  box-shadow: var(--ld-shadow-terminal);
+  padding: 1rem 1.5rem;
+}
+
+.ld-consent__inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+}
+
+.ld-consent__text {
+  flex: 1 1 34ch;
+  margin: 0;
+  max-width: 78ch;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--ld-text-secondary);
+}
+
+.ld-consent__actions {
+  display: flex;
+  flex: none;
+  gap: 0.6rem;
+}
+
+/* Same size, same shape, same row. Only the fill differs, and the difference
+   must never read as "one of these is the real button". */
+.ld-consent__btn {
+  min-width: 8.5rem;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid var(--ld-border-default);
+  border-radius: var(--ld-radius-sm);
+  background: transparent;
+  color: var(--ld-text-primary);
+  font-family: var(--ld-font-mono);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.ld-consent__btn:hover {
+  border-color: var(--ld-accent-primary);
+}
+
+.ld-consent__btn--accept {
+  border-color: var(--ld-accent-primary);
+  background: var(--ld-accent-tint);
+  color: var(--ld-accent-primary);
+}
+
+.ld-consent__btn:focus-visible,
+.ld-footer__links button:focus-visible {
+  outline: 2px solid var(--ld-accent-primary);
+  outline-offset: 2px;
+}
+
+/* The footer's Cookies control is a button for semantics, a link for looks. */
+.ld-footer__links button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--ld-text-secondary);
+  cursor: pointer;
+}
+
+.ld-footer__links button:hover {
+  color: var(--ld-accent-primary);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+@media (max-width: 560px) {
+  .ld-consent__actions {
+    width: 100%;
+  }
+  .ld-consent__btn {
+    flex: 1;
+    min-width: 0;
+  }
+}
