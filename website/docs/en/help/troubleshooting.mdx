@@ -23,6 +23,8 @@ labdash auth login --hostname gitlab.example.com --with-token
 
 An OAuth credential from `labdash auth login` renews itself and does not reach this state. If one does, the stored refresh token was invalidated, and logging in again is the fix.
 
+You should have had warning. A context-bar notice appears fourteen days before a token expires and becomes prominent at three. If a token dies while the dashboard is open, one key restarts the login in place and the sections resume with your scroll position and pinned tabs intact, so there is nothing to restart.
+
 ### The browser says "Device successfully authorized" and then shows the form again
 
 The login worked. GitLab re-renders its empty device-code form after authorising, which reads as a second prompt.

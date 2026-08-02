@@ -83,6 +83,10 @@ labdash auth status
 
 It prints who the credential belongs to, where it is stored, when it expires, and which settings file was read. It never prints the token. Add `--offline` to skip the network call.
 
+You do not have to remember to run it. A personal access token expires at 00:00 UTC on its date, so labdash puts a quiet line in the context bar from fourteen days out and a prominent one from three days out. An OAuth credential renews itself and never reaches that state.
+
+If a token does expire while the dashboard is open, one key restarts the login and the sections resume where they were, with your scroll position and pinned tabs intact.
+
 ```bash
 labdash auth logout      # removes ours, and says so when there was nothing to remove
 labdash settings path    # where the settings file lives

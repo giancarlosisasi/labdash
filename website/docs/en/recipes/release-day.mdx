@@ -54,9 +54,11 @@ The prompt says so: *"Add !2914 to the merge train for release/2.4? It will merg
 
 ## Variations
 
-### One tab, sorted by readiness
+### One tab instead of three
 
-Drop the approval filters and add `sort:priority`. It puts what is closest to mergeable at the top, so the tab drains from the front.
+Drop the approval filters and keep `target:release/2.4 draft:false sort:updated-asc`. Every row then carries its own answer in the blockers column: `ready` can go now, `needs 1` is waiting on a reviewer, `conflicts` is waiting on the author. One tab, read top to bottom.
+
+Three tabs are better on a release with more than about twenty merge requests, because *ready* stops being a thing you scan for and becomes a thing you work through.
 
 ### Cherry-pick candidates still on main
 

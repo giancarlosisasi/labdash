@@ -12,7 +12,7 @@ Pipelines are a top-level view, reached with <Keys>Tab</Keys>. The table shows t
 <Shot
   id="pipelines-view"
   alt="A pipelines dashboard at 120 by 32. The left pane lists pipelines from eight projects with status glyph, project, ref, pipeline number, duration, who triggered each one and the trigger source. The right pane shows the selected pipeline's jobs grouped by stage, two of them failed with their failure reasons, and the first failing assertion underneath."
-  caption="Screen S-08. The pipeline view has the same regions and the same keys as the merge-request view, so the spatial model carries over."
+  caption="The pipeline view has the same regions and the same keys as the merge-request view, so the spatial model carries over."
 />
 
 ## What you see
@@ -63,6 +63,7 @@ Below the job list sits the [failure summary](/features/failure-summary): the fi
 <tr><td><Keys>o</Keys></td><td>open in the browser</td><td><Keys>w</Keys></td><td>watch it</td></tr>
 <tr><td><Keys>Y</Keys></td><td>copy the URL</td><td><Keys>D</Keys></td><td>stage graph</td></tr>
 <tr><td><Keys>V</Keys></td><td>the variables it ran with</td><td><Keys>Ctrl+N</Keys></td><td>run a new pipeline</td></tr>
+<tr><td><Keys>S</Keys></td><td>scheduled pipelines</td><td><Keys>Enter</Keys></td><td>jobs by stage in the preview</td></tr>
 </tbody>
 </table>
 
@@ -92,6 +93,30 @@ Scope comes from the same [browse tree](/features/browse) that scopes merge requ
 GitLab creates several kinds of pipeline for one commit. labdash labels branch pipelines, merged-result pipelines and merge-train pipelines separately in the row rather than blending them into one list.
 
 Child and parent pipelines are reachable from the preview pane, so a multi-project pipeline is navigated downstream and upstream in place.
+
+## The stage graph
+
+<Keys>D</Keys> draws the pipeline as its dependency graph: stages as columns, jobs as rows, and lines for the `needs:` relationships between them. A wide graph scrolls sideways.
+
+The job list in the preview answers "what failed". The graph answers "what was this waiting for", which is the question a pipeline that took forty minutes raises.
+
+## Scheduled pipelines
+
+<Keys>S</Keys> opens the schedules for the current scope: every schedule, its cron description, when it last ran, when it runs next, who owns it, and whether it is active.
+
+<table className="ld-keytable">
+<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><Keys>Enter</Keys></td><td>the runs this schedule produced</td><td><Keys>a</Keys></td><td>activate or deactivate it</td></tr>
+<tr><td><Keys>Ctrl+N</Keys></td><td>run it now, without waiting</td><td><Keys>o</Keys></td><td>edit it in the browser</td></tr>
+</tbody>
+</table>
+
+This is the screen that answers "why did nightly not run". Filtering the pipelines table to `source:schedule` shows the runs that happened, and a schedule that was switched off six weeks ago produces no rows at all, so it cannot show you the one you are looking for. Next-run times use your configured timezone.
+
+:::warning Deactivating a schedule is confirmed, activating one is not
+Turning a schedule off is how a nightly build silently stops, so <Keys>a</Keys> names the schedule and its cadence before it deactivates one. Turning it back on needs no confirmation.
+:::
 
 :::tip Related
 [Group pipelines](/features/group-pipelines) · [Failure summary](/features/failure-summary) · [Job logs](/features/job-logs) · [Watch and notify](/features/watch-and-notify)

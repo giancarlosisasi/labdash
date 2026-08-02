@@ -19,16 +19,20 @@
  * every request. It is a constant here, not a secret.
  */
 
+const PLACEHOLDER_ID = 'G-XXXXXXXXXX';
+
 /**
  * Replace with the GA4 measurement ID for this site.
  *
  * While this is the placeholder, analytics is off end to end: no banner, no
  * cookies, no requests. That keeps the site honest before the property exists,
  * and switching it on is this one line.
+ *
+ * Annotated `: string` on purpose. Without it TypeScript infers the literal
+ * type `'G-XXXXXXXXXX'`, and the comparisons below become provably false, which
+ * is a type error rather than the runtime switch they are meant to be.
  */
-export const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX';
-
-const PLACEHOLDER_ID = 'G-XXXXXXXXXX';
+export const GA_MEASUREMENT_ID: string = PLACEHOLDER_ID;
 
 /** localStorage key holding the visitor's choice. */
 export const CONSENT_STORAGE_KEY = 'labdash.ga-consent';

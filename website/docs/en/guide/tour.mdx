@@ -108,6 +108,35 @@ Two behaviours worth knowing before they surprise you:
 
 <Keys>?</Keys> opens the overlay, generated from the same keymap the application runs on. The [keyboard cheatsheet](/keys/) on this site comes from that keymap too, with `labdash keys --markdown`, so the two cannot drift.
 
+## The command palette
+
+<Keys>Ctrl+K</Keys> lists every action labdash has, with its key, filtered as you type. It is the answer to "there must be a way to do this" when you do not know what the thing is called.
+
+```
+❯ appr
+  →  Approve merge request                              v
+     Approve all selected                              ⇧V
+     Show approval rules                                ]
+  ── unavailable here ──────────────────────────────────
+     Approve deployment            needs an environment row
+```
+
+Actions you cannot use from the current row are **shown, with the reason**, rather than hidden. That is how you find out the tool does something you have not reached yet.
+
+<Keys>Ctrl+P</Keys> is the other half. It jumps to any project or group you have access to, matched on a fragment of the path, without walking the [browse tree](/features/browse):
+
+```
+❯ plat/ing                                    2 of 1841
+  →  platform/ingest              group · 41 open MRs
+     platform/ingest-replay       group ·  3 open MRs
+```
+
+Browse is for exploring. <Keys>Ctrl+P</Keys> is for returning somewhere you already know the name of.
+
+## Toasts
+
+A completed action reports in a toast: `retried #88224 → #88232`. It dismisses itself after a few seconds or on any key, and it never takes focus, so you can keep moving down the table while it is on screen. Anything that failed stays in the footer instead, with the reason.
+
 ## Terminal width
 
 The layout has real breakpoints, and each one is a window somebody works in.

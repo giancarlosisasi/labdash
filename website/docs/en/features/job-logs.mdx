@@ -9,6 +9,12 @@ description: The full job trace, folded by default, with live follow, search, an
 The trace viewer shows a job's complete log, folded into the sections GitLab marks in it, with line numbers, search, and live follow while the job runs.
 </div>
 
+<Shot
+  id="job-trace"
+  alt="A full-screen job trace. The header names the project, the pipeline, the job, its failed status, its duration, the runner that took it, a follow indicator and the line count. Most of the log is folded into section headings with their durations; one section is open, showing numbered lines around a failed test assertion. The footer carries an active search and the fold, follow, copy and retry keys."
+  caption="A forty-thousand-line log opens as about twelve headings, already scrolled to the error."
+/>
+
 ## What you see
 
 **Full screen.** The trace viewer is the one screen that takes the whole frame from the dashboard, because a log needs every column it can get.
@@ -63,6 +69,12 @@ The pipeline preview lists every job in the selected pipeline, ordered by stage,
 </table>
 
 Each job row also names the runner that took it, which is the first thing to check when a job is slow.
+
+## Artifacts
+
+A job that produced artifacts lists them in the preview with their sizes. Downloading one writes it to disk and reports the path; a large archive streams rather than being held in memory, so a two-gigabyte artifact costs disk and not RAM.
+
+This is the other reason to open a job that passed: the report it generated is attached to it.
 
 :::tip Related
 [Failure summary](/features/failure-summary) · [Pipelines](/features/pipelines) · [Watch and notify](/features/watch-and-notify)

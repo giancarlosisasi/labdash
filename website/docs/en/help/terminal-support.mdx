@@ -62,6 +62,10 @@ set -g default-terminal "tmux-256color"
 set -as terminal-features ",*:RGB"
 ```
 
+## Suspending
+
+<Keys>Ctrl+Z</Keys> suspends labdash and `fg` brings it back with the alternate screen, the cursor and your scroll position exactly as you left them. The shell you return to is the one you started from, with its scrollback untouched, because labdash draws on the alternate screen and never writes to yours.
+
 ## SSH
 
 The device-flow login exists for this case. A remote machine has no `localhost` for your browser to reach, so a loopback OAuth callback cannot work. `labdash auth login` prints a code you approve on whichever device has a browser.

@@ -172,6 +172,11 @@ theme:
 | --- | --- | --- |
 | `log.level` | `error`, `warn`, `info`, `debug` | How much labdash writes to its log file |
 | `updateCheck` | `true`, `false` | Whether labdash checks for a newer release at startup |
+| `confirmQuit` | `true`, `false` | Whether <Keys>q</Keys> asks before it exits. Off by default. Worth turning on if you reach for `q` in other applications and lose a half-typed comment to it |
+
+```yaml title="settings.yml"
+confirmQuit: true
+```
 
 ## Theme preview
 

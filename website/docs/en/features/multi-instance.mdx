@@ -9,6 +9,12 @@ description: Several GitLab instances in one dashboard, each with its own transp
 labdash talks to any number of GitLab instances at once: a self-managed instance at work, gitlab.com for open source, and as many more as you configure.
 </div>
 
+<Shot
+  id="multi-instance"
+  alt="One merge request table holding rows from two GitLab instances, sorted together, with an instance column naming the host each row came from. The context bar reports that one of the two instances is unreachable while the other keeps refreshing."
+  caption="Rows from two instances in one table. The instance column appears on its own as soon as a table holds more than one."
+/>
+
 ## Instance roots in the browse tree
 
 Each configured instance is a root in the [browse tree](/features/browse). <Keys>b</Keys> shows them side by side with their groups beneath them, so choosing a GitLab is a place you navigate to. A view you pin under one root records the instance it came from, so a tab always queries the GitLab it was built from.
@@ -17,7 +23,7 @@ Each configured instance is a root in the [browse tree](/features/browse). <Keys
 
 One table can draw rows from more than one instance, merged into a single list and sorted together. Your review queue on [Home](/features/home) spans every instance you are logged in to. When rows come from more than one place an **instance column** appears automatically, so no row is ambiguous about where it lives.
 
-<Keys>Ctrl+T</Keys> switches which instance an unqualified action belongs to.
+<Keys>Ctrl+T</Keys> opens the instance switcher: every instance you are logged in to, with the account each credential belongs to, when it expires, and whether the host is reachable right now. Picking one changes which instance an unqualified action belongs to, and the open sections refetch. Credentials never cross between them.
 
 ## Failure isolation
 

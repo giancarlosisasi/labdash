@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import { defineConfig } from '@rspress/core';
+import { defineConfig, type UserConfig } from '@rspress/core';
 
 import { consentBootstrapScript } from './theme/analytics-bootstrap';
 
@@ -34,25 +34,33 @@ const STRUCTURED_DATA = {
   },
 };
 
-export default defineConfig({
+/**
+ * Typed against `UserConfig['head']` rather than inferred. A bare array literal
+ * widens `['meta', {...}]` to `(string | object)[]`, which does not match the
+ * `[string, Record<string, string>]` tuple the option expects, and the failure
+ * surfaces as an unrelated "'root' does not exist" overload error on the whole
+ * config object.
+ */
+const head: UserConfig['head'] = [
+  // Runs before anything else so Consent Mode's default state is on the
+  // dataLayer when gtag.js arrives. It stores nothing and requests nothing.
+  // See theme/analytics-bootstrap.ts.
+  `<script>${consentBootstrapScript}</script>`,
+
+  ['meta', { name: 'author', content: AUTHOR_NAME }],
+  ['link', { rel: 'author', href: AUTHOR_URL }],
+  ['link', { rel: 'me', href: AUTHOR_URL }],
+
+  `<script type="application/ld+json">${JSON.stringify(STRUCTURED_DATA)}</script>`,
+];
+
+const cfg: UserConfig = {
   root: path.join(__dirname, 'docs'),
   lang: 'en',
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
   icon: '/favicon.svg',
-
-  head: [
-    // Runs before anything else so Consent Mode's default state is on the
-    // dataLayer when gtag.js arrives. It stores nothing and requests nothing.
-    // See theme/analytics-bootstrap.ts.
-    `<script>${consentBootstrapScript}</script>`,
-
-    ['meta', { name: 'author', content: AUTHOR_NAME }],
-    ['link', { rel: 'author', href: AUTHOR_URL }],
-    ['link', { rel: 'me', href: AUTHOR_URL }],
-
-    `<script type="application/ld+json">${JSON.stringify(STRUCTURED_DATA)}</script>`,
-  ],
+  head,
 
   // Structured for i18n from the first commit. The default language carries no
   // path prefix, so adding `es` later is additive and breaks no published URL.
@@ -66,8 +74,56 @@ export default defineConfig({
     },
   ],
 
+  // Every UI string the default theme shows, overridden for English only.
+  //
+  // These used to sit on `themeConfig.locales[].outlineTitle` and friends, which
+  // Rspress 2 no longer accepts: LocaleConfig now holds lang, label, title,
+  // description, nav and sidebar, and nothing else. The strings moved here.
+  //
+  // The function form takes the shipped defaults and returns the merged set, so
+  // overriding `en` leaves every other language intact. The object form would
+  // demand a `zh` value for each key alongside the `en` one.
+  i18nSource: (defaults) => ({
+    ...defaults,
+    outlineTitle: { ...defaults.outlineTitle, en: 'On this page' },
+    prevPageText: { ...defaults.prevPageText, en: 'Previous' },
+    nextPageText: { ...defaults.nextPageText, en: 'Next' },
+    lastUpdatedText: { ...defaults.lastUpdatedText, en: 'Last updated' },
+    searchPlaceholderText: {
+      ...defaults.searchPlaceholderText,
+      en: 'Search the docs',
+    },
+    searchNoResultsText: {
+      ...defaults.searchNoResultsText,
+      en: 'No results for',
+    },
+    searchSuggestedQueryText: {
+      ...defaults.searchSuggestedQueryText,
+      en: 'Try another term.',
+    },
+    'overview.filterNameText': {
+      ...defaults['overview.filterNameText'],
+      en: 'Filter',
+    },
+    'overview.filterPlaceholderText': {
+      ...defaults['overview.filterPlaceholderText'],
+      en: 'Type a keyword',
+    },
+    'overview.filterNoResultText': {
+      ...defaults['overview.filterNoResultText'],
+      en: 'Nothing matches that.',
+    },
+  }),
+
   markdown: {
-    checkDeadLinks: true,
+    // `markdown.checkDeadLinks` was silently ignored: in Rspress 2 the option
+    // lives under `link`, and it already defaults to true. Anchor checking does
+    // not, so it is switched on here. It catches a link to a heading that a
+    // retitling moved, which is the failure a page rename actually causes.
+    link: {
+      checkDeadLinks: true,
+      checkAnchors: true,
+    },
     // Registered globally so 50-odd pages do not each open with an import
     // block. Each file's default export is bound to its capitalised filename.
     globalComponents: [
@@ -98,23 +154,9 @@ export default defineConfig({
     // to <HomeFooter>, which renders only under `pageType: home`; this site's
     // homepage is `pageType: custom`, so it would reach no page. The footer is
     // theme/components/SiteFooter.tsx, mounted in the Layout's `bottom` slot.
-    locales: [
-      {
-        lang: 'en',
-        label: 'English',
-        outlineTitle: 'On this page',
-        prevPageText: 'Previous',
-        nextPageText: 'Next',
-        searchPlaceholderText: 'Search the docs',
-        searchNoResultsText: 'No results for',
-        searchSuggestedQueryText: 'Try another term.',
-        lastUpdatedText: 'Last updated',
-        overview: {
-          filterNameText: 'Filter',
-          filterPlaceholderText: 'Type a keyword',
-          filterNoResultText: 'Nothing matches that.',
-        },
-      },
-    ],
+    // UI strings live in `i18nSource` above, not here.
+    locales: [{ lang: 'en', label: 'English' }],
   },
-});
+};
+
+export default defineConfig(cfg);

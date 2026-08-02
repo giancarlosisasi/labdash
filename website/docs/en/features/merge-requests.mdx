@@ -88,6 +88,16 @@ Every list is paginated at 50 rows, in GraphQL and REST alike. <Keys>J</Keys> lo
 
 A section holds a bounded number of rows and releases the head as you page past it, so a long session cannot exhaust memory.
 
+## Grouping by project
+
+A cross-project table of two hundred rows reads better split by repository. Grouping collapses it into project headers with their own counts, and <Keys>z</Keys> folds one while <Keys>Z</Keys> folds all of them, the same keys that collapse a Home group or a tree node.
+
+## Prompts
+
+Comment, labels, assignees and reviewers all use one prompt. A single-line value draws in the footer; a comment box opens over the table with room to write. Values complete from the project's real labels and members, so a name cannot be misspelled into a new label.
+
+<Keys>Esc</Keys> leaves a prompt without submitting, and it asks first when you have typed something, so a half-written comment survives a stray keypress.
+
 :::tip Related
 [Your review queue](/features/review-queue) · [Merge blockers](/features/why-it-cant-merge) · [Browse](/features/browse) · [Filtering](/features/filtering)
 :::

@@ -9,6 +9,12 @@ description: Watch a pipeline until it reaches a terminal state and get a deskto
 <Keys>w</Keys> marks a pipeline as watched. It then polls faster than its section until it reaches a terminal state, stops on its own, and sends a desktop notification.
 </div>
 
+<Shot
+  id="watch-pipeline"
+  alt="A pipelines table with two rows carrying a watch marker. The footer's task area names the stage and job each watched pipeline is currently on. A desktop notification sits at the corner of the screen reporting that one of them failed after four minutes in the e2e job."
+  caption="A watched pipeline polls faster than its section, stops the moment it lands, and says so."
+/>
+
 ## What you see
 
 A watched pipeline carries a `◉` marker in its row and a line in the footer's task area naming the stage and job it is on. You can watch several pipelines at once, and each one gets its own task line.

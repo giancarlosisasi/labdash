@@ -34,13 +34,14 @@ labdash --config ~/work/labdash.yml
 
 ## What it holds
 
-Three areas, and nothing else.
+Four areas, and nothing else.
 
 | Area | Keys | Reference |
 | --- | --- | --- |
 | Instances | `defaultHost`, `instances`, `repoPaths` | [Instances](/settings/instances) |
 | Your account | `tokenEnv`, per instance | [Instances](/settings/instances) |
-| Appearance | `theme`, `log`, `updateCheck` | [Appearance](/settings/appearance) |
+| Appearance | `theme`, `log`, `updateCheck`, `confirmQuit` | [Appearance](/settings/appearance) |
+| Notifications | `notifications` | [Watch and notify](/features/watch-and-notify) |
 
 ### Instances
 
@@ -52,7 +53,11 @@ Nothing in this file is secret. An instance names the environment variable that 
 
 ### Appearance
 
-Theme name, icon set, row density, table separators, date format, timezone, spinner style, reduced motion, and the splash. Beside them sit two operational switches: `log` sets the log level, `updateCheck` turns the release check on or off.
+Theme name, icon set, row density, table separators, date format, timezone, spinner style, reduced motion, and the splash. Beside them sit three operational switches: `log` sets the log level, `updateCheck` turns the release check on or off, and `confirmQuit` decides whether <Keys>q</Keys> asks first.
+
+### Notifications
+
+Three switches deciding when labdash raises a desktop notification. Two of the three are off, and the one that is on fires only for a pipeline you pointed at yourself. See [watch and notify](/features/watch-and-notify).
 
 ## The whole file, at its largest
 
@@ -74,6 +79,9 @@ repoPaths:
 theme:
   name: ember
   dateFormat: relative
+
+notifications:
+  onWatchedPipeline: true
 
 log:
   level: warn
