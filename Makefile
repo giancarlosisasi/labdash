@@ -39,6 +39,10 @@ bench:
 preview:
 	$(GO) run ./cmd/labdash theme preview
 
+## keys: regenerate the published keyboard reference from the keymap
+keys:
+	$(GO) run ./cmd/labdash keys --markdown > website/docs/en/keys/index.mdx
+
 ## vet: go vet over everything
 vet:
 	$(GO) vet $(PKG)
@@ -50,4 +54,4 @@ tidy:
 ## ci: exactly what the pipeline runs
 ci: vet test test-race bench
 
-.PHONY: help build test test-race test-update bench preview vet tidy ci
+.PHONY: help build test test-race test-update bench preview keys vet tidy ci

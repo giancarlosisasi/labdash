@@ -15,7 +15,10 @@ import (
 // defaultWidth is what the sheet is drawn at when the width cannot be read —
 // stdout is a pipe, or the terminal does not answer. It is the width every
 // screen in research/16-screens-and-flows.md is drawn at.
-const defaultWidth = 120
+const (
+	defaultWidth  = 120
+	defaultHeight = 32
+)
 
 func newThemeCmd() *cobra.Command {
 	cmd := &cobra.Command{

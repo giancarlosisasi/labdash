@@ -1,0 +1,22 @@
+╭─ Help ─────────────────────────────────────────────────────────────────────╮
+│                                                                            │
+│ UNIVERSAL                                                                  │
+│   Tab          next view                                                   │
+│   ⇧Tab         previous view                                               │
+│   Esc          go back one level                                           │
+│   ?            show the keys for this view                                 │
+│   q            quit labdash                                                │
+│                                                                            │
+│ MOVEMENT                                                                   │
+│   j ↓          move down a row                                             │
+│   k ↑          move up a row                                               │
+│   h ←          previous section                                            │
+│   l →          next section                                                │
+│   g Home       jump to the first row                                       │
+│   G End        jump to the last row                                        │
+│   Ctrl+D PgDn  page down                                                   │
+│   Ctrl+U PgUp  page up                                                     │
+│                                                                            │
+├────────────────────────────────────────────────────────────────────────────┤
+│ Esc  close    labdash keys --markdown lists every key, built or not        │
+╰────────────────────────────────────────────────────────────────────────────╯

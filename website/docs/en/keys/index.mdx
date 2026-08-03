@@ -1,16 +1,16 @@
 ---
 title: Keyboard reference
-description: Every binding, grouped by tier, with the rules that make an unlearned key guessable.
+description: Every binding labdash has, grouped by where it works, with the rules that make an unlearned key guessable.
 ---
+
+{/* GENERATED — do not edit. `labdash keys --markdown` writes this page and CI fails on a diff. Change internal/keymap instead. */}
 
 # Keyboard reference
 
-<div className="ld-lede">
-Bindings are grouped by tier rather than alphabetically, because that is how they are learned. <Keys>?</Keys> shows the same list inside the application.
-</div>
+Bindings are grouped by where they work, because that is how they are learned. Inside the application, `?` shows the same list, narrowed to the screen you are on.
 
 :::info Generated from the keymap
-This page comes from `labdash keys --markdown`, which reads the same keymap the in-app help overlay reads. The two cannot drift.
+This page is the output of `labdash keys --markdown`, which reads the table the help overlay reads. The two cannot drift.
 :::
 
 Keys are fixed. Every action below has one binding, in every view, on every platform.
@@ -19,125 +19,156 @@ Keys are fixed. Every action below has one binding, in every view, on every plat
 
 | Tier | Contains | Where you find it |
 | --- | --- | --- |
-| **L0 universal** | <Keys>↑</Keys> <Keys>↓</Keys> <Keys>←</Keys> <Keys>→</Keys> <Keys>Enter</Keys> <Keys>Esc</Keys> <Keys>q</Keys> <Keys>?</Keys> | The footer, always |
-| **L1 vim** | <Keys>j</Keys> <Keys>k</Keys> <Keys>h</Keys> <Keys>l</Keys> <Keys>g</Keys> <Keys>G</Keys> <Keys>/</Keys> <Keys>n</Keys> <Keys>N</Keys> | The footer and <Keys>?</Keys> |
-| **L2 actions** | One mnemonic key per verb | <Keys>?</Keys> and the command palette |
-| **L3 power** | Chords | This page |
+| L0 universal | `↓` `↑` `←` `→` `Home` `End` `PgDn` `PgUp` `Tab` `⇧Tab` `⏎` `Esc` `?` `q` `b` `f` `P` | The footer, always |
+| L1 movement | `j` `k` `h` `l` `g` `G` `Ctrl+D` `Ctrl+U` `/` `n` `N` | The footer and `?` |
+| L2 actions | 48 mnemonics, one for each verb | `?` and the command palette |
+| L3 chords | `Ctrl+R` `Ctrl+K` `Ctrl+P` `Ctrl+G` `Ctrl+T` `Ctrl+N` | This page |
 
 **L0 and L1 are complete alternatives to each other.** Nobody is locked out for not knowing vim, and nobody who knows vim has to reach for an arrow key.
 
 ## Browse, filter, pin
 
-<table className="ld-keytable">
-<thead><tr><th>Key</th><th>Action</th></tr></thead>
-<tbody>
-<tr><td><Keys>b</Keys></td><td><a href="/features/browse">browse</a> your whole GitLab</td></tr>
-<tr><td><Keys>f</Keys></td><td><a href="/features/filtering">filter</a> what you are looking at</td></tr>
-<tr><td><Keys>P</Keys></td><td><a href="/features/pinned-views">pin</a> it as a permanent tab</td></tr>
-</tbody>
-</table>
+| Key | Action |
+| --- | --- |
+| `b` | browse your whole GitLab |
+| `f` | filter what you are looking at |
+| `P` | pin this view as a permanent tab |
 
 Learn these three and you can build any view labdash can show. They are L0, so they sit in the footer wherever you are.
 
-## Universal
+## Everywhere
 
-<table className="ld-keytable">
-<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
-<tbody>
-<tr><td><Keys>j</Keys> <Keys>↓</Keys></td><td>down</td><td><Keys>r</Keys></td><td>refresh this section</td></tr>
-<tr><td><Keys>k</Keys> <Keys>↑</Keys></td><td>up</td><td><Keys>Ctrl+R</Keys></td><td>refresh everything</td></tr>
-<tr><td><Keys>h</Keys> <Keys>←</Keys></td><td>previous section</td><td><Keys>p</Keys></td><td>preview on or off</td></tr>
-<tr><td><Keys>l</Keys> <Keys>→</Keys></td><td>next section</td><td><Keys>z</Keys> <Keys>Z</Keys></td><td>collapse, collapse all</td></tr>
-<tr><td><Keys>g</Keys> <Keys>Home</Keys></td><td>first row</td><td><Keys>o</Keys></td><td>open in the browser</td></tr>
-<tr><td><Keys>G</Keys> <Keys>End</Keys></td><td>last row</td><td><Keys>O</Keys></td><td>open in your editor</td></tr>
-<tr><td><Keys>Ctrl+d</Keys> <Keys>PgDn</Keys></td><td>page down</td><td><Keys>y</Keys> <Keys>Y</Keys></td><td>copy branch, copy URL</td></tr>
-<tr><td><Keys>Ctrl+u</Keys> <Keys>PgUp</Keys></td><td>page up</td><td><Keys>/</Keys></td><td>search loaded rows</td></tr>
-<tr><td><Keys>Tab</Keys></td><td>next view</td><td><Keys>Ctrl+K</Keys></td><td>command palette</td></tr>
-<tr><td><Keys>Shift+Tab</Keys></td><td>previous view</td><td><Keys>Ctrl+P</Keys></td><td>jump to a project</td></tr>
-<tr><td><Keys>Enter</Keys></td><td>focus the preview</td><td><Keys>?</Keys></td><td>help</td></tr>
-<tr><td><Keys>Esc</Keys></td><td>back, or clear</td><td><Keys>q</Keys></td><td>quit</td></tr>
-<tr><td><Keys>J</Keys></td><td>load more</td><td><Keys>Space</Keys></td><td>multi-select</td></tr>
-<tr><td><Keys>[</Keys> <Keys>]</Keys></td><td>preview tabs</td><td><Keys>L</Keys></td><td>logs</td></tr>
-<tr><td><Keys>1</Keys>–<Keys>5</Keys></td><td>quick filters</td><td><Keys>Ctrl+G</Keys></td><td>scope to the repo you are in</td></tr>
-<tr><td><Keys>Ctrl+T</Keys></td><td>instance switcher</td><td></td><td></td></tr>
-</tbody>
-</table>
+| Key | Action |
+| --- | --- |
+| `j` `↓` | move down a row |
+| `k` `↑` | move up a row |
+| `h` `←` | previous section |
+| `l` `→` | next section |
+| `g` `Home` | jump to the first row |
+| `G` `End` | jump to the last row |
+| `Ctrl+D` `PgDn` | page down |
+| `Ctrl+U` `PgUp` | page up |
+| `Tab` | next view |
+| `⇧Tab` | previous view |
+| `⏎` | focus the preview pane |
+| `Esc` | go back one level |
+| `?` | show the keys for this view |
+| `q` | quit labdash |
+| `J` | load the next page of rows |
+| `r` | refresh this section |
+| `Ctrl+R` | refresh every section |
+| `p` | show or hide the preview |
+| `o` | open it in your browser |
+| `O` | open it in your editor |
+| `y` | copy the branch or ref |
+| `Y` | copy the URL |
+| `/` | search what is on screen |
+| `n` | go to the next match |
+| `N` | go to the previous match |
+| `z` | collapse this group |
+| `Z` | collapse every group |
+| `Space` | add this row to the selection |
+| `L` | show the logs |
+| `u` | undo the last reversible action |
+| `[` | previous preview tab |
+| `]` | next preview tab |
+| `Ctrl+K` | find any action by name |
+| `Ctrl+P` | jump to a project |
+| `Ctrl+G` | scope to the repository you are in |
+| `Ctrl+T` | switch GitLab instance |
+| `1` | apply quick filter 1 |
+| `2` | apply quick filter 2 |
+| `3` | apply quick filter 3 |
+| `4` | apply quick filter 4 |
+| `5` | apply quick filter 5 |
 
 The preview position has no key. `auto` puts the pane on the right at 120 columns or wider, and along the bottom below that.
 
 ## Browse
 
-<table className="ld-keytable">
-<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
-<tbody>
-<tr><td><Keys>l</Keys> <Keys>→</Keys></td><td>expand a node</td><td><Keys>Enter</Keys></td><td>scope the dashboard here</td></tr>
-<tr><td><Keys>h</Keys> <Keys>←</Keys></td><td>collapse a node</td><td><Keys>P</Keys></td><td>pin it as a tab</td></tr>
-<tr><td><Keys>/</Keys></td><td>search the tree</td><td><Keys>o</Keys></td><td>open in a browser</td></tr>
-<tr><td><Keys>z</Keys> <Keys>Z</Keys></td><td>collapse, collapse all</td><td><Keys>Esc</Keys></td><td>back where you came from</td></tr>
-</tbody>
-</table>
+| Key | Action |
+| --- | --- |
+| `l` `→` | expand this node |
+| `h` `←` | collapse this node |
+| `⏎` | scope the dashboard to this node |
 
-<Keys>h</Keys> and <Keys>l</Keys> walk the tree here instead of switching tabs, because Browse has no tabs to switch. It is the one context-dependent meaning in the whole keymap, and it is the universal tree convention.
+`h` and `l` walk the tree here instead of switching tabs, because Browse has no tabs to switch. It is the one context-dependent meaning in the whole keymap, and it is the universal tree convention.
 
 ## Merge requests
 
-<table className="ld-keytable">
-<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
-<tbody>
-<tr><td><Keys>v</Keys></td><td>approve or unapprove</td><td><Keys>t</Keys></td><td>labels</td></tr>
-<tr><td><Keys>m</Keys></td><td>merge</td><td><Keys>a</Keys> <Keys>A</Keys></td><td>assign, unassign</td></tr>
-<tr><td><Keys>c</Keys></td><td>comment</td><td><Keys>s</Keys></td><td>send for review</td></tr>
-<tr><td><Keys>C</Keys></td><td>check out the branch</td><td><Keys>x</Keys> <Keys>X</Keys></td><td>close, reopen</td></tr>
-<tr><td><Keys>W</Keys></td><td>check out as a worktree</td><td><Keys>U</Keys></td><td>update the branch (rebase)</td></tr>
-<tr><td><Keys>d</Keys></td><td>draft on or off</td><td><Keys>Ctrl+N</Keys></td><td>new merge request</td></tr>
-<tr><td><Keys>R</Keys></td><td>retry the head pipeline</td><td><Keys>L</Keys></td><td>logs of the failing job</td></tr>
-</tbody>
-</table>
+| Key | Action |
+| --- | --- |
+| `v` | approve it, or take your approval back |
+| `V` | approve every selected row |
+| `m` | merge it |
+| `c` | write a comment |
+| `C` | check the branch out locally |
+| `W` | check it out as a worktree |
+| `d` | mark it draft, or mark it ready |
+| `R` | retry the head pipeline |
+| `t` | edit the labels |
+| `a` | assign someone |
+| `A` | unassign someone |
+| `s` | send it for review |
+| `x` | close it |
+| `X` | reopen it |
+| `U` | update the branch from its target |
+| `Ctrl+N` | start a new merge request |
 
-## Pipelines and jobs
+## Pipelines
 
-<table className="ld-keytable">
-<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
-<tbody>
-<tr><td><Keys>R</Keys></td><td>retry</td><td><Keys>w</Keys></td><td>watch</td></tr>
-<tr><td><Keys>x</Keys></td><td>cancel</td><td><Keys>D</Keys></td><td>stage graph</td></tr>
-<tr><td><Keys>m</Keys></td><td>play a manual job</td><td><Keys>V</Keys></td><td>variables</td></tr>
-<tr><td><Keys>L</Keys></td><td>logs</td><td><Keys>Ctrl+N</Keys></td><td>run a pipeline</td></tr>
-</tbody>
-</table>
+| Key | Action |
+| --- | --- |
+| `R` | retry it |
+| `x` | cancel it |
+| `m` | play a manual job |
+| `w` | keep watching it as it runs |
+| `D` | show the stage graph |
+| `V` | show the variables it ran with |
+| `S` | show the scheduled pipelines |
+| `Ctrl+N` | run a pipeline |
 
-## Job trace viewer
+## Job trace
 
-<table className="ld-keytable">
-<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
-<tbody>
-<tr><td><Keys>w</Keys></td><td>follow on or off</td><td><Keys>y</Keys></td><td>copy</td></tr>
-<tr><td><Keys>z</Keys> <Keys>Z</Keys></td><td>fold, fold all</td><td><Keys>S</Keys></td><td>save to a file</td></tr>
-<tr><td><Keys>/</Keys> <Keys>n</Keys> <Keys>N</Keys></td><td>search, next, previous</td><td><Keys>R</Keys></td><td>retry this job</td></tr>
-</tbody>
-</table>
+| Key | Action |
+| --- | --- |
+| `w` | follow the log as it grows |
+| `y` | copy the log |
+| `S` | save it to a file |
+| `R` | retry this job |
 
-## To-dos
+`w` follows a growing log, which is the same verb as watching a running pipeline.
 
-<table className="ld-keytable">
-<thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead>
-<tbody>
-<tr><td><Keys>d</Keys></td><td>mark done</td><td><Keys>u</Keys></td><td>restore</td></tr>
-<tr><td><Keys>D</Keys></td><td>mark all done</td><td><Keys>Enter</Keys></td><td>go to the target</td></tr>
-<tr><td><Keys>s</Keys></td><td>snooze</td><td></td><td></td></tr>
-</tbody>
-</table>
+## To-Dos
+
+| Key | Action |
+| --- | --- |
+| `d` | mark it done |
+| `D` | mark every To-Do done |
+| `s` | snooze it |
+| `⏎` | go to what it points at |
 
 ## Coherence rules
 
 Six rules cover the whole keymap. They are what let you guess a key you have not learned.
 
-1. **Lowercase acts on the row; uppercase escalates or reverses it.** <Keys>x</Keys> closes, <Keys>X</Keys> reopens. <Keys>d</Keys> marks one done, <Keys>D</Keys> marks all. <Keys>r</Keys> refreshes one, <Keys>Ctrl+R</Keys> refreshes all.
-2. **A key means the same verb in every view.** <Keys>R</Keys> retries. <Keys>x</Keys> stops. <Keys>m</Keys> makes it go: merge a merge request, or play a manual job. <Keys>L</Keys> shows logs. <Keys>w</Keys> keeps showing you a live thing, a running pipeline or a growing log. <Keys>z</Keys> collapses a Home group, a tree node, or a log section.
+1. **Lowercase acts on the row; uppercase escalates or reverses it.** `x` closes, `X` reopens. `d` marks one done, `D` marks all. `r` refreshes one, `Ctrl+R` refreshes all.
+2. **A key means the same verb in every view.** `R` retries. `x` stops. `m` makes it go: merge a merge request, or play a manual job. `L` shows logs. `w` keeps showing you a live thing. `z` collapses a group, a tree node, or a log section.
 3. **A key resolves to one action in the context you are in.** Nothing is bound twice in the same view, so what you learned in one table still holds in the next.
-4. **<Keys>n</Keys> and <Keys>N</Keys> are search navigation only**, and only while a search is live. That is why "new merge request" is <Keys>Ctrl+N</Keys>.
-5. **<Keys>Esc</Keys> never quits, <Keys>q</Keys> never goes back.** <Keys>Esc</Keys> moves back exactly one level, and it will not discard a half-typed comment without asking.
-6. **No timed key sequences.** A chord is `Ctrl`-prefixed and instantaneous. A `g`-then-`g` with a timeout produces mystery input on a slow SSH link.
+4. **`n` and `N` are search navigation only**, and only while a search is live. That is why "new merge request" is `Ctrl+N`.
+5. **`Esc` goes back one level and `q` quits.** `Esc` will not discard a half-typed comment without asking.
+6. **Chords are instantaneous.** A chord is `Ctrl`-prefixed and lands on one keystroke. A `g`-then-`g` with a timeout produces mystery input on a slow SSH link.
+
+## Reserved keys
+
+| Key | Why it stays free |
+| --- | --- |
+| `Ctrl+S` | Most terminals deliver it as XOFF and freeze the display. |
+| `Ctrl+I` | A terminal delivers it as `Tab`, which is already the view switcher. |
+| `Ctrl+M` | A terminal delivers it as `Enter`. |
+| `Ctrl+C` | Interrupt belongs to the shell. |
+| `e` `E` | Editing a filter is `f` and reaching the code is `O`. Leaving these two free makes displaced muscle memory fail loudly. |
+| `1`–`5` | Digits belong to the quick-filter chips, so they never select a view or a tab. |
 
 ## Markdown export
 
@@ -146,3 +177,9 @@ labdash keys --markdown > cheatsheet.md
 ```
 
 The same content, from the same source, for pinning next to your monitor.
+
+```bash
+labdash keys --list
+```
+
+Every action name, one per line, for a bug report or a proposal to cite.

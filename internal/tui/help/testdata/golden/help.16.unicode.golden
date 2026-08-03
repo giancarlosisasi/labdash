@@ -1,0 +1,22 @@
+[90m╭─ Help ─────────────────────────────────────────────────────────────────────╮[m
+[90m│[m                                                                            [90m│[m
+[90m│[m [90mUNIVERSAL[m                                                                  [90m│[m
+[90m│[m   [33mTab[m          [97mnext view[m                                                   [90m│[m
+[90m│[m   [33m⇧Tab[m         [97mprevious view[m                                               [90m│[m
+[90m│[m   [33mEsc[m          [97mgo back one level[m                                           [90m│[m
+[90m│[m   [33m?[m            [97mshow the keys for this view[m                                 [90m│[m
+[90m│[m   [33mq[m            [97mquit labdash[m                                                [90m│[m
+[90m│[m                                                                            [90m│[m
+[90m│[m [90mMOVEMENT[m                                                                   [90m│[m
+[90m│[m   [33mj ↓[m          [97mmove down a row[m                                             [90m│[m
+[90m│[m   [33mk ↑[m          [97mmove up a row[m                                               [90m│[m
+[90m│[m   [33mh ←[m          [97mprevious section[m                                            [90m│[m
+[90m│[m   [33ml →[m          [97mnext section[m                                                [90m│[m
+[90m│[m   [33mg Home[m       [97mjump to the first row[m                                       [90m│[m
+[90m│[m   [33mG End[m        [97mjump to the last row[m                                        [90m│[m
+[90m│[m   [33mCtrl+D PgDn[m  [97mpage down[m                                                   [90m│[m
+[90m│[m   [33mCtrl+U PgUp[m  [97mpage up[m                                                     [90m│[m
+[90m│[m                                                                            [90m│[m
+[90m├────────────────────────────────────────────────────────────────────────────┤[m
+[90m│[m [33mEsc[m  [37mclose[m    [90mlabdash keys --markdown lists every key, built or not[m        [90m│[m
+[90m╰────────────────────────────────────────────────────────────────────────────╯[m

@@ -197,17 +197,27 @@ func Blockers() []Blocker {
 
 // Borders is the frame vocabulary. Focus changes a border's colour and never
 // its geometry: a border that thickens on focus shifts every column beside it.
+//
+// The four tees are where a rule meets the frame or a pane divider. In ASCII
+// every one of them is "+", which is the same width and reads as a junction.
 type Borders struct {
 	TopLeft, TopRight, BottomLeft, BottomRight string
 	Horizontal, Vertical                       string
+	TeeLeft, TeeRight, TeeDown, TeeUp          string
 }
 
 // BordersFor returns the frame characters for one icon tier.
 func BordersFor(tier IconTier) Borders {
 	if tier == ASCII {
-		return Borders{"+", "+", "+", "+", "-", "|"}
+		return Borders{
+			"+", "+", "+", "+", "-", "|",
+			"+", "+", "+", "+",
+		}
 	}
-	return Borders{"╭", "╮", "╰", "╯", "─", "│"}
+	return Borders{
+		"╭", "╮", "╰", "╯", "─", "│",
+		"├", "┤", "┬", "┴",
+	}
 }
 
 // SpinnerFrames is the animation shown while work is in flight, at ten frames

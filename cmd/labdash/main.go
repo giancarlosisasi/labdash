@@ -9,6 +9,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -34,21 +35,37 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
-	if err := newRootCmd().ExecuteContext(ctx); err != nil {
+	if err := newRootCmd(handler).ExecuteContext(ctx); err != nil {
 		// cobra has already printed the error.
 		os.Exit(1)
 	}
 }
 
-func newRootCmd() *cobra.Command {
+// noInput is the --no-input flag. It never suppresses the dashboard: it turns
+// every prompt into a non-zero exit, so a job in CI fails with a message
+// naming what it needed instead of blocking on a question nobody can answer.
+var noInput bool
+
+func newRootCmd(handler *crash.Handler) *cobra.Command {
 	root := &cobra.Command{
-		Use:           "labdash",
-		Short:         "A terminal dashboard for GitLab merge requests and pipelines",
+		Use:   "labdash",
+		Short: "A terminal dashboard for GitLab merge requests and pipelines",
+		Long: "A terminal dashboard for GitLab merge requests and pipelines.\n\n" +
+			"Run it with no arguments to open the dashboard. Piped or redirected, it\n" +
+			"prints one line of advice instead, because a terminal UI in a log file\n" +
+			"helps nobody.",
+		Args:          cobra.NoArgs,
 		SilenceUsage:  true,
 		SilenceErrors: false,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			return runTUI(cmd, handler)
+		},
 	}
 
-	root.AddCommand(newAuthCmd(), newSettingsCmd(), newThemeCmd())
+	root.PersistentFlags().BoolVar(&noInput, "no-input", false,
+		"never prompt; exit non-zero where an answer would have been needed")
+
+	root.AddCommand(newAuthCmd(), newSettingsCmd(), newThemeCmd(), newKeysCmd())
 
 	return root
 }
@@ -129,7 +146,8 @@ func newAuthLoginCmd() *cobra.Command {
 
 			var creds gitlabauth.Credentials
 			if withToken {
-				token, err := readToken(cmd.InOrStdin(), cmd.OutOrStdout(), host)
+				in := cmd.InOrStdin()
+				token, err := readToken(in, cmd.OutOrStdout(), host, isCharDevice(in))
 				if err != nil {
 					return err
 				}
@@ -198,15 +216,7 @@ func newAuthLoginCmd() *cobra.Command {
 // shell history and is visible in the process list to every user on the
 // machine. When we are on a terminal the input is read with echo off, so the
 // token does not stay in the scrollback either.
-func readToken(in io.Reader, out io.Writer, host string) (string, error) {
-	f, isFile := in.(*os.File)
-	interactive := false
-	if isFile {
-		if info, err := f.Stat(); err == nil && info.Mode()&os.ModeCharDevice != 0 {
-			interactive = true
-		}
-	}
-
+func readToken(in io.Reader, out io.Writer, host string, interactive bool) (string, error) {
 	if !interactive {
 		line, err := bufio.NewReader(in).ReadString('\n')
 		if err != nil && line == "" {
@@ -215,11 +225,22 @@ func readToken(in io.Reader, out io.Writer, host string) (string, error) {
 		return strings.TrimSpace(line), nil
 	}
 
+	if noInput {
+		return "", fmt.Errorf(
+			"a personal access token for %s was needed and --no-input forbids asking.\n"+
+				"Pipe it in instead:  echo $TOKEN | labdash auth login --with-token", host)
+	}
+
 	fmt.Fprintf(out, "Paste a personal access token for %s, then press Enter.\n", host)
 	fmt.Fprintf(out, "Create one at https://%s/-/user_settings/personal_access_tokens"+
 		"?scopes=api\n", host)
 	fmt.Fprintf(out, "Nothing will appear as you type or paste.\n\n")
 	fmt.Fprintf(out, "Token: ")
+
+	f, ok := in.(*os.File)
+	if !ok {
+		return "", errors.New("standard input is not a terminal, so the token cannot be read without echo")
+	}
 
 	raw, err := term.ReadPassword(int(f.Fd()))
 	fmt.Fprintln(out)
@@ -228,6 +249,17 @@ func readToken(in io.Reader, out io.Writer, host string) (string, error) {
 	}
 
 	return strings.TrimSpace(string(raw)), nil
+}
+
+// isCharDevice reports whether a reader is a terminal rather than a pipe or a
+// file. It is what separates "prompt the user" from "read what was piped in".
+func isCharDevice(r io.Reader) bool {
+	f, ok := r.(*os.File)
+	if !ok {
+		return false
+	}
+	info, err := f.Stat()
+	return err == nil && info.Mode()&os.ModeCharDevice != 0
 }
 
 func newAuthStatusCmd() *cobra.Command {

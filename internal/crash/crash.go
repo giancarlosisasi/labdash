@@ -21,6 +21,7 @@ import (
 	"github.com/adrg/xdg"
 
 	"github.com/giancarlosisasi/labdash/internal/clock"
+	"github.com/giancarlosisasi/labdash/internal/terminal"
 )
 
 // A Restorer puts the terminal back as it was found. The TUI registers one; a
@@ -126,12 +127,8 @@ func (h *Handler) report(v any, stack []byte) {
 	h.opts.Exit(1)
 }
 
-// restoreTerminal undoes everything a TUI does to a terminal, then runs any
-// restorer the TUI registered.
-//
-// The sequences are emitted whether or not a TUI ran. Each is a no-op against a
-// terminal that was never put into that state, and a terminal left in raw mode
-// with a hidden cursor is a shell the user has to close.
+// restoreTerminal runs any restorer the TUI registered, innermost first, then
+// writes the one set of sequences internal/terminal owns.
 func (h *Handler) restoreTerminal() {
 	for i := len(h.restorers) - 1; i >= 0; i-- {
 		func(f Restorer) {
@@ -142,17 +139,7 @@ func (h *Handler) restoreTerminal() {
 		}(h.restorers[i])
 	}
 
-	fmt.Fprint(h.opts.Terminal, strings.Join([]string{
-		"\x1b[?1049l", // leave the alternate screen
-		"\x1b[?25h",   // show the cursor
-		"\x1b[?1000l", // mouse tracking off
-		"\x1b[?1002l", // button-event tracking off
-		"\x1b[?1003l", // any-event tracking off
-		"\x1b[?1006l", // SGR mouse mode off
-		"\x1b[?2004l", // bracketed paste off
-		"\x1b[?7h",    // line wrap back on
-		"\x1b[0m",     // no styling
-	}, ""))
+	terminal.Restore(h.opts.Terminal)
 }
 
 // write produces the report and returns its path.
