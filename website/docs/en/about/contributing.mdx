@@ -24,22 +24,75 @@ labdash is built and maintained by [Giancarlos Isasi](https://giancarlos-isasi.c
 ```bash
 git clone https://github.com/giancarlosisasi/labdash.git
 cd labdash
-go build -o labdash ./cmd/labdash
-go test ./...
+make build
+make test
 ```
 
-Go 1.26 or newer. No CGO, no code generation step, and no other tool required.
+Go 1.26 or newer. No CGO, no code generation step, and no other tool required. `make` on its own lists the targets.
+
+The fastest way to see whether a change to the appearance worked:
+
+```bash
+make preview                       # labdash theme preview, in this terminal
+```
 
 ## Running the tests
 
 ```bash
-go test ./...                      # everything
+make test                          # everything
+make test-race                     # the same suite under the race detector
+make bench                         # the latency budgets
 go test ./internal/tui/...         # one package tree
-go test -run TestPipelineStatus ./internal/tui/theme
-go test -race ./...
+go test -run TestTHM07 ./internal/tui/theme
 ```
 
-Every feature carries an identifier, and its test rows are written before the code that satisfies them. Golden tests cover each screen in four states: populated, empty, error, and narrow.
+Every feature carries an identifier, and its test rows are written before the code that satisfies them. A test function's name embeds the identifier, so a failure names the feature: `TestTHM07_T2_EveryGlyphIsOneSafeCell`. Grepping for `THM-07` finds the feature, its tests, its screen and its page.
+
+Golden tests cover each screen in four states: populated, empty, error and narrow, and every screen is recorded at each colour tier and in both font modes.
+
+### Golden files
+
+A golden file is a screen, recorded byte for byte, colour included. It lives at `testdata/golden/<name>.golden` beside the package that draws it.
+
+```bash
+go test ./...                      # compare against what is recorded
+go test ./... -update              # rewrite from the current output
+```
+
+Three rules make this worth having:
+
+- **A golden diff is reviewed like code.** It is a screen changing. If you cannot say what changed and why, do not accept it.
+- **CI never passes `-update`.** A golden that no longer matches fails the build; it does not rewrite itself. A workflow that gains the flag fails its own check.
+- **Every golden test fixes its width.** A test that reads the real terminal's size is a flake waiting for a different CI runner.
+
+Colour is inside the file on purpose. A colour regression is the hardest kind to spot by eye and the easiest to catch by diff, and the failure message escapes the sequences so the diff is readable.
+
+### Determinism
+
+Nothing calls `time.Now` directly. A `Clock` is threaded through, and tests inject a fixed one, which is what lets a frame containing a timestamp live in a golden file at all. Anything else that would vary between runs has to be injected the same way — a `-update` producing a large diff for no reason is the signal that something was not.
+
+### The fake GitLab
+
+No unit test needs a real instance. `internal/testsupport/fakegitlab` is an in-process server that answers the GraphQL endpoint, the four REST endpoints labdash uses, and `GET /version`:
+
+```go
+srv := fakegitlab.New(t,
+    fakegitlab.WithVersion("17.9.0"),
+    fakegitlab.WithLatency("ReviewRequested", 3*time.Second),
+    fakegitlab.WithFailure("Pipelines", fakegitlab.RateLimited),
+)
+```
+
+It is a scenario builder rather than a cassette player, because latency, failure, rate limiting and pagination are what most of the tests are about, and none of the four is expressible in a recorded response body. Bodies still come from fixtures, for shape fidelity.
+
+### The credential guard
+
+Every package's `TestMain` runs two suite-wide checks:
+
+- **`goleak`**, so a goroutine that outlives its test fails the package that leaked it.
+- **The credential-shape scan**, over everything the test binary wrote to stdout and stderr and over every file under `testdata`. It looks for GitLab's prefixed tokens, 64-character hex, `Bearer` credentials and the `PRIVATE-TOKEN` header, and it fails the package that produced one.
+
+The guard reports the location and the length, never the value, because a failing build log is public. It exists because a test leaked a real token into its own output once already.
 
 ## The documentation site
 

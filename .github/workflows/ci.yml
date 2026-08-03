@@ -1,0 +1,118 @@
+# CI for labdash.
+#
+# Two rules this file exists to enforce:
+#
+#   1. `-update` never appears here. A golden file that no longer matches the
+#      screen fails the build; it does not rewrite itself. research/14 §3.2.
+#   2. The matrix is the product's promise. Windows is not advisory — the `X`
+#      level in research/14 §2 covers OS paths, the keyring and quoting, and a
+#      mock of any of those is the bug.
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: labdash
+
+jobs:
+  test:
+    name: test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: labdash/go.mod
+          cache-dependency-path: labdash/go.sum
+
+      - name: vet
+        run: go vet ./...
+
+      - name: test
+        run: go test ./...
+
+      - name: test under the race detector
+        run: go test -race ./...
+
+  bench:
+    name: latency budgets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: labdash/go.mod
+          cache-dependency-path: labdash/go.sum
+
+      # A budget that only reports a number is a number nobody reads. These
+      # fail the build when they are missed. research/14 §2, level B.
+      - name: bench
+        run: go test ./... -run '^$' -bench . -benchmem
+
+  golden-files-are-not-rewritten:
+    name: no -update in CI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: labdash/go.mod
+          cache-dependency-path: labdash/go.sum
+
+      # The guard on rule 1 above. If a workflow ever gains `-update`, the
+      # golden mechanism stops being a review surface and becomes a rubber
+      # stamp, so the absence of the flag is itself asserted.
+      - name: assert no workflow passes -update
+        working-directory: .
+        run: |
+          if grep -rn -- '-update' .github/workflows labdash/.github/workflows 2>/dev/null \
+             | grep -v 'assert no workflow passes'; then
+            echo "A workflow passes -update. Golden files must never be rewritten by CI."
+            exit 1
+          fi
+
+      # And the goldens themselves must already match, with nothing to rewrite.
+      - name: golden files match the rendered screens
+        run: |
+          go test ./... -run Golden
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Running the tests changed a file. Golden files must be committed."
+            git status --porcelain
+            exit 1
+          fi
+
+  docs:
+    name: website
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: labdash/website
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: labdash/website/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      # `pnpm run build` passing is the primary success criterion for the site:
+      # it catches broken links, missing nav entries, invalid frontmatter and
+      # failed MDX imports, which are the four ways a docs site rots.
+      - run: pnpm run build

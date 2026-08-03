@@ -1,0 +1,10 @@
+{
+  "id": 2841,
+  "iid": 2841,
+  "state": "opened",
+  "approvals_required": 2,
+  "approvals_left": 1,
+  "approved_by": [
+    { "user": { "username": "rlopez", "name": "R. Lopez" } }
+  ]
+}

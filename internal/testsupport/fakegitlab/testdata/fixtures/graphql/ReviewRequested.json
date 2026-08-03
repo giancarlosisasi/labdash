@@ -1,0 +1,40 @@
+{
+  "data": {
+    "currentUser": {
+      "reviewRequestedMergeRequests": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": null
+        },
+        "nodes": [
+          {
+            "iid": "2841",
+            "title": "Add a retry budget to the ingest worker",
+            "webUrl": "https://gitlab.example.com/platform/ingest/-/merge_requests/2841",
+            "draft": false,
+            "detailedMergeStatus": "DISCUSSIONS_NOT_RESOLVED",
+            "updatedAt": "2026-08-02T09:14:00Z",
+            "sourceBranch": "feat/retry-budget",
+            "targetBranch": "main",
+            "author": { "username": "rlopez" },
+            "project": { "fullPath": "platform/ingest" },
+            "headPipeline": { "status": "RUNNING" }
+          },
+          {
+            "iid": "2839",
+            "title": "Drop the legacy webhook path",
+            "webUrl": "https://gitlab.example.com/platform/ingest/-/merge_requests/2839",
+            "draft": true,
+            "detailedMergeStatus": "DRAFT_STATUS",
+            "updatedAt": "2026-08-01T16:02:00Z",
+            "sourceBranch": "chore/drop-webhook",
+            "targetBranch": "main",
+            "author": { "username": "mvega" },
+            "project": { "fullPath": "platform/ingest" },
+            "headPipeline": { "status": "SUCCESS" }
+          }
+        ]
+      }
+    }
+  }
+}

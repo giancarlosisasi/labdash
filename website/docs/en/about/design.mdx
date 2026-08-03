@@ -29,9 +29,22 @@ Components name a **role**, never a hex value. Colour literals live in the theme
 
 ### Contrast
 
-Every token clears WCAG AA against its own background: 4.5:1 for text, 3:1 for interface elements. The ratio beside each swatch is computed on every commit rather than eyeballed on one monitor. The lowest is `text.muted` at 5.09:1, and that headroom is what a small tweak spends.
+Every token clears WCAG AA — 4.5:1 for text, 3:1 for interface elements — against **every**
+surface, not only against the frame background. Text sits on four backgrounds, and the one
+that decides the palette is the selected row: a timestamp there is the most-scanned cell in
+the product. The ratio beside each swatch is that worst case, computed on every commit rather
+than eyeballed on one monitor. The lowest is `text.muted` at 4.80:1, and that headroom is what
+a small tweak spends.
 
-The `contrast` theme re-derives the whole palette at AAA, 7:1 for body text.
+Two tokens are exempt, and each says why. `border.faint` and `border.default` carry no state:
+a row separator at 3:1 draws a grid louder than the rows, and an unfocused pane's edge means
+nothing on its own. `border.focus` is what identifies focus, and it clears 3:1 several times
+over.
+
+The `contrast` theme re-derives the whole palette at AAA, 7:1 for body text, on near-black
+surfaces — 7:1 for every hue is not reachable above a slate background.
+
+Run `labdash theme preview` to see these numbers computed in your own terminal.
 
 ### Light theme
 
@@ -82,9 +95,11 @@ Every state is a triple: glyph, colour, word. Remove any one and the other two s
     ✖       w     failed (allowed)  status.warning
 `}</Terminal>
 
-Thirteen of those are GitLab's pipeline states. Two are labdash's: a merge request with no pipeline at all, and a job that failed with `allow_failure: true`.
+Twelve of those rows are GitLab's pipeline states. Two are labdash's: a merge request with no pipeline at all, and a job that failed with `allow_failure: true`.
 
-A glyph repeats where the word separates two states. `◌` covers pending and preparing, `⊘` covers canceled and no pipeline. A state is identified by its glyph and its word together, never by the glyph alone.
+GitLab has thirteen states and this table has twelve rows, because the mapping is many-to-one where the difference is not something you can act on: `WAITING_FOR_RESOURCE` and `WAITING_FOR_CALLBACK` both read `waiting`.
+
+A glyph repeats where the word separates two states. `◌` covers pending and preparing, `⊘` covers canceled and no pipeline. A word never repeats, which is what makes a state identifiable by its glyph and its word together, never by the glyph alone.
 
 An allow-failure job that failed renders as a warning. Red is reserved for the failures that stop a pipeline, because a dashboard that shows red for something the pipeline was told to tolerate teaches you to stop reading red.
 
@@ -102,11 +117,15 @@ two in the other is a layout bug.
 `theme.icons` takes `auto`, `unicode` or `ascii`. In `ascii` mode no byte above `0x7F` reaches
 the screen, borders are `+ - |`, and the spinner is `|/-\`.
 
-`auto` reads your locale. Three of the glyphs — `●` running, `○` created, `◐` canceling — are
-classed as East Asian Ambiguous, meaning one cell in most terminals and two in a terminal
-configured for CJK text. On a CJK locale `auto` chooses `ascii`, because a glyph drawn two
-cells wide where one was measured shifts every column after it. Set `icons: unicode` to keep
-the glyphs anyway.
+`auto` reads your locale. Three of the pipeline glyphs — `●` running, `○` created, `◐`
+canceling — are classed as East Asian Ambiguous, as are several of the markers, meaning one
+cell in most terminals and two in a terminal configured for CJK text. On a CJK locale `auto`
+chooses `ascii`, because a glyph drawn two cells wide where one was measured shifts every
+column after it. Set `icons: unicode` to keep the glyphs anyway.
+
+`labdash theme preview --icons=ascii` renders the whole vocabulary the other way. Hold one
+screenshot over the other: the columns line up exactly, and that is the property a test
+asserts on every commit.
 
 ## Type and borders
 

@@ -19,10 +19,18 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
+	"github.com/giancarlosisasi/labdash/internal/crash"
 	"github.com/giancarlosisasi/labdash/internal/gitlabauth"
 )
 
 func main() {
+	// The crash handler is installed before anything else, so that a panic
+	// during startup is survivable too. It restores the terminal, writes a
+	// report, prints its path and exits non-zero — in that order, so a failure
+	// to write the report still leaves a usable shell.
+	handler := crash.New(crash.Options{})
+	defer handler.Recover()
+
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
@@ -40,7 +48,7 @@ func newRootCmd() *cobra.Command {
 		SilenceErrors: false,
 	}
 
-	root.AddCommand(newAuthCmd(), newSettingsCmd())
+	root.AddCommand(newAuthCmd(), newSettingsCmd(), newThemeCmd())
 
 	return root
 }

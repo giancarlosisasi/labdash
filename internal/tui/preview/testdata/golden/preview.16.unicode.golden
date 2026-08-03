@@ -1,0 +1,86 @@
+[1mlabdash theme preview[m                                                                               [90member · 16 · unicode[m
+
+[1;97mSurfaces and borders[m
+  [1;90mTOKEN[m              [1;90mVALUE[m      [1;90mSWATCH[m  [1;90mRATIO[m      [1;90mSAMPLE[m              [1;90mUSED FOR[m
+  [37mbg.base[m            [90m#0F1117[m     ████                                  [90mThe frame[m
+  [37mbg.surface[m         [90m#161922[m     ████                                  [90mHeader, footer, filter bar[m
+  [37mbg.overlay[m         [90m#1E222D[m     ████                                  [90mOverlays and modals[m
+  [37mbg.selected[m        [90m#232838[m     ████                                  [90mThe selected row[m
+  [37mborder.faint[m       [90m#262B38[m     [90m████[m                                  [90mRow separators, inner rules[m
+  [37mborder.default[m     [90m#39404F[m     [90m████[m                                  [90mPane and overlay borders[m
+  [37mborder.focus[m       [90m#E8A33D[m     [33m████[m   [90m8.75:1[m     [33mThe quick tanuki[m    [90mThe focused pane[m
+
+[1;97mText[m
+  [1;90mTOKEN[m              [1;90mVALUE[m      [1;90mSWATCH[m  [1;90mRATIO[m      [1;90mSAMPLE[m              [1;90mUSED FOR[m
+  [37mtext.primary[m       [90m#E6E9EF[m     [97m████[m   [90m12.06:1[m    [97mThe quick tanuki[m    [90mTitles and values[m
+  [37mtext.secondary[m     [90m#A8B0C0[m     [37m████[m   [90m6.73:1[m     [37mThe quick tanuki[m    [90mAuthors, projects, metadata[m
+  [37mtext.muted[m         [90m#8A94A7[m     [90m████[m   [90m4.80:1[m     [90mThe quick tanuki[m    [90mTimestamps, hints, disabled[m
+  [37mtext.inverted[m      [90m#0F1117[m     [30m████[m   [90m7.49:1[m     [30mThe quick tanuki[m    [90mText on a filled accent[m
+
+[1;97mMeaning[m
+  [1;90mTOKEN[m              [1;90mVALUE[m      [1;90mSWATCH[m  [1;90mRATIO[m      [1;90mSAMPLE[m              [1;90mUSED FOR[m
+  [37maccent.primary[m     [90m#E8A33D[m     [33m████[m   [90m6.80:1[m     [33mThe quick tanuki[m    [90mBrand, focus, active tab[m
+  [37maccent.secondary[m   [90m#7AA2F7[m     [34m████[m   [90m5.82:1[m     [34mThe quick tanuki[m    [90mLinks and references[m
+  [37mstatus.success[m     [90m#7BD88F[m     [32m████[m   [90m8.42:1[m     [32mThe quick tanuki[m    [90mpassed, merged, approved[m
+  [37mstatus.warning[m     [90m#E8C55D[m     [33m████[m   [90m8.78:1[m     [33mThe quick tanuki[m    [90mmanual, stale, allow-failure[m
+  [37mstatus.error[m       [90m#F07178[m     [31m████[m   [90m5.12:1[m     [31mThe quick tanuki[m    [90mfailed, conflicts, blocked[m
+  [37mstatus.running[m     [90m#5FD7E0[m     [36m████[m   [90m8.58:1[m     [36mThe quick tanuki[m    [90mrunning, in progress[m
+  [37mstatus.pending[m     [90m#C4A7F5[m     [35m████[m   [90m7.12:1[m     [35mThe quick tanuki[m    [90mpending, queued, scheduled[m
+  [37mstatus.neutral[m     [90m#8A94A7[m     [90m████[m   [90m4.80:1[m     [90mThe quick tanuki[m    [90mskipped, canceled, created[m
+  [37mdiff.added[m         [90m#7BD88F[m     [32m████[m   [90m8.42:1[m     [32mThe quick tanuki[m    [90m+412[m
+  [37mdiff.removed[m       [90m#F07178[m     [31m████[m   [90m5.12:1[m     [31mThe quick tanuki[m    [90m-38[m
+
+[1;97mPipeline and job status[m
+  [1;90mGLYPH[m  [1;90mASCII[m  [1;90mWORD[m                [1;90mTOKEN[m             [1;90mFROM[m
+    [32m✔[m      [90m+[m    [32mpassed[m              [90mstatus.success[m    [90mSUCCESS[m
+    [31m✖[m      [90mx[m    [31mfailed[m              [90mstatus.error[m      [90mFAILED[m
+    [36m●[m      [90m>[m    [36mrunning[m             [90mstatus.running[m    [90mRUNNING[m
+    [35m◌[m      [90m.[m    [35mpending[m             [90mstatus.pending[m    [90mPENDING[m
+    [90m○[m      [90m-[m    [90mcreated[m             [90mstatus.neutral[m    [90mCREATED[m
+    [35m◌[m      [90m.[m    [35mpreparing[m           [90mstatus.pending[m    [90mPREPARING[m
+    [35m◍[m      [90m~[m    [35mwaiting[m             [90mstatus.pending[m    [90mWAITING_FOR_RESOURCE WAITING_FOR_CALLBACK[m
+    [33m⏸[m      [90m![m    [33mmanual[m              [90mstatus.warning[m    [90mMANUAL[m
+    [35m◔[m      [90m@[m    [35mscheduled[m           [90mstatus.pending[m    [90mSCHEDULED[m
+    [90m◐[m      [90m/[m    [90mcanceling[m           [90mstatus.neutral[m    [90mCANCELING[m
+    [90m⊘[m      [90m/[m    [90mcanceled[m            [90mstatus.neutral[m    [90mCANCELED[m
+    [90m»[m      [90ms[m    [90mskipped[m             [90mstatus.neutral[m    [90mSKIPPED[m
+    [90m⊘[m      [90m-[m    [90mno pipeline[m         [90mtext.muted[m
+    [33m✖[m      [90mw[m    [33mfailed (allowed)[m    [90mstatus.warning[m
+
+[1;97mMerge blockers[m
+  [1;90mPHRASE[m                [1;90mTOKEN[m             [1;90mdetailedMergeStatus[m
+  [32mready[m                 [90mstatus.success[m    [90mMERGEABLE[m
+  [31mconflicts[m             [90mstatus.error[m      [90mCONFLICT[m
+  [31mci failed[m             [90mstatus.error[m      [90mCI_MUST_PASS[m
+  [36mci running[m            [90mstatus.running[m    [90mCI_STILL_RUNNING[m
+  [33mneeds 2[m               [90mstatus.warning[m    [90mNOT_APPROVED[m
+  [33m2 threads open[m        [90mstatus.warning[m    [90mDISCUSSIONS_NOT_RESOLVED[m
+  [90mdraft[m                 [90mtext.muted[m        [90mDRAFT_STATUS[m
+  [33mneeds rebase[m          [90mstatus.warning[m    [90mNEED_REBASE[m
+  [31mblocked by 2[m          [90mstatus.error[m      [90mBLOCKED_STATUS[m
+  [31mchanges requested[m     [90mstatus.error[m      [90mREQUESTED_CHANGES[m
+  [90mchecking…[m             [90mtext.muted[m        [90mCHECKING[m
+  [90mchecking…[m             [90mtext.muted[m        [90mUNCHECKED[m
+  [31mcannot merge[m          [90mstatus.error[m      [90mBROKEN_STATUS[m
+  [90mclosed[m                [90mtext.muted[m        [90mNOT_OPEN[m
+  [33mexternal check[m        [90mstatus.warning[m    [90mEXTERNAL_STATUS_CHECKS[m
+  [31mpolicy blocked[m        [90mstatus.error[m      [90mPOLICIES_DENIED[m
+
+[1;97mMarkers[m
+  [1;90mGLYPH[m  [1;90mASCII[m  [1;90mWORD[m                [1;90mTOKEN[m
+    [32m✓[m      [90mv[m    [32mapproved[m            [90mstatus.success[m
+    [33m◦[m      [90mo[m    [33mneeds approval[m      [90mstatus.warning[m
+    [34m≡[m      [90m=[m    [34mon the train[m        [90maccent.secondary[m
+    [90m▲[m      [90m^[m    [90mdraft[m               [90mtext.muted[m
+    [33m→[m      [90m>[m    [33mselected[m            [90maccent.primary[m
+    [33m▣[m      [90m#[m    [33mpicked[m              [90maccent.primary[m
+    [33m✱[m      [90m*[m    [33mchanged[m             [90maccent.primary[m
+    [33m⚠[m      [90m![m    [33moffline[m             [90mstatus.warning[m
+    [90m⊙[m      [90mr[m    [90mread-only[m           [90mtext.muted[m
+    [90m≈[m      [90m~[m    [90mstale[m               [90mstatus.neutral[m
+
+[1;97mContrast[m
+  [90m55 pairs measured. Text needs 4.50:1, interface elements 3.00:1.[m
+  [32mLowest: text.muted on bg.selected: 4.80:1 (needs 4.50:1)[m
+  [32mEvery pair clears.[m
+
