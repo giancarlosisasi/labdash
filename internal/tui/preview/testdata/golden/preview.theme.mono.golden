@@ -1,0 +1,85 @@
+[1mlabdash theme preview[m                                                                              mono · mono · unicode
+
+[1mSurfaces and borders[m
+  [1mTOKEN[m              [1mVALUE[m      [1mSWATCH[m  [1mRATIO[m      [1mSAMPLE[m              [1mUSED FOR[m
+  bg.base            #0F1117     ████                                  The frame
+  bg.surface         #161922     ████                                  Header, footer, filter bar
+  bg.overlay         #1E222D     ████                                  Overlays and modals
+  bg.selected        #232838     ████                                  The selected row
+  border.faint       #262B38     ████                                  Row separators, inner rules
+  border.default     #39404F     ████                                  Pane and overlay borders
+  border.focus       #E8A33D     ████              The quick tanuki    The focused pane
+
+[1mText[m
+  [1mTOKEN[m              [1mVALUE[m      [1mSWATCH[m  [1mRATIO[m      [1mSAMPLE[m              [1mUSED FOR[m
+  text.primary       #E6E9EF     ████              The quick tanuki    Titles and values
+  text.secondary     #A8B0C0     ████              The quick tanuki    Authors, projects, metadata
+  text.muted         #8A94A7     ████              The quick tanuki    Timestamps, hints, disabled
+  text.inverted      #0F1117     ████              The quick tanuki    Text on a filled accent
+
+[1mMeaning[m
+  [1mTOKEN[m              [1mVALUE[m      [1mSWATCH[m  [1mRATIO[m      [1mSAMPLE[m              [1mUSED FOR[m
+  accent.primary     #E8A33D     ████              The quick tanuki    Brand, focus, active tab
+  accent.secondary   #7AA2F7     ████              The quick tanuki    Links and references
+  status.success     #7BD88F     ████              The quick tanuki    passed, merged, approved
+  status.warning     #E8C55D     ████              The quick tanuki    manual, stale, allow-failure
+  status.error       #F07178     ████              The quick tanuki    failed, conflicts, blocked
+  status.running     #5FD7E0     ████              The quick tanuki    running, in progress
+  status.pending     #C4A7F5     ████              The quick tanuki    pending, queued, scheduled
+  status.neutral     #8A94A7     ████              The quick tanuki    skipped, canceled, created
+  diff.added         #7BD88F     ████              The quick tanuki    +412
+  diff.removed       #F07178     ████              The quick tanuki    -38
+
+[1mPipeline and job status[m
+  [1mGLYPH[m  [1mASCII[m  [1mWORD[m                [1mTOKEN[m             [1mFROM[m
+    ✔      +    passed              status.success    SUCCESS
+    ✖      x    failed              status.error      FAILED
+    ●      >    running             status.running    RUNNING
+    ◌      .    pending             status.pending    PENDING
+    ○      -    created             status.neutral    CREATED
+    ◌      .    preparing           status.pending    PREPARING
+    ◍      ~    waiting             status.pending    WAITING_FOR_RESOURCE WAITING_FOR_CALLBACK
+    ⏸      !    manual              status.warning    MANUAL
+    ◔      @    scheduled           status.pending    SCHEDULED
+    ◐      /    canceling           status.neutral    CANCELING
+    ⊘      /    canceled            status.neutral    CANCELED
+    »      s    skipped             status.neutral    SKIPPED
+    ⊘      -    no pipeline         text.muted
+    ✖      w    failed (allowed)    status.warning
+
+[1mMerge blockers[m
+  [1mPHRASE[m                [1mTOKEN[m             [1mdetailedMergeStatus[m
+  ready                 status.success    MERGEABLE
+  conflicts             status.error      CONFLICT
+  ci failed             status.error      CI_MUST_PASS
+  ci running            status.running    CI_STILL_RUNNING
+  needs 2               status.warning    NOT_APPROVED
+  2 threads open        status.warning    DISCUSSIONS_NOT_RESOLVED
+  draft                 text.muted        DRAFT_STATUS
+  needs rebase          status.warning    NEED_REBASE
+  blocked by 2          status.error      BLOCKED_STATUS
+  changes requested     status.error      REQUESTED_CHANGES
+  checking…             text.muted        CHECKING
+  checking…             text.muted        UNCHECKED
+  cannot merge          status.error      BROKEN_STATUS
+  closed                text.muted        NOT_OPEN
+  external check        status.warning    EXTERNAL_STATUS_CHECKS
+  policy blocked        status.error      POLICIES_DENIED
+
+[1mMarkers[m
+  [1mGLYPH[m  [1mASCII[m  [1mWORD[m                [1mTOKEN[m
+    ✓      v    approved            status.success
+    ◦      o    needs approval      status.warning
+    ≡      =    on the train        accent.secondary
+    ▲      ^    draft               text.muted
+    →      >    selected            accent.primary
+    ▣      #    picked              accent.primary
+    ✱      *    changed             accent.primary
+    ⚠      !    offline             status.warning
+    ⊙      r    read-only           text.muted
+    ≈      ~    stale               status.neutral
+
+[1mContrast[m
+  No colour is emitted, so there is no pair to measure. Hierarchy comes from the glyph, the word, weight and layout —
+  which is the monochrome-first rule working as designed.
+

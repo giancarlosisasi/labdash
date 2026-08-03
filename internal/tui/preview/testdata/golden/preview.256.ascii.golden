@@ -1,0 +1,86 @@
+[1mlabdash theme preview[m                                                                                [38;5;103member | 256 | ascii[m
+
+[1;38;5;189mSurfaces and borders[m
+  [1;38;5;103mTOKEN[m              [1;38;5;103mVALUE[m      [1;38;5;103mSWATCH[m  [1;38;5;103mRATIO[m      [1;38;5;103mSAMPLE[m              [1;38;5;103mUSED FOR[m
+  [38;5;145mbg.base[m            [38;5;103m#0F1117[m     [38;5;233m####[m                                  [38;5;103mThe frame[m
+  [38;5;145mbg.surface[m         [38;5;103m#161922[m     [38;5;234m####[m                                  [38;5;103mHeader, footer, filter bar[m
+  [38;5;145mbg.overlay[m         [38;5;103m#1E222D[m     [38;5;235m####[m                                  [38;5;103mOverlays and modals[m
+  [38;5;145mbg.selected[m        [38;5;103m#232838[m     [38;5;17m####[m                                  [38;5;103mThe selected row[m
+  [38;5;145mborder.faint[m       [38;5;103m#262B38[m     [38;5;17m####[m                                  [38;5;103mRow separators, inner rules[m
+  [38;5;145mborder.default[m     [38;5;103m#39404F[m     [38;5;238m####[m                                  [38;5;103mPane and overlay borders[m
+  [38;5;145mborder.focus[m       [38;5;103m#E8A33D[m     [38;5;179m####[m   [38;5;103m8.75:1[m     [38;5;179mThe quick tanuki[m    [38;5;103mThe focused pane[m
+
+[1;38;5;189mText[m
+  [1;38;5;103mTOKEN[m              [1;38;5;103mVALUE[m      [1;38;5;103mSWATCH[m  [1;38;5;103mRATIO[m      [1;38;5;103mSAMPLE[m              [1;38;5;103mUSED FOR[m
+  [38;5;145mtext.primary[m       [38;5;103m#E6E9EF[m     [38;5;189m####[m   [38;5;103m12.06:1[m    [38;5;189mThe quick tanuki[m    [38;5;103mTitles and values[m
+  [38;5;145mtext.secondary[m     [38;5;103m#A8B0C0[m     [38;5;145m####[m   [38;5;103m6.73:1[m     [38;5;145mThe quick tanuki[m    [38;5;103mAuthors, projects, metadata[m
+  [38;5;145mtext.muted[m         [38;5;103m#8A94A7[m     [38;5;103m####[m   [38;5;103m4.80:1[m     [38;5;103mThe quick tanuki[m    [38;5;103mTimestamps, hints, disabled[m
+  [38;5;145mtext.inverted[m      [38;5;103m#0F1117[m     [38;5;233m####[m   [38;5;103m7.49:1[m     [38;5;233mThe quick tanuki[m    [38;5;103mText on a filled accent[m
+
+[1;38;5;189mMeaning[m
+  [1;38;5;103mTOKEN[m              [1;38;5;103mVALUE[m      [1;38;5;103mSWATCH[m  [1;38;5;103mRATIO[m      [1;38;5;103mSAMPLE[m              [1;38;5;103mUSED FOR[m
+  [38;5;145maccent.primary[m     [38;5;103m#E8A33D[m     [38;5;179m####[m   [38;5;103m6.80:1[m     [38;5;179mThe quick tanuki[m    [38;5;103mBrand, focus, active tab[m
+  [38;5;145maccent.secondary[m   [38;5;103m#7AA2F7[m     [38;5;111m####[m   [38;5;103m5.82:1[m     [38;5;111mThe quick tanuki[m    [38;5;103mLinks and references[m
+  [38;5;145mstatus.success[m     [38;5;103m#7BD88F[m     [38;5;114m####[m   [38;5;103m8.42:1[m     [38;5;114mThe quick tanuki[m    [38;5;103mpassed, merged, approved[m
+  [38;5;145mstatus.warning[m     [38;5;103m#E8C55D[m     [38;5;185m####[m   [38;5;103m8.78:1[m     [38;5;185mThe quick tanuki[m    [38;5;103mmanual, stale, allow-failure[m
+  [38;5;145mstatus.error[m       [38;5;103m#F07178[m     [38;5;204m####[m   [38;5;103m5.12:1[m     [38;5;204mThe quick tanuki[m    [38;5;103mfailed, conflicts, blocked[m
+  [38;5;145mstatus.running[m     [38;5;103m#5FD7E0[m     [38;5;80m####[m   [38;5;103m8.58:1[m     [38;5;80mThe quick tanuki[m    [38;5;103mrunning, in progress[m
+  [38;5;145mstatus.pending[m     [38;5;103m#C4A7F5[m     [38;5;183m####[m   [38;5;103m7.12:1[m     [38;5;183mThe quick tanuki[m    [38;5;103mpending, queued, scheduled[m
+  [38;5;145mstatus.neutral[m     [38;5;103m#8A94A7[m     [38;5;103m####[m   [38;5;103m4.80:1[m     [38;5;103mThe quick tanuki[m    [38;5;103mskipped, canceled, created[m
+  [38;5;145mdiff.added[m         [38;5;103m#7BD88F[m     [38;5;114m####[m   [38;5;103m8.42:1[m     [38;5;114mThe quick tanuki[m    [38;5;103m+412[m
+  [38;5;145mdiff.removed[m       [38;5;103m#F07178[m     [38;5;204m####[m   [38;5;103m5.12:1[m     [38;5;204mThe quick tanuki[m    [38;5;103m-38[m
+
+[1;38;5;189mPipeline and job status[m
+  [1;38;5;103mGLYPH[m  [1;38;5;103mASCII[m  [1;38;5;103mWORD[m                [1;38;5;103mTOKEN[m             [1;38;5;103mFROM[m
+    [38;5;114m+[m      [38;5;103m+[m    [38;5;114mpassed[m              [38;5;103mstatus.success[m    [38;5;103mSUCCESS[m
+    [38;5;204mx[m      [38;5;103mx[m    [38;5;204mfailed[m              [38;5;103mstatus.error[m      [38;5;103mFAILED[m
+    [38;5;80m>[m      [38;5;103m>[m    [38;5;80mrunning[m             [38;5;103mstatus.running[m    [38;5;103mRUNNING[m
+    [38;5;183m.[m      [38;5;103m.[m    [38;5;183mpending[m             [38;5;103mstatus.pending[m    [38;5;103mPENDING[m
+    [38;5;103m-[m      [38;5;103m-[m    [38;5;103mcreated[m             [38;5;103mstatus.neutral[m    [38;5;103mCREATED[m
+    [38;5;183m.[m      [38;5;103m.[m    [38;5;183mpreparing[m           [38;5;103mstatus.pending[m    [38;5;103mPREPARING[m
+    [38;5;183m~[m      [38;5;103m~[m    [38;5;183mwaiting[m             [38;5;103mstatus.pending[m    [38;5;103mWAITING_FOR_RESOURCE WAITING_FOR_CALLBACK[m
+    [38;5;185m![m      [38;5;103m![m    [38;5;185mmanual[m              [38;5;103mstatus.warning[m    [38;5;103mMANUAL[m
+    [38;5;183m@[m      [38;5;103m@[m    [38;5;183mscheduled[m           [38;5;103mstatus.pending[m    [38;5;103mSCHEDULED[m
+    [38;5;103m/[m      [38;5;103m/[m    [38;5;103mcanceling[m           [38;5;103mstatus.neutral[m    [38;5;103mCANCELING[m
+    [38;5;103m/[m      [38;5;103m/[m    [38;5;103mcanceled[m            [38;5;103mstatus.neutral[m    [38;5;103mCANCELED[m
+    [38;5;103ms[m      [38;5;103ms[m    [38;5;103mskipped[m             [38;5;103mstatus.neutral[m    [38;5;103mSKIPPED[m
+    [38;5;103m-[m      [38;5;103m-[m    [38;5;103mno pipeline[m         [38;5;103mtext.muted[m
+    [38;5;185mw[m      [38;5;103mw[m    [38;5;185mfailed (allowed)[m    [38;5;103mstatus.warning[m
+
+[1;38;5;189mMerge blockers[m
+  [1;38;5;103mPHRASE[m                [1;38;5;103mTOKEN[m             [1;38;5;103mdetailedMergeStatus[m
+  [38;5;114mready[m                 [38;5;103mstatus.success[m    [38;5;103mMERGEABLE[m
+  [38;5;204mconflicts[m             [38;5;103mstatus.error[m      [38;5;103mCONFLICT[m
+  [38;5;204mci failed[m             [38;5;103mstatus.error[m      [38;5;103mCI_MUST_PASS[m
+  [38;5;80mci running[m            [38;5;103mstatus.running[m    [38;5;103mCI_STILL_RUNNING[m
+  [38;5;185mneeds 2[m               [38;5;103mstatus.warning[m    [38;5;103mNOT_APPROVED[m
+  [38;5;185m2 threads open[m        [38;5;103mstatus.warning[m    [38;5;103mDISCUSSIONS_NOT_RESOLVED[m
+  [38;5;103mdraft[m                 [38;5;103mtext.muted[m        [38;5;103mDRAFT_STATUS[m
+  [38;5;185mneeds rebase[m          [38;5;103mstatus.warning[m    [38;5;103mNEED_REBASE[m
+  [38;5;204mblocked by 2[m          [38;5;103mstatus.error[m      [38;5;103mBLOCKED_STATUS[m
+  [38;5;204mchanges requested[m     [38;5;103mstatus.error[m      [38;5;103mREQUESTED_CHANGES[m
+  [38;5;103mchecking...[m           [38;5;103mtext.muted[m        [38;5;103mCHECKING[m
+  [38;5;103mchecking...[m           [38;5;103mtext.muted[m        [38;5;103mUNCHECKED[m
+  [38;5;204mcannot merge[m          [38;5;103mstatus.error[m      [38;5;103mBROKEN_STATUS[m
+  [38;5;103mclosed[m                [38;5;103mtext.muted[m        [38;5;103mNOT_OPEN[m
+  [38;5;185mexternal check[m        [38;5;103mstatus.warning[m    [38;5;103mEXTERNAL_STATUS_CHECKS[m
+  [38;5;204mpolicy blocked[m        [38;5;103mstatus.error[m      [38;5;103mPOLICIES_DENIED[m
+
+[1;38;5;189mMarkers[m
+  [1;38;5;103mGLYPH[m  [1;38;5;103mASCII[m  [1;38;5;103mWORD[m                [1;38;5;103mTOKEN[m
+    [38;5;114mv[m      [38;5;103mv[m    [38;5;114mapproved[m            [38;5;103mstatus.success[m
+    [38;5;185mo[m      [38;5;103mo[m    [38;5;185mneeds approval[m      [38;5;103mstatus.warning[m
+    [38;5;111m=[m      [38;5;103m=[m    [38;5;111mon the train[m        [38;5;103maccent.secondary[m
+    [38;5;103m^[m      [38;5;103m^[m    [38;5;103mdraft[m               [38;5;103mtext.muted[m
+    [38;5;179m>[m      [38;5;103m>[m    [38;5;179mselected[m            [38;5;103maccent.primary[m
+    [38;5;179m#[m      [38;5;103m#[m    [38;5;179mpicked[m              [38;5;103maccent.primary[m
+    [38;5;179m*[m      [38;5;103m*[m    [38;5;179mchanged[m             [38;5;103maccent.primary[m
+    [38;5;185m![m      [38;5;103m![m    [38;5;185moffline[m             [38;5;103mstatus.warning[m
+    [38;5;103mr[m      [38;5;103mr[m    [38;5;103mread-only[m           [38;5;103mtext.muted[m
+    [38;5;103m~[m      [38;5;103m~[m    [38;5;103mstale[m               [38;5;103mstatus.neutral[m
+
+[1;38;5;189mContrast[m
+  [38;5;103m55 pairs measured. Text needs 4.50:1, interface elements 3.00:1.[m
+  [38;5;114mLowest: text.muted on bg.selected: 4.80:1 (needs 4.50:1)[m
+  [38;5;114mEvery pair clears.[m
+

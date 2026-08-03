@@ -1,0 +1,10 @@
+{
+  "data": {
+    "currentUser": {
+      "id": "gid://gitlab/User/4021",
+      "username": "rlopez",
+      "name": "R. Lopez",
+      "webUrl": "https://gitlab.example.com/rlopez"
+    }
+  }
+}

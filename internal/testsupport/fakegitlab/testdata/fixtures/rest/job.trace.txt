@@ -1,0 +1,6 @@
+Running with gitlab-runner 17.9.0
+Preparing the "docker" executor
+$ go test ./...
+ok      example.test/internal/ingest    0.412s
+FAIL    example.test/internal/retry     0.088s
+ERROR: Job failed: exit code 1

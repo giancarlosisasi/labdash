@@ -1,0 +1,86 @@
+[1mlabdash theme preview[m                                                                     [38;2;174;181;194mcontrast · truecolor · unicode[m
+
+[1;38;2;255;255;255mSurfaces and borders[m
+  [1;38;2;174;181;194mTOKEN[m              [1;38;2;174;181;194mVALUE[m      [1;38;2;174;181;194mSWATCH[m  [1;38;2;174;181;194mRATIO[m      [1;38;2;174;181;194mSAMPLE[m              [1;38;2;174;181;194mUSED FOR[m
+  [38;2;214;218;227mbg.base[m            [38;2;174;181;194m#000000[m     [38;2;0;0;0m████[m                                  [38;2;174;181;194mThe frame[m
+  [38;2;214;218;227mbg.surface[m         [38;2;174;181;194m#0A0A0C[m     [38;2;10;10;12m████[m                                  [38;2;174;181;194mHeader, footer, filter bar[m
+  [38;2;214;218;227mbg.overlay[m         [38;2;174;181;194m#121216[m     [38;2;18;18;22m████[m                                  [38;2;174;181;194mOverlays and modals[m
+  [38;2;214;218;227mbg.selected[m        [38;2;174;181;194m#1A1A20[m     [38;2;26;26;32m████[m                                  [38;2;174;181;194mThe selected row[m
+  [38;2;214;218;227mborder.faint[m       [38;2;174;181;194m#2C2C36[m     [38;2;44;44;54m████[m                                  [38;2;174;181;194mRow separators, inner rules[m
+  [38;2;214;218;227mborder.default[m     [38;2;174;181;194m#5B6172[m     [38;2;91;97;114m████[m                                  [38;2;174;181;194mPane and overlay borders[m
+  [38;2;214;218;227mborder.focus[m       [38;2;174;181;194m#FFC661[m     [38;2;255;198;97m████[m   [38;2;174;181;194m13.50:1[m    [38;2;255;198;97mThe quick tanuki[m    [38;2;174;181;194mThe focused pane[m
+
+[1;38;2;255;255;255mText[m
+  [1;38;2;174;181;194mTOKEN[m              [1;38;2;174;181;194mVALUE[m      [1;38;2;174;181;194mSWATCH[m  [1;38;2;174;181;194mRATIO[m      [1;38;2;174;181;194mSAMPLE[m              [1;38;2;174;181;194mUSED FOR[m
+  [38;2;214;218;227mtext.primary[m       [38;2;174;181;194m#FFFFFF[m     [38;2;255;255;255m████[m   [38;2;174;181;194m17.32:1[m    [38;2;255;255;255mThe quick tanuki[m    [38;2;174;181;194mTitles and values[m
+  [38;2;214;218;227mtext.secondary[m     [38;2;174;181;194m#D6DAE3[m     [38;2;214;218;227m████[m   [38;2;174;181;194m12.37:1[m    [38;2;214;218;227mThe quick tanuki[m    [38;2;174;181;194mAuthors, projects, metadata[m
+  [38;2;214;218;227mtext.muted[m         [38;2;174;181;194m#AEB5C2[m     [38;2;174;181;194m████[m   [38;2;174;181;194m8.40:1[m     [38;2;174;181;194mThe quick tanuki[m    [38;2;174;181;194mTimestamps, hints, disabled[m
+  [38;2;214;218;227mtext.inverted[m      [38;2;174;181;194m#000000[m     [38;2;0;0;0m████[m   [38;2;174;181;194m10.79:1[m    [38;2;0;0;0mThe quick tanuki[m    [38;2;174;181;194mText on a filled accent[m
+
+[1;38;2;255;255;255mMeaning[m
+  [1;38;2;174;181;194mTOKEN[m              [1;38;2;174;181;194mVALUE[m      [1;38;2;174;181;194mSWATCH[m  [1;38;2;174;181;194mRATIO[m      [1;38;2;174;181;194mSAMPLE[m              [1;38;2;174;181;194mUSED FOR[m
+  [38;2;214;218;227maccent.primary[m     [38;2;174;181;194m#FFC661[m     [38;2;255;198;97m████[m   [38;2;174;181;194m11.14:1[m    [38;2;255;198;97mThe quick tanuki[m    [38;2;174;181;194mBrand, focus, active tab[m
+  [38;2;214;218;227maccent.secondary[m   [38;2;174;181;194m#93BBFF[m     [38;2;147;187;255m████[m   [38;2;174;181;194m8.90:1[m     [38;2;147;187;255mThe quick tanuki[m    [38;2;174;181;194mLinks and references[m
+  [38;2;214;218;227mstatus.success[m     [38;2;174;181;194m#5FE08A[m     [38;2;95;224;138m████[m   [38;2;174;181;194m10.32:1[m    [38;2;95;224;138mThe quick tanuki[m    [38;2;174;181;194mpassed, merged, approved[m
+  [38;2;214;218;227mstatus.warning[m     [38;2;174;181;194m#FFD966[m     [38;2;255;217;102m████[m   [38;2;174;181;194m12.68:1[m    [38;2;255;217;102mThe quick tanuki[m    [38;2;174;181;194mmanual, stale, allow-failure[m
+  [38;2;214;218;227mstatus.error[m       [38;2;174;181;194m#FF9AA0[m     [38;2;255;154;160m████[m   [38;2;174;181;194m8.56:1[m     [38;2;255;154;160mThe quick tanuki[m    [38;2;174;181;194mfailed, conflicts, blocked[m
+  [38;2;214;218;227mstatus.running[m     [38;2;174;181;194m#66E3EC[m     [38;2;102;227;236m████[m   [38;2;174;181;194m11.35:1[m    [38;2;102;227;236mThe quick tanuki[m    [38;2;174;181;194mrunning, in progress[m
+  [38;2;214;218;227mstatus.pending[m     [38;2;174;181;194m#D3B8FF[m     [38;2;211;184;255m████[m   [38;2;174;181;194m9.95:1[m     [38;2;211;184;255mThe quick tanuki[m    [38;2;174;181;194mpending, queued, scheduled[m
+  [38;2;214;218;227mstatus.neutral[m     [38;2;174;181;194m#AEB5C2[m     [38;2;174;181;194m████[m   [38;2;174;181;194m8.40:1[m     [38;2;174;181;194mThe quick tanuki[m    [38;2;174;181;194mskipped, canceled, created[m
+  [38;2;214;218;227mdiff.added[m         [38;2;174;181;194m#5FE08A[m     [38;2;95;224;138m████[m   [38;2;174;181;194m10.32:1[m    [38;2;95;224;138mThe quick tanuki[m    [38;2;174;181;194m+412[m
+  [38;2;214;218;227mdiff.removed[m       [38;2;174;181;194m#FF9AA0[m     [38;2;255;154;160m████[m   [38;2;174;181;194m8.56:1[m     [38;2;255;154;160mThe quick tanuki[m    [38;2;174;181;194m-38[m
+
+[1;38;2;255;255;255mPipeline and job status[m
+  [1;38;2;174;181;194mGLYPH[m  [1;38;2;174;181;194mASCII[m  [1;38;2;174;181;194mWORD[m                [1;38;2;174;181;194mTOKEN[m             [1;38;2;174;181;194mFROM[m
+    [38;2;95;224;138m✔[m      [38;2;174;181;194m+[m    [38;2;95;224;138mpassed[m              [38;2;174;181;194mstatus.success[m    [38;2;174;181;194mSUCCESS[m
+    [38;2;255;154;160m✖[m      [38;2;174;181;194mx[m    [38;2;255;154;160mfailed[m              [38;2;174;181;194mstatus.error[m      [38;2;174;181;194mFAILED[m
+    [38;2;102;227;236m●[m      [38;2;174;181;194m>[m    [38;2;102;227;236mrunning[m             [38;2;174;181;194mstatus.running[m    [38;2;174;181;194mRUNNING[m
+    [38;2;211;184;255m◌[m      [38;2;174;181;194m.[m    [38;2;211;184;255mpending[m             [38;2;174;181;194mstatus.pending[m    [38;2;174;181;194mPENDING[m
+    [38;2;174;181;194m○[m      [38;2;174;181;194m-[m    [38;2;174;181;194mcreated[m             [38;2;174;181;194mstatus.neutral[m    [38;2;174;181;194mCREATED[m
+    [38;2;211;184;255m◌[m      [38;2;174;181;194m.[m    [38;2;211;184;255mpreparing[m           [38;2;174;181;194mstatus.pending[m    [38;2;174;181;194mPREPARING[m
+    [38;2;211;184;255m◍[m      [38;2;174;181;194m~[m    [38;2;211;184;255mwaiting[m             [38;2;174;181;194mstatus.pending[m    [38;2;174;181;194mWAITING_FOR_RESOURCE WAITING_FOR_CALLBACK[m
+    [38;2;255;217;102m⏸[m      [38;2;174;181;194m![m    [38;2;255;217;102mmanual[m              [38;2;174;181;194mstatus.warning[m    [38;2;174;181;194mMANUAL[m
+    [38;2;211;184;255m◔[m      [38;2;174;181;194m@[m    [38;2;211;184;255mscheduled[m           [38;2;174;181;194mstatus.pending[m    [38;2;174;181;194mSCHEDULED[m
+    [38;2;174;181;194m◐[m      [38;2;174;181;194m/[m    [38;2;174;181;194mcanceling[m           [38;2;174;181;194mstatus.neutral[m    [38;2;174;181;194mCANCELING[m
+    [38;2;174;181;194m⊘[m      [38;2;174;181;194m/[m    [38;2;174;181;194mcanceled[m            [38;2;174;181;194mstatus.neutral[m    [38;2;174;181;194mCANCELED[m
+    [38;2;174;181;194m»[m      [38;2;174;181;194ms[m    [38;2;174;181;194mskipped[m             [38;2;174;181;194mstatus.neutral[m    [38;2;174;181;194mSKIPPED[m
+    [38;2;174;181;194m⊘[m      [38;2;174;181;194m-[m    [38;2;174;181;194mno pipeline[m         [38;2;174;181;194mtext.muted[m
+    [38;2;255;217;102m✖[m      [38;2;174;181;194mw[m    [38;2;255;217;102mfailed (allowed)[m    [38;2;174;181;194mstatus.warning[m
+
+[1;38;2;255;255;255mMerge blockers[m
+  [1;38;2;174;181;194mPHRASE[m                [1;38;2;174;181;194mTOKEN[m             [1;38;2;174;181;194mdetailedMergeStatus[m
+  [38;2;95;224;138mready[m                 [38;2;174;181;194mstatus.success[m    [38;2;174;181;194mMERGEABLE[m
+  [38;2;255;154;160mconflicts[m             [38;2;174;181;194mstatus.error[m      [38;2;174;181;194mCONFLICT[m
+  [38;2;255;154;160mci failed[m             [38;2;174;181;194mstatus.error[m      [38;2;174;181;194mCI_MUST_PASS[m
+  [38;2;102;227;236mci running[m            [38;2;174;181;194mstatus.running[m    [38;2;174;181;194mCI_STILL_RUNNING[m
+  [38;2;255;217;102mneeds 2[m               [38;2;174;181;194mstatus.warning[m    [38;2;174;181;194mNOT_APPROVED[m
+  [38;2;255;217;102m2 threads open[m        [38;2;174;181;194mstatus.warning[m    [38;2;174;181;194mDISCUSSIONS_NOT_RESOLVED[m
+  [38;2;174;181;194mdraft[m                 [38;2;174;181;194mtext.muted[m        [38;2;174;181;194mDRAFT_STATUS[m
+  [38;2;255;217;102mneeds rebase[m          [38;2;174;181;194mstatus.warning[m    [38;2;174;181;194mNEED_REBASE[m
+  [38;2;255;154;160mblocked by 2[m          [38;2;174;181;194mstatus.error[m      [38;2;174;181;194mBLOCKED_STATUS[m
+  [38;2;255;154;160mchanges requested[m     [38;2;174;181;194mstatus.error[m      [38;2;174;181;194mREQUESTED_CHANGES[m
+  [38;2;174;181;194mchecking…[m             [38;2;174;181;194mtext.muted[m        [38;2;174;181;194mCHECKING[m
+  [38;2;174;181;194mchecking…[m             [38;2;174;181;194mtext.muted[m        [38;2;174;181;194mUNCHECKED[m
+  [38;2;255;154;160mcannot merge[m          [38;2;174;181;194mstatus.error[m      [38;2;174;181;194mBROKEN_STATUS[m
+  [38;2;174;181;194mclosed[m                [38;2;174;181;194mtext.muted[m        [38;2;174;181;194mNOT_OPEN[m
+  [38;2;255;217;102mexternal check[m        [38;2;174;181;194mstatus.warning[m    [38;2;174;181;194mEXTERNAL_STATUS_CHECKS[m
+  [38;2;255;154;160mpolicy blocked[m        [38;2;174;181;194mstatus.error[m      [38;2;174;181;194mPOLICIES_DENIED[m
+
+[1;38;2;255;255;255mMarkers[m
+  [1;38;2;174;181;194mGLYPH[m  [1;38;2;174;181;194mASCII[m  [1;38;2;174;181;194mWORD[m                [1;38;2;174;181;194mTOKEN[m
+    [38;2;95;224;138m✓[m      [38;2;174;181;194mv[m    [38;2;95;224;138mapproved[m            [38;2;174;181;194mstatus.success[m
+    [38;2;255;217;102m◦[m      [38;2;174;181;194mo[m    [38;2;255;217;102mneeds approval[m      [38;2;174;181;194mstatus.warning[m
+    [38;2;147;187;255m≡[m      [38;2;174;181;194m=[m    [38;2;147;187;255mon the train[m        [38;2;174;181;194maccent.secondary[m
+    [38;2;174;181;194m▲[m      [38;2;174;181;194m^[m    [38;2;174;181;194mdraft[m               [38;2;174;181;194mtext.muted[m
+    [38;2;255;198;97m→[m      [38;2;174;181;194m>[m    [38;2;255;198;97mselected[m            [38;2;174;181;194maccent.primary[m
+    [38;2;255;198;97m▣[m      [38;2;174;181;194m#[m    [38;2;255;198;97mpicked[m              [38;2;174;181;194maccent.primary[m
+    [38;2;255;198;97m✱[m      [38;2;174;181;194m*[m    [38;2;255;198;97mchanged[m             [38;2;174;181;194maccent.primary[m
+    [38;2;255;217;102m⚠[m      [38;2;174;181;194m![m    [38;2;255;217;102moffline[m             [38;2;174;181;194mstatus.warning[m
+    [38;2;174;181;194m⊙[m      [38;2;174;181;194mr[m    [38;2;174;181;194mread-only[m           [38;2;174;181;194mtext.muted[m
+    [38;2;174;181;194m≈[m      [38;2;174;181;194m~[m    [38;2;174;181;194mstale[m               [38;2;174;181;194mstatus.neutral[m
+
+[1;38;2;255;255;255mContrast[m
+  [38;2;174;181;194m55 pairs measured. Text needs 7.00:1, interface elements 3.00:1.[m
+  [38;2;95;224;138mLowest: text.muted on bg.selected: 8.40:1 (needs 7.00:1)[m
+  [38;2;95;224;138mEvery pair clears.[m
+
