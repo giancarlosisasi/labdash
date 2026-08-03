@@ -35,12 +35,15 @@ const (
 	Issues        Screen = "issues"
 	Browse        Screen = "browse"
 	Trace         Screen = "job trace"
+	// SignIn is the first-run flow. It is a screen like any other, so its keys
+	// live in the same table and answer under the same predicate.
+	SignIn Screen = "sign in"
 )
 
 // Screens is every context a key resolves in, universal excluded, in the order
 // /keys/ prints them.
 func Screens() []Screen {
-	return []Screen{Browse, MergeRequests, Pipelines, Trace, ToDos, Issues}
+	return []Screen{SignIn, Browse, MergeRequests, Pipelines, Trace, ToDos, Issues}
 }
 
 // Views is the subset the view switcher cycles through. Browse and the trace

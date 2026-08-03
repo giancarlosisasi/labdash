@@ -256,12 +256,22 @@ func TestKEY07_TheCanonicalCasePairsAreDeclared(t *testing.T) {
 
 // Prevents: the one context-dependent meaning in the keymap spreading. Browse
 // displaces exactly three universal bindings and nothing else does.
+//
+// Only an override that changes the verb counts. A screen may claim a universal
+// key for the same verb — the sign-in screen's `o` still opens a browser — and
+// that is not a second meaning to learn, it is the same one narrowed to the
+// screen that can act on it.
 func TestKEY07_OnlyBrowseOverridesAUniversalBinding(t *testing.T) {
 	t.Parallel()
 
+	verbs := map[keymap.Action]keymap.Verb{}
+	for _, e := range keymap.Table() {
+		verbs[e.ID] = e.Verb
+	}
+
 	overriders := map[action.Screen][]keymap.Action{}
 	for _, e := range keymap.Table() {
-		if e.Overrides != "" {
+		if e.Overrides != "" && verbs[e.Overrides] != e.Verb {
 			overriders[e.Screen] = append(overriders[e.Screen], e.Overrides)
 		}
 	}

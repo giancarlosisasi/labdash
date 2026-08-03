@@ -120,9 +120,15 @@ type Server struct {
 	bodies   map[string][]byte
 	pages    map[string][][]byte
 
+	oauth oauthScenario
+
 	mu       sync.Mutex
 	requests []Request
 	pageAt   map[string]int
+	// pending counts the authorization_pending answers still owed on the
+	// device flow, and challenges holds one PKCE challenge per issued code.
+	pending    int
+	challenges map[string]string
 }
 
 // A Request is one call the fake received, for a test that asserts on traffic
@@ -147,11 +153,14 @@ func New(t testing.TB, opts ...Option) *Server {
 		failures:   map[string]Failure{},
 		bodies:     map[string][]byte{},
 		pages:      map[string][][]byte{},
+		oauth:      defaultOAuth(),
 		pageAt:     map[string]int{},
+		challenges: map[string]string{},
 	}
 	for _, o := range opts {
 		o(s)
 	}
+	s.pending = s.oauth.devicePolls
 
 	s.Server = httptest.NewServer(s.handler())
 	t.Cleanup(s.Server.Close)
@@ -182,6 +191,11 @@ func (s *Server) handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /api/graphql", s.graphQL)
 	mux.HandleFunc("GET /api/v4/version", s.rest("version"))
+	mux.HandleFunc("POST /oauth/authorize_device", s.authorizeDevice)
+	mux.HandleFunc("GET /oauth/authorize", s.authorize)
+	mux.HandleFunc("POST /oauth/token", s.token)
+	mux.HandleFunc("GET /api/v4/user", s.currentUser)
+	mux.HandleFunc("GET /api/v4/personal_access_tokens/self", s.tokenSelf)
 	mux.HandleFunc("GET /api/v4/projects/{id}/jobs/{job}/trace", s.rest("job.trace"))
 	mux.HandleFunc("POST /api/v4/projects/{id}/merge_requests/{iid}/approve", s.rest("mr.approve"))
 	mux.HandleFunc("DELETE /api/v4/projects/{id}/merge_requests/{iid}/approve", s.rest("mr.unapprove"))

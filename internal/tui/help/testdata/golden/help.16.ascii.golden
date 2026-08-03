@@ -17,6 +17,9 @@
 [90m|[m   [33mCtrl+D PgDn[m  [97mpage down[m                                                   [90m|[m
 [90m|[m   [33mCtrl+U PgUp[m  [97mpage up[m                                                     [90m|[m
 [90m|[m                                                                            [90m|[m
+[90m|[m [90mCHORDS[m                                                                     [90m|[m
+[90m|[m   [33mCtrl+A[m       [97msign in again to this instance[m                              [90m|[m
+[90m|[m                                                                            [90m|[m
 [90m+----------------------------------------------------------------------------+[m
 [90m|[m [33mEsc[m  [37mclose[m    [90mlabdash keys --markdown lists every key, built or not[m        [90m|[m
 [90m+----------------------------------------------------------------------------+[m

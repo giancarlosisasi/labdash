@@ -47,6 +47,7 @@ const (
 	NextPreviewTab Action = "next-preview-tab"
 
 	// Chords.
+	SignInAgain    Action = "sign-in-again"
 	CommandPalette Action = "command-palette"
 	JumpToProject  Action = "jump-to-project"
 	ScopeToRepo    Action = "scope-to-repo"
@@ -59,6 +60,12 @@ const (
 	QuickFilter3 Action = "quick-filter-3"
 	QuickFilter4 Action = "quick-filter-4"
 	QuickFilter5 Action = "quick-filter-5"
+
+	// Sign in.
+	SignInContinue     Action = "sign-in-continue"
+	SignInOpenApproval Action = "sign-in-open-approval"
+	SignInCopyCode     Action = "sign-in-copy-code"
+	SignInUseToken     Action = "sign-in-use-token"
 
 	// Browse.
 	BrowseExpand   Action = "browse-expand"
@@ -150,6 +157,10 @@ const (
 	verbScopeToRepo    Verb = "scope to this repository"
 	verbSwitchInstance Verb = "switch instance"
 	verbQuickFilter    Verb = "apply quick filter "
+	verbSignInAgain    Verb = "sign in again"
+	verbContinue       Verb = "continue"
+	verbCopyCode       Verb = "copy the code"
+	verbUseToken       Verb = "paste a token instead"
 	verbExpandNode     Verb = "expand this node"
 	verbCollapseNode   Verb = "collapse this node"
 	verbScopeHere      Verb = "scope the dashboard here"
@@ -296,6 +307,13 @@ var table = []Entry{
 	// Ctrl+M and Ctrl+C are never bound: XOFF freezes the display, and the
 	// other three arrive as Tab, Enter and interrupt.
 	// ---------------------------------------------------------------------
+	// Sign in again is the way out of an expired or revoked credential, and it
+	// is a chord because every single letter is already a verb on some screen.
+	// It is reachable from wherever the failure appeared, which is the point:
+	// the error names the instance and this key re-runs the login for it.
+	{ID: SignInAgain, Key: "ctrl+a", Tier: L3, Verb: verbSignInAgain,
+		Help: "sign in again to this instance", Short: "sign in", Screen: action.Everywhere,
+		Implemented: true, Requires: action.Requirement{Network: true}},
 	{ID: CommandPalette, Key: "ctrl+k", Tier: L3, Verb: verbPalette,
 		Help: "find any action by name", Short: "palette", Screen: action.Everywhere},
 	{ID: JumpToProject, Key: "ctrl+p", Tier: L3, Verb: verbJumpToProject,
@@ -311,6 +329,24 @@ var table = []Entry{
 	quickFilter(3, QuickFilter3),
 	quickFilter(4, QuickFilter4),
 	quickFilter(5, QuickFilter5),
+
+	// ---------------------------------------------------------------------
+	// Sign in. The first-run flow binds four keys, and each keeps the verb it
+	// carries everywhere else: o opens a browser, y copies. Nothing here needs
+	// a credential, which is the one screen where that is true.
+	// ---------------------------------------------------------------------
+	{ID: SignInContinue, Key: "enter", Tier: L0, Verb: verbContinue,
+		Help: "continue", Short: "continue", Screen: action.SignIn,
+		Overrides: FocusPane, Implemented: true},
+	{ID: SignInOpenApproval, Key: "o", Tier: L2, Verb: verbOpen,
+		Help: "open the approval page again", Short: "open", Screen: action.SignIn,
+		Overrides: OpenInBrowser, Implemented: true},
+	{ID: SignInCopyCode, Key: "y", Tier: L2, Verb: verbCopyCode,
+		Help: "copy the one-time code", Short: "copy code", Screen: action.SignIn,
+		Overrides: CopyRef, Implemented: true},
+	{ID: SignInUseToken, Key: "t", Tier: L2, Verb: verbUseToken,
+		Help: "paste a personal access token instead", Short: "use a token",
+		Screen: action.SignIn, Implemented: true},
 
 	// ---------------------------------------------------------------------
 	// Browse. h and l walk the tree here rather than switching section tabs,

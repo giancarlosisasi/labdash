@@ -15,11 +15,11 @@ On a self-managed instance a personal access token is the recommended path. OAut
 
 A token also lasts longer: up to 365 days, against two hours for an OAuth access token.
 
-```bash
-labdash auth login --hostname gitlab.example.com --with-token
-```
+Create it at `https://gitlab.example.com/-/user_settings/personal_access_tokens` with the `api` scope, or `read_api` for [read-only mode](/guide/read-only). Then run `labdash`, choose **a self-managed instance**, name the host, and paste the token. For a script:
 
-Create the token at `https://gitlab.example.com/-/user_settings/personal_access_tokens` with the `api` scope, or `read_api` for [read-only mode](/guide/read-only).
+```bash
+echo "$TOKEN" | labdash auth login --hostname gitlab.example.com --with-token
+```
 
 ## Registering an OAuth application
 
@@ -74,16 +74,17 @@ instances:
     customHeaders:
       - name: Cf-Access-Client-Secret
         valueFromEnv: CF_ACCESS_SECRET
-
-repoPaths:
-  platform/*: ~/code/platform/*
 ```
 
-A host with no entry still works and gets the defaults, which is correct for gitlab.com. `HTTPS_PROXY` and `NO_PROXY` from the environment are honoured, and an explicit `proxy:` overrides them. Each instance gets its own HTTP client, with its own CA pool, its own client certificate, its own proxy and its own concurrency budget, so one unreachable instance degrades only its own rows.
+A host with no entry still works and gets the defaults, which is correct for gitlab.com. `HTTPS_PROXY` and `NO_PROXY` from the environment are honoured, and an explicit `proxy:` overrides them. Each instance gets its own HTTP client, with its own CA pool, its own client certificate and its own proxy, so one unreachable instance degrades only its own rows.
 
-`repoPaths` maps a project path to a directory on disk, with glob support, which is what [local git integration](/features/local-git) uses to find your clones.
+The private CA is added to the system pool rather than replacing it, so an instance behind a corporate root still reaches the public hosts it redirects to. A `clientCert` without its `clientKey` is refused at startup, with the host named, rather than failing later as a handshake error nobody can read.
 
 Field-by-field reference: [instances](/settings/instances).
+
+## Writing the entry from the application
+
+You do not have to create the file by hand. Signing in to a host with no entry offers to write one, and that is the moment the settings file is created. Nothing writes a starter file before then.
 
 ## Subfolder installs
 
@@ -117,26 +118,14 @@ An instance's `tokenEnv` is the most explicit signal available, so it wins over 
 `GITLAB_TOKEN`, `GITLAB_ACCESS_TOKEN` and `OAUTH_TOKEN` are not host-scoped. Applying them to a named host would send one instance's token to another, so labdash does not. For a named host, use that instance's `tokenEnv`.
 :::
 
-## Instance versions
-
-gitlab.com runs a pre-release version and a self-managed instance usually runs behind it, so a field available there may not exist for you. labdash reads the version from `GET /version` when it connects, and drops the columns it cannot fill. The affected column degrades and the section keeps working.
-
 ## Diagnostics
 
 ```bash
 labdash auth status --hostname gitlab.example.com
-labdash doctor
+labdash settings show
 ```
 
-`doctor` reports whether the settings file was found and parsed, whether the credential is present and unexpired, whether the instance is reachable, the GitLab version, the terminal's capabilities and font support. That is one command, and one paste into a bug report.
-
-For request-level detail:
-
-```bash
-LABDASH_DEBUG_HTTP=1 labdash
-```
-
-Requests go to a file with `Authorization`, `PRIVATE-TOKEN` and `JOB-TOKEN` redacted before anything is written. See [diagnostics](/help/diagnostics).
+`auth status` reports who the credential belongs to, where it is stored, when it expires and which settings file was read. `settings show` prints the instances and calls out any host with TLS verification switched off. Neither ever prints a credential. More at [diagnostics](/help/diagnostics).
 
 :::tip Related
 [Corporate proxy](/recipes/corporate-proxy) · [Two GitLabs in one dashboard](/recipes/two-gitlabs) · [Security](/help/security)

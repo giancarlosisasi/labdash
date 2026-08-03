@@ -52,6 +52,9 @@ type StoredToken struct {
 	Expiry       time.Time `json:"expiry,omitempty"`
 	ClientID     string    `json:"client_id,omitempty"`
 	Kind         TokenKind `json:"kind"`
+	// Scopes is what the instance actually granted, recorded at login. Empty
+	// means it could not be determined, which is treated as writable.
+	Scopes []string `json:"scopes,omitempty"`
 }
 
 // String redacts both secrets, so a StoredToken cannot leak through %v.
@@ -60,6 +63,24 @@ func (t StoredToken) String() string {
 		t.Kind, len(t.AccessToken), len(t.RefreshToken), t.Expiry.Format(time.RFC3339))
 }
 
+// A keyringBackend is the OS credential manager.
+//
+// It is an interface so a test can watch which service strings we ask for.
+// "labdash never touches glab's keyring" is then asserted by observing the
+// calls, which survives a rename; a grep for "glab" would not.
+type keyringBackend interface {
+	Get(service, user string) (string, error)
+	Set(service, user, password string) error
+	Delete(service, user string) error
+}
+
+// osKeyring is the real thing: Credential Manager, Keychain, Secret Service.
+type osKeyring struct{}
+
+func (osKeyring) Get(service, user string) (string, error) { return keyring.Get(service, user) }
+func (osKeyring) Set(service, user, pass string) error     { return keyring.Set(service, user, pass) }
+func (osKeyring) Delete(service, user string) error        { return keyring.Delete(service, user) }
+
 // Store persists credentials we own. It prefers the OS keyring and falls back
 // to a 0600 file when no keyring backend is reachable.
 type Store struct {
@@ -67,6 +88,15 @@ type Store struct {
 	Dir string
 	// DisableKeyring forces the file backend. For tests.
 	DisableKeyring bool
+	// Keyring overrides the OS credential manager. Nil means the real one.
+	Keyring keyringBackend
+}
+
+func (s *Store) ring() keyringBackend {
+	if s.Keyring != nil {
+		return s.Keyring
+	}
+	return osKeyring{}
 }
 
 // NewStore returns a Store using the platform config directory, overridable
@@ -104,7 +134,7 @@ func (s *Store) filePath() string {
 // to print: it names a store, never a value.
 func (s *Store) Location(host string) string {
 	if !s.DisableKeyring {
-		if _, err := keyring.Get(s.keyringKey(host), ""); err == nil {
+		if _, err := s.ring().Get(s.keyringKey(host), ""); err == nil {
 			return "OS keyring (" + s.keyringKey(host) + ")"
 		}
 	}
@@ -114,7 +144,7 @@ func (s *Store) Location(host string) string {
 // Load returns the stored credential for host, or ErrNoStoredToken.
 func (s *Store) Load(host string) (StoredToken, error) {
 	if !s.DisableKeyring {
-		raw, err := keyring.Get(s.keyringKey(host), "")
+		raw, err := s.ring().Get(s.keyringKey(host), "")
 		if err == nil {
 			tok := StoredToken{}
 			if err := json.Unmarshal([]byte(raw), &tok); err != nil {
@@ -147,7 +177,7 @@ func (s *Store) Save(host string, tok StoredToken) error {
 		if err != nil {
 			return fmt.Errorf("encoding credential: %w", err)
 		}
-		if err := keyring.Set(s.keyringKey(host), "", string(raw)); err == nil {
+		if err := s.ring().Set(s.keyringKey(host), "", string(raw)); err == nil {
 			// Clear any older file copy so one credential does not shadow the other.
 			_, _ = s.deleteFromFile(host)
 			return nil
@@ -162,7 +192,7 @@ func (s *Store) Save(host string, tok StoredToken) error {
 // something that never existed.
 func (s *Store) Delete(host string) (removed bool, err error) {
 	if !s.DisableKeyring {
-		if err := keyring.Delete(s.keyringKey(host), ""); err == nil {
+		if err := s.ring().Delete(s.keyringKey(host), ""); err == nil {
 			removed = true
 		}
 	}

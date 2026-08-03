@@ -24,6 +24,8 @@ labdash holds a credential to everything you can see in GitLab. This page says w
 The registered application permits `api`, `read_api` and `read_user`. A login requests `api read_user`, or `read_api read_user` in read-only mode. Registering all three keeps both modes available without a second application.
 :::
 
+What the instance actually granted is recorded with the credential at login, because a request may be granted less than it asked for. A personal access token is asked about directly, at `GET /personal_access_tokens/self`. That is what puts labdash in [read-only mode](/guide/read-only) before the first refused action rather than after it. An instance that will not answer leaves the scopes unknown, and an unknown credential is treated as writable — the `403` message is the backstop.
+
 ## Credential storage
 
 | OS | Store |
@@ -46,11 +48,14 @@ The settings file holds no secrets. It holds which instances exist and how to re
 | A token in a log file | Not in ours, not in an error string, not in a URL query parameter |
 | A token in `auth status` output | It prints the source and the expiry, never the value |
 | A token in an error message | `Credentials.String()` redacts, so `%v` cannot leak it |
-| A `--token <value>` flag | It would land in shell history and in the process list, visible to every user on the machine. stdin only |
+| A `--token <value>` flag | It would land in shell history and in the process list, visible to every user on the machine. A pipe, or the app's own token screen |
+| A token typed at a terminal prompt | Reading with echo off needs raw mode, and raw mode swallows `Ctrl+C`. `auth login --with-token` reads a pipe only |
 | Reading or writing `glab`'s configuration or keyring | labdash owns its own credential chain and leaves other tools' files alone |
 | Sending anything anywhere but your GitLab | No telemetry, no analytics, no crash reporting service |
 
 `Authorization`, `PRIVATE-TOKEN` and `JOB-TOKEN` are redacted in debug HTTP output before anything is written to disk.
+
+The four identifiers your machine remembers — the keyring service `com.gitlab.labdash`, the configuration directory `labdash`, the credential file `credentials.json` and the settings file `settings.yml` — are asserted as literals in the test suite. Renaming any of them would strand your stored state with no error to explain it, so the test fails first and names what moved.
 
 ## The OAuth client ID
 

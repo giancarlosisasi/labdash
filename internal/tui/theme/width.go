@@ -27,6 +27,19 @@ func Truncate(s string, w int, tail string) string {
 	return ansi.Truncate(s, w, tail)
 }
 
+// Wrap breaks s into lines of at most w cells, on word boundaries.
+//
+// It is for the one kind of text that must never be truncated: an error or an
+// empty state, where the part that gets cut is the part telling the reader what
+// to do about it. Everything in a column is truncated instead — a wrapped table
+// cell would change a row's height.
+func Wrap(s string, w int) []string {
+	if w <= 0 || s == "" {
+		return nil
+	}
+	return strings.Split(ansi.Wordwrap(s, w, " -"), "\n")
+}
+
 // Pad returns s padded with spaces to exactly w cells, truncating with tail
 // when it is too long.
 //

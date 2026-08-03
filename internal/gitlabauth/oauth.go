@@ -118,9 +118,103 @@ type LoginOptions struct {
 // ErrNoClientID means we have no OAuth application to authenticate against.
 var ErrNoClientID = errors.New("no OAuth client ID configured")
 
-// Login runs an interactive OAuth flow and stores the resulting credential in
-// our own store.
-func Login(ctx context.Context, opts LoginOptions) (Credentials, error) {
+// A DeviceAuth is a device authorization in progress: what the user has to act
+// on, and everything needed to finish it.
+//
+// It exists so a caller can show the code and keep working. The TUI cannot
+// block for the minutes a person takes to reach a browser, so starting the flow
+// and waiting for it are two separate calls.
+type DeviceAuth struct {
+	// UserCode is the code the user types, shown exactly as GitLab wrote it.
+	UserCode string
+	// VerificationURL carries the code in its query string, so opening it fills
+	// the form in. Every step removed here is a step that cannot be mistyped.
+	VerificationURL string
+	// Expiry is when the code dies. GitLab gives five minutes.
+	Expiry time.Time
+	// Interval is how often the instance permits a poll.
+	Interval time.Duration
+
+	response *oauth2.DeviceAuthResponse
+	config   *oauth2.Config
+	clientID string
+	base     Credentials
+}
+
+// DeviceStart asks the instance for a one-time code.
+func DeviceStart(ctx context.Context, opts LoginOptions) (*DeviceAuth, error) {
+	setup, err := prepare(opts)
+	if err != nil {
+		return nil, err
+	}
+
+	auth, err := setup.config.DeviceAuth(withHTTPClient(ctx, opts.HTTPClient))
+	if err != nil {
+		return nil, fmt.Errorf("starting device authorization: %w", err)
+	}
+
+	link := auth.VerificationURIComplete
+	if link == "" {
+		link = auth.VerificationURI
+	}
+	interval := time.Duration(max(auth.Interval, 5)) * time.Second
+
+	return &DeviceAuth{
+		UserCode:        auth.UserCode,
+		VerificationURL: link,
+		Expiry:          auth.Expiry,
+		Interval:        interval,
+		response:        auth,
+		config:          setup.config,
+		clientID:        setup.clientID,
+		base:            setup.base,
+	}, nil
+}
+
+// DeviceComplete waits for the code to be approved and stores the credential.
+// It blocks for as long as the user takes, so a caller with a screen to draw
+// runs it off the update loop.
+func DeviceComplete(ctx context.Context, da *DeviceAuth, opts LoginOptions) (Credentials, error) {
+	tok, err := da.config.DeviceAccessToken(withHTTPClient(ctx, opts.HTTPClient), da.response)
+	if err != nil {
+		return Credentials{}, describeDeviceError(err, da.response)
+	}
+
+	return storeOAuthToken(tok, da.clientID, da.base, opts)
+}
+
+// IsDeviceFlowUnsupported reports whether a failure means the instance is older
+// than GitLab 17.9 rather than that something went wrong. The caller falls back
+// to the browser without asking the user to know why.
+func IsDeviceFlowUnsupported(err error) bool { return isDeviceFlowUnsupported(err) }
+
+// BrowserLogin runs the loopback flow with PKCE and stores the result. It
+// blocks until the browser comes back.
+func BrowserLogin(ctx context.Context, opts LoginOptions) (Credentials, error) {
+	setup, err := prepare(opts)
+	if err != nil {
+		return Credentials{}, err
+	}
+
+	tok, err := browserFlow(withHTTPClient(ctx, opts.HTTPClient),
+		setup.base.oauthBaseURL(), setup.clientID, setup.scopes, opts.Browser)
+	if err != nil {
+		return Credentials{}, err
+	}
+
+	return storeOAuthToken(tok, setup.clientID, setup.base, opts)
+}
+
+// loginSetup is everything a flow needs before it talks to the instance:
+// which application, which scopes, and which instance root.
+type loginSetup struct {
+	clientID string
+	scopes   []string
+	base     Credentials
+	config   *oauth2.Config
+}
+
+func prepare(opts LoginOptions) (loginSetup, error) {
 	host := opts.Host
 	if host == "" {
 		host = hostFromEnv()
@@ -128,20 +222,7 @@ func Login(ctx context.Context, opts LoginOptions) (Credentials, error) {
 
 	clientID, err := resolveClientID(host, opts.ClientID, opts.Instance)
 	if err != nil {
-		return Credentials{}, err
-	}
-
-	out := opts.Out
-	if out == nil {
-		out = io.Discard
-	}
-	store := opts.Store
-	if store == nil {
-		store = NewStore()
-	}
-	method := opts.Method
-	if method == "" {
-		method = MethodAuto
+		return loginSetup{}, err
 	}
 
 	scopes := writeScopes
@@ -149,41 +230,27 @@ func Login(ctx context.Context, opts LoginOptions) (Credentials, error) {
 		scopes = readScopes
 	}
 
-	ctx = withHTTPClient(ctx, opts.HTTPClient)
-
 	base := Credentials{Host: host, APIHost: host, APIProtocol: "https"}
 	if opts.Instance != nil {
 		applyInstance(&base, *opts.Instance)
 	}
-	cfg := gitlaboauth2.NewOAuth2Config(base.oauthBaseURL(), clientID, "", scopes)
 
-	// The device flow opens the browser as a convenience; NoBrowser turns that
-	// off for SSH sessions and headless machines, where the URL is meant to be
-	// carried to another device by hand.
-	opener := opts.Browser
-	if opener == nil {
-		opener = openBrowser
-	}
-	if opts.NoBrowser {
-		opener = nil
-	}
+	return loginSetup{
+		clientID: clientID,
+		scopes:   scopes,
+		base:     base,
+		config:   gitlaboauth2.NewOAuth2Config(base.oauthBaseURL(), clientID, "", scopes),
+	}, nil
+}
 
-	var tok *oauth2.Token
-	switch method {
-	case MethodBrowser:
-		tok, err = browserFlow(ctx, host, clientID, scopes, opts.Browser)
-	case MethodDevice:
-		tok, err = deviceFlow(ctx, cfg, out, opener)
-	default:
-		tok, err = deviceFlow(ctx, cfg, out, opener)
-		if err != nil && isDeviceFlowUnsupported(err) {
-			fmt.Fprintf(out, "\n  This instance does not support the device flow "+
-				"(it needs GitLab 17.9 or later). Falling back to the browser.\n")
-			tok, err = browserFlow(ctx, host, clientID, scopes, opts.Browser)
-		}
-	}
-	if err != nil {
-		return Credentials{}, err
+// storeOAuthToken persists a freshly minted token and returns the credential it
+// describes, with the granted scopes recorded alongside.
+func storeOAuthToken(
+	tok *oauth2.Token, clientID string, base Credentials, opts LoginOptions,
+) (Credentials, error) {
+	store := opts.Store
+	if store == nil {
+		store = NewStore()
 	}
 
 	stored := StoredToken{
@@ -193,17 +260,70 @@ func Login(ctx context.Context, opts LoginOptions) (Credentials, error) {
 		Expiry:       tok.Expiry,
 		ClientID:     clientID,
 		Kind:         KindOAuth,
+		Scopes:       scopesFromToken(tok),
 	}
-	if err := store.Save(host, stored); err != nil {
+	if err := store.Save(base.Host, stored); err != nil {
 		return Credentials{}, fmt.Errorf("saving credential: %w", err)
 	}
 
-	logged := credentialsFromStored(host, stored, store.Location(host))
-	logged.APIHost = base.APIHost
-	logged.APIProtocol = base.APIProtocol
-	logged.Subfolder = base.Subfolder
+	out := credentialsFromStored(base.Host, stored, store.Location(base.Host))
+	out.APIHost = base.APIHost
+	out.APIProtocol = base.APIProtocol
+	out.Subfolder = base.Subfolder
 
-	return logged, nil
+	return out, nil
+}
+
+// Login runs an interactive OAuth flow and stores the resulting credential in
+// our own store. It is the command-line path: it blocks, and it prints.
+func Login(ctx context.Context, opts LoginOptions) (Credentials, error) {
+	setup, err := prepare(opts)
+	if err != nil {
+		return Credentials{}, err
+	}
+	clientID, scopes, base, cfg := setup.clientID, setup.scopes, setup.base, setup.config
+
+	out := opts.Out
+	if out == nil {
+		out = io.Discard
+	}
+	method := opts.Method
+	if method == "" {
+		method = MethodAuto
+	}
+
+	ctx = withHTTPClient(ctx, opts.HTTPClient)
+
+	// The device flow opens the browser as a convenience; NoBrowser turns that
+	// off for SSH sessions and headless machines, where the URL is meant to be
+	// carried to another device by hand.
+	opener := opts.Browser
+	if opener == nil {
+		opener = OpenBrowser
+	}
+	if opts.NoBrowser {
+		opener = nil
+	}
+
+	var tok *oauth2.Token
+	switch method {
+	case MethodBrowser:
+		tok, err = browserFlow(ctx, base.oauthBaseURL(), clientID, scopes, opts.Browser)
+	case MethodDevice:
+		tok, err = deviceFlow(ctx, cfg, out, opener)
+	default:
+		tok, err = deviceFlow(ctx, cfg, out, opener)
+		if err != nil && isDeviceFlowUnsupported(err) {
+			fmt.Fprintf(out, "\n  This instance does not support the device flow "+
+				"(it needs GitLab 17.9 or later). Falling back to the browser.\n")
+			tok, err = browserFlow(ctx, base.oauthBaseURL(), clientID, scopes, opts.Browser)
+		}
+	}
+	if err != nil {
+		return Credentials{}, err
+	}
+
+	return storeOAuthToken(tok, clientID, base, opts)
 }
 
 // LoginWithToken validates a personal access token and stores it, instead of
@@ -241,7 +361,15 @@ func LoginWithToken(ctx context.Context, token string, opts LoginOptions) (Crede
 		return Credentials{}, fmt.Errorf("that token did not work: %w", err)
 	}
 
-	stored := StoredToken{AccessToken: token, Kind: KindPAT}
+	// Asking what the token may do costs one request at login and saves the
+	// user discovering it by pressing merge. An instance that will not answer
+	// leaves the scopes unknown, which is treated as writable.
+	scopes, err := TokenScopes(ctx, probe, opts.HTTPClient)
+	if err != nil {
+		scopes = nil
+	}
+
+	stored := StoredToken{AccessToken: token, Kind: KindPAT, Scopes: scopes}
 	if err := store.Save(host, stored); err != nil {
 		return Credentials{}, fmt.Errorf("saving credential: %w", err)
 	}
@@ -339,6 +467,12 @@ func Refresh(ctx context.Context, creds Credentials, opts LoginOptions) (Credent
 		Expiry:       refreshed.Expiry,
 		ClientID:     clientID,
 		Kind:         KindOAuth,
+		Scopes:       scopesFromToken(refreshed),
+	}
+	if len(stored.Scopes) == 0 {
+		// A refresh response need not repeat the scope, and losing it would
+		// silently promote a read-only credential to writable.
+		stored.Scopes = creds.Scopes
 	}
 	// GitLab rotates the refresh token on every use, so persisting the new one
 	// immediately is not an optimisation — miss it and the next refresh fails.
@@ -433,14 +567,17 @@ func describeDeviceError(err error, auth *oauth2.DeviceAuthResponse) error {
 	return fmt.Errorf("device authorization: %w", err)
 }
 
+// browserFlow takes the instance root rather than a host, because a subfolder
+// install and a plain-http instance both reach /oauth/authorize somewhere other
+// than https://<host>/. "" means gitlab.com and its built-in endpoints.
 func browserFlow(
 	ctx context.Context,
-	host, clientID string,
+	baseURL, clientID string,
 	scopes []string,
 	browser func(string) error,
 ) (*oauth2.Token, error) {
 	if browser == nil {
-		browser = openBrowser
+		browser = OpenBrowser
 	}
 
 	// Why a fixed port rather than an ephemeral one:
@@ -465,7 +602,7 @@ func browserFlow(
 
 	tok, err := gitlaboauth2.AuthorizationFlow(
 		ctx,
-		baseURLFor(host),
+		baseURL,
 		clientID,
 		redirectURL,
 		scopes,
@@ -513,16 +650,6 @@ func isPortInUse(err error) bool {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-func oauthConfig(host, clientID string, scopes []string, redirectURL string) *oauth2.Config {
-	return gitlaboauth2.NewOAuth2Config(baseURLFor(host), clientID, redirectURL, scopes)
-}
-
-// baseURLFor returns "" for gitlab.com, which makes gitlaboauth2 use its
-// built-in endpoints, and an https URL for anything else.
-func baseURLFor(host string) string {
-	return oauthBaseURL("https", host, "")
-}
 
 // oauthBaseURL builds the instance root that /oauth/authorize_device and
 // /oauth/token hang off. Returning "" for plain https gitlab.com hands the job
@@ -619,7 +746,9 @@ func isDeviceFlowUnsupported(err error) bool {
 	return false
 }
 
-func openBrowser(url string) error {
+// OpenBrowser hands a URL to the platform's browser. A failure is never fatal:
+// the URL is on screen and the user can carry it themselves.
+func OpenBrowser(url string) error {
 	switch runtime.GOOS {
 	case "windows":
 		return exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
@@ -644,5 +773,6 @@ func credentialsFromStored(host string, tok StoredToken, source string) Credenti
 		IsOAuth2:     tok.Kind == KindOAuth,
 		Managed:      true,
 		Source:       source,
+		Scopes:       tok.Scopes,
 	}
 }

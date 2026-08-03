@@ -9,7 +9,6 @@ package main
 import (
 	"bufio"
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -18,7 +17,6 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"golang.org/x/term"
 
 	"github.com/giancarlosisasi/labdash/internal/crash"
 	"github.com/giancarlosisasi/labdash/internal/gitlabauth"
@@ -35,7 +33,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
-	if err := newRootCmd(handler).ExecuteContext(ctx); err != nil {
+	if err := newRootCmd(handler, deps{}).ExecuteContext(ctx); err != nil {
 		// cobra has already printed the error.
 		os.Exit(1)
 	}
@@ -46,7 +44,17 @@ func main() {
 // naming what it needed instead of blocking on a question nobody can answer.
 var noInput bool
 
-func newRootCmd(handler *crash.Handler) *cobra.Command {
+// deps is what the commands reach the outside world through.
+//
+// It exists so a test can hand them a credential store that cannot reach the
+// developer's own keyring. A command that resolves its own store makes every
+// test a hazard: the suite would read, and could overwrite, a real credential.
+type deps struct {
+	// Store persists credentials. Nil means the platform default.
+	Store *gitlabauth.Store
+}
+
+func newRootCmd(handler *crash.Handler, d deps) *cobra.Command {
 	root := &cobra.Command{
 		Use:   "labdash",
 		Short: "A terminal dashboard for GitLab merge requests and pipelines",
@@ -58,14 +66,14 @@ func newRootCmd(handler *crash.Handler) *cobra.Command {
 		SilenceUsage:  true,
 		SilenceErrors: false,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			return runTUI(cmd, handler)
+			return runTUI(cmd, handler, d)
 		},
 	}
 
 	root.PersistentFlags().BoolVar(&noInput, "no-input", false,
 		"never prompt; exit non-zero where an answer would have been needed")
 
-	root.AddCommand(newAuthCmd(), newSettingsCmd(), newThemeCmd(), newKeysCmd())
+	root.AddCommand(newAuthCmd(d), newSettingsCmd(), newThemeCmd(), newKeysCmd())
 
 	return root
 }
@@ -74,7 +82,7 @@ func newRootCmd(handler *crash.Handler) *cobra.Command {
 // auth
 // ---------------------------------------------------------------------------
 
-func newAuthCmd() *cobra.Command {
+func newAuthCmd(d deps) *cobra.Command {
 	auth := &cobra.Command{
 		Use:   "auth",
 		Short: "Manage GitLab credentials",
@@ -84,12 +92,12 @@ func newAuthCmd() *cobra.Command {
 			"borrowing another tool's token meant inheriting an expiry we could not fix.",
 	}
 
-	auth.AddCommand(newAuthLoginCmd(), newAuthStatusCmd(), newAuthLogoutCmd())
+	auth.AddCommand(newAuthLoginCmd(d), newAuthStatusCmd(d), newAuthLogoutCmd(d))
 
 	return auth
 }
 
-func newAuthLoginCmd() *cobra.Command {
+func newAuthLoginCmd(d deps) *cobra.Command {
 	var (
 		hostname  string
 		clientID  string
@@ -114,10 +122,10 @@ func newAuthLoginCmd() *cobra.Command {
 			"command normally mints: you create it by hand in GitLab's UI, it lasts up to\n" +
 			"a year, and nothing renews it. An OAuth token lasts two hours and renews\n" +
 			"itself. Prefer OAuth wherever an application exists.\n\n" +
-			"  labdash auth login --with-token\n" +
-			"      prompts for the token; nothing is echoed as you paste\n\n" +
 			"  echo $TOKEN | labdash auth login --with-token\n" +
 			"      reads it from a pipe, for scripts and CI\n\n" +
+			"To paste a token by hand, run `labdash` and choose it there. The app's own\n" +
+			"token screen echoes nothing and Esc leaves it; this command never prompts.\n\n" +
 			"The token is never read from a flag, because a flag value lands in shell\n" +
 			"history and in the process list.",
 		Args: cobra.NoArgs,
@@ -138,6 +146,7 @@ func newAuthLoginCmd() *cobra.Command {
 				ReadOnly:  readOnly,
 				NoBrowser: noBrowser,
 				Instance:  &inst,
+				Store:     d.Store,
 				Out:       cmd.OutOrStdout(),
 			}
 			if useWeb {
@@ -147,7 +156,7 @@ func newAuthLoginCmd() *cobra.Command {
 			var creds gitlabauth.Credentials
 			if withToken {
 				in := cmd.InOrStdin()
-				token, err := readToken(in, cmd.OutOrStdout(), host, isCharDevice(in))
+				token, err := readToken(in, host, isCharDevice(in))
 				if err != nil {
 					return err
 				}
@@ -205,50 +214,36 @@ func newAuthLoginCmd() *cobra.Command {
 	return cmd
 }
 
-// readToken takes a personal access token from standard input.
+// readToken takes a personal access token from a pipe.
 //
-// Two shapes, both supported:
-//
-//	labdash auth login --with-token          # prompts; input is not echoed
-//	echo $TOKEN | labdash auth login --with-token   # piped, for scripts
+//	echo $TOKEN | labdash auth login --with-token
 //
 // Standard input rather than a --token flag, because a flag value lands in
 // shell history and is visible in the process list to every user on the
-// machine. When we are on a terminal the input is read with echo off, so the
-// token does not stay in the scrollback either.
-func readToken(in io.Reader, out io.Writer, host string, interactive bool) (string, error) {
-	if !interactive {
-		line, err := bufio.NewReader(in).ReadString('\n')
-		if err != nil && line == "" {
-			return "", fmt.Errorf("reading the token from standard input: %w", err)
-		}
-		return strings.TrimSpace(line), nil
-	}
-
-	if noInput {
+// machine.
+//
+// It never prompts. Reading a secret from a terminal means putting that
+// terminal into raw mode, and a raw-mode read swallows Ctrl+C: the prompt this
+// replaced could not be cancelled at all. Pasting a token interactively is the
+// wizard's job now — the app's own token screen echoes nothing, and Esc leaves
+// it — so the command that remains is the one a script uses.
+func readToken(in io.Reader, host string, interactive bool) (string, error) {
+	if interactive {
 		return "", fmt.Errorf(
-			"a personal access token for %s was needed and --no-input forbids asking.\n"+
-				"Pipe it in instead:  echo $TOKEN | labdash auth login --with-token", host)
+			"a personal access token for %s cannot be typed here.\n\n"+
+				"  Paste it in the app, where nothing is echoed:\n"+
+				"    labdash\n\n"+
+				"  Or pipe it in, for a script or for CI:\n"+
+				"    echo $TOKEN | labdash auth login --hostname %s --with-token",
+			host, host)
 	}
 
-	fmt.Fprintf(out, "Paste a personal access token for %s, then press Enter.\n", host)
-	fmt.Fprintf(out, "Create one at https://%s/-/user_settings/personal_access_tokens"+
-		"?scopes=api\n", host)
-	fmt.Fprintf(out, "Nothing will appear as you type or paste.\n\n")
-	fmt.Fprintf(out, "Token: ")
-
-	f, ok := in.(*os.File)
-	if !ok {
-		return "", errors.New("standard input is not a terminal, so the token cannot be read without echo")
+	line, err := bufio.NewReader(in).ReadString('\n')
+	if err != nil && line == "" {
+		return "", fmt.Errorf("reading the token from standard input: %w", err)
 	}
 
-	raw, err := term.ReadPassword(int(f.Fd()))
-	fmt.Fprintln(out)
-	if err != nil {
-		return "", fmt.Errorf("reading the token: %w", err)
-	}
-
-	return strings.TrimSpace(string(raw)), nil
+	return strings.TrimSpace(line), nil
 }
 
 // isCharDevice reports whether a reader is a terminal rather than a pipe or a
@@ -262,7 +257,7 @@ func isCharDevice(r io.Reader) bool {
 	return err == nil && info.Mode()&os.ModeCharDevice != 0
 }
 
-func newAuthStatusCmd() *cobra.Command {
+func newAuthStatusCmd(d deps) *cobra.Command {
 	var (
 		hostname string
 		offline  bool
@@ -275,7 +270,7 @@ func newAuthStatusCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			out := cmd.OutOrStdout()
 
-			creds, err := gitlabauth.Resolve(gitlabauth.Options{Host: hostname})
+			creds, err := gitlabauth.Resolve(gitlabauth.Options{Host: hostname, Store: d.Store})
 			if err != nil {
 				// cobra prints the error itself; printing it here too would
 				// show the whole "not logged in" block twice.
@@ -329,7 +324,7 @@ func newAuthStatusCmd() *cobra.Command {
 	return cmd
 }
 
-func newAuthLogoutCmd() *cobra.Command {
+func newAuthLogoutCmd(d deps) *cobra.Command {
 	var hostname string
 
 	cmd := &cobra.Command{
@@ -349,7 +344,7 @@ func newAuthLogoutCmd() *cobra.Command {
 			}
 			host := cfg.ResolveHost(hostname)
 
-			removed, err := gitlabauth.Logout(host, nil)
+			removed, err := gitlabauth.Logout(host, d.Store)
 			if err != nil {
 				return err
 			}

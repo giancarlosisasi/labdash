@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"time"
 )
 
 // Identity is who a credential belongs to — enough to greet the user and to
@@ -44,7 +43,13 @@ func (i Identity) Greeting() string {
 // without a name.
 func WhoAmI(ctx context.Context, creds Credentials, httpClient *http.Client) (Identity, error) {
 	if httpClient == nil {
-		httpClient = &http.Client{Timeout: 15 * time.Second}
+		// The instance's own client, so a private CA, a client certificate, a
+		// proxy and Cloudflare-Access headers all apply to the very first
+		// request a corporate user makes.
+		var err error
+		if httpClient, err = creds.HTTPClient(); err != nil {
+			return Identity{}, err
+		}
 	}
 
 	req, err := http.NewRequestWithContext(
@@ -68,15 +73,10 @@ func WhoAmI(ctx context.Context, creds Credentials, httpClient *http.Client) (Id
 		return Identity{}, fmt.Errorf("reading whoami response: %w", err)
 	}
 
-	switch {
-	case resp.StatusCode == http.StatusUnauthorized:
-		return Identity{}, fmt.Errorf(
-			"the credential for %s was rejected (HTTP 401)", creds.Host)
-	case resp.StatusCode == http.StatusForbidden:
-		return Identity{}, fmt.Errorf(
-			"the credential for %s lacks the read_user scope (HTTP 403)", creds.Host)
-	case resp.StatusCode >= 400:
-		return Identity{}, fmt.Errorf("whoami: HTTP %d", resp.StatusCode)
+	if resp.StatusCode >= 400 {
+		return Identity{}, &StatusError{
+			Status: resp.StatusCode, Host: creds.Host, Body: string(body),
+		}
 	}
 
 	user := struct {

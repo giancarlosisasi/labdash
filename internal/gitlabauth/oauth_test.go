@@ -107,7 +107,11 @@ func TestStoredTokenRedactsBothSecrets(t *testing.T) {
 	}
 }
 
-func TestNeedsRefresh(t *testing.T) {
+// AUT-04.T1 — the five-minute margin.
+//
+// Prevents: refreshing exactly at expiry and losing the race, so that a slow
+// fetch straddles the boundary and 401s halfway through a render.
+func TestAUT04T1_TheFiveMinuteRefreshMarginHolds(t *testing.T) {
 	tests := []struct {
 		name string
 		c    Credentials
@@ -119,9 +123,14 @@ func TestNeedsRefresh(t *testing.T) {
 			want: false,
 		},
 		{
-			name: "managed oauth inside the margin",
-			c:    Credentials{Managed: true, Kind: KindOAuth, OAuth2Expiry: time.Now().Add(time.Minute)},
+			name: "managed oauth expiring in four minutes",
+			c:    Credentials{Managed: true, Kind: KindOAuth, OAuth2Expiry: time.Now().Add(4 * time.Minute)},
 			want: true,
+		},
+		{
+			name: "managed oauth expiring in six minutes",
+			c:    Credentials{Managed: true, Kind: KindOAuth, OAuth2Expiry: time.Now().Add(6 * time.Minute)},
+			want: false,
 		},
 		{
 			name: "managed oauth already expired",
@@ -149,9 +158,35 @@ func TestNeedsRefresh(t *testing.T) {
 	}
 }
 
-// Refresh must be a no-op for a credential we did not mint. We hold no refresh
-// token for it, so there is nothing to exchange.
-func TestRefreshNeverTouchesUnmanagedCredentials(t *testing.T) {
+// AUT-04.T3 and REG-07 — a zero expiry is expired, never "never expires".
+//
+// Prevents: the golang.org/x/oauth2 zero-value trap. The library reads its own
+// zero Expiry as a token that never lapses, so a credential stored without one
+// is never refreshed and dies silently after two hours, with no error to
+// explain why the dashboard stopped.
+func TestAUT04T3_REG07_AZeroExpiryMeansExpired(t *testing.T) {
+	oauthCred := Credentials{Managed: true, Kind: KindOAuth, IsOAuth2: true}
+
+	if !oauthCred.OAuthExpired() {
+		t.Error("OAuthExpired() = false for a zero expiry; that is the oauth2 trap")
+	}
+	if !oauthCred.NeedsRefresh() {
+		t.Error("NeedsRefresh() = false for a zero expiry, so the token would never be renewed")
+	}
+
+	// A personal access token legitimately has no expiry we know of, and
+	// nothing can refresh one anyway.
+	pat := Credentials{Managed: true, Kind: KindPAT}
+	if pat.OAuthExpired() || pat.NeedsRefresh() {
+		t.Error("a personal access token was treated as an expired OAuth credential")
+	}
+}
+
+// AUT-04.T4 — Refresh must be a no-op for a credential we did not mint. We hold
+// no refresh token for it, so there is nothing to exchange.
+//
+// Prevents: attempting to refresh a credential we did not mint.
+func TestAUT04T4_RefreshIgnoresACredentialWeDidNotMint(t *testing.T) {
 	called := false
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		called = true
@@ -176,9 +211,13 @@ func TestRefreshNeverTouchesUnmanagedCredentials(t *testing.T) {
 	}
 }
 
-// A managed credential inside the margin must be renewed AND persisted, since
-// GitLab invalidates the old refresh token the moment the new one is issued.
-func TestRefreshRenewsAndPersists(t *testing.T) {
+// AUT-04.T2 — a managed credential inside the margin is renewed AND persisted,
+// since GitLab invalidates the old refresh token the moment the new one is
+// issued.
+//
+// Prevents: the next refresh failing forever because GitLab already
+// invalidated the token we still hold.
+func TestAUT04T2_RefreshPersistsTheRotatedToken(t *testing.T) {
 	var gotGrant, gotRefresh string
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body := make([]byte, r.ContentLength)
@@ -291,11 +330,11 @@ func TestLoginUsesClientIDFromEnv(t *testing.T) {
 }
 
 func TestBaseURLForSelectsBuiltInEndpointsForGitLabCom(t *testing.T) {
-	if got := baseURLFor("gitlab.com"); got != "" {
-		t.Errorf("baseURLFor(gitlab.com) = %q, want \"\" so gitlaboauth2 uses its built-ins", got)
+	if got := oauthBaseURL("https", "gitlab.com", ""); got != "" {
+		t.Errorf("oauthBaseURL(gitlab.com) = %q, want \"\" so gitlaboauth2 uses its built-ins", got)
 	}
-	if got := baseURLFor("gitlab.example.com"); got != "https://gitlab.example.com" {
-		t.Errorf("baseURLFor(self-managed) = %q", got)
+	if got := oauthBaseURL("https", "gitlab.example.com", ""); got != "https://gitlab.example.com" {
+		t.Errorf("oauthBaseURL(self-managed) = %q", got)
 	}
 }
 

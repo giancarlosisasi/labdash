@@ -106,7 +106,7 @@ func TestWhoAmIErrors(t *testing.T) {
 		wantSubstr string
 	}{
 		{name: "rejected", status: http.StatusUnauthorized, wantSubstr: "rejected"},
-		{name: "missing scope", status: http.StatusForbidden, wantSubstr: "read_user"},
+		{name: "not allowed", status: http.StatusForbidden, wantSubstr: "not allowed"},
 		{name: "server error", status: http.StatusInternalServerError, wantSubstr: "HTTP 500"},
 		{
 			name:       "empty user",

@@ -6,23 +6,54 @@ description: Approve a device code in a browser, or pipe a personal access token
 # Signing in
 
 <div className="ld-lede">
-There are two ways in. On gitlab.com an OAuth application is already registered, so one command is enough. On any other instance, a personal access token is the path.
+Launch labdash with no credential and it walks you through it. There is no command to run first and no file to write.
 </div>
+
+## The first run
+
+```bash
+labdash
+```
+
+A welcome screen asks which GitLab, then how you want to sign in. It is a screen inside the application, not a prompt before it, so <Keys>?</Keys> works, resizing works, and <Keys>Esc</Keys> goes back one step.
+
+<Shot
+  id="first-run"
+  alt="A welcome screen inside the labdash frame. The wordmark sits above the line 'Let's connect you to a GitLab instance', and a list offers gitlab.com or a self-managed instance. The footer reads: j down, Enter continue, ? help, q quit."
+/>
+
+Three ways in are offered:
+
+| Choice | When |
+| --- | --- |
+| a one-time code | The default. Works over SSH, inside WSL and in containers, because nothing has to reach `localhost` |
+| your browser | Instances older than GitLab 17.9, which have no device grant. labdash falls back to this on its own when it has to |
+| a personal access token | Any instance, and the only path where no OAuth application is registered |
+
+<Keys>Esc</Keys> goes back one step. <Keys>q</Keys> leaves, and says how to sign in later:
+
+```
+Not signed in. Run `labdash auth login` when you are ready, or launch labdash again.
+```
+
+Nothing is stored until a login finishes, so leaving changes nothing.
 
 ## The device flow on gitlab.com
 
-```bash
-labdash auth login
-```
-
-That prints a short code, opens your browser, and waits.
+Choosing **a one-time code** shows it in a box, opens your browser, and waits.
 
 <Shot
   id="device-flow"
   alt="A login screen with an eight-character device code in a bordered box, a spinner reading 'waiting for approval', a countdown to the code's expiry, and a note that GitLab redisplays its empty device form after you approve."
 />
 
-Enter the code, approve it, and the terminal picks the token up by itself. The device flow is the default because it needs no callback to `localhost`, which is what makes it work over SSH, inside WSL, and in a container.
+Enter the code, approve it, and the terminal picks the token up by itself. Four keys are on the footer while it waits: <Keys>y</Keys> copies the code, <Keys>o</Keys> opens the approval page again, <Keys>t</Keys> switches to a pasted token, and <Keys>Esc</Keys> goes back.
+
+The same flow is available from the command line, for scripts and for a second instance:
+
+```bash
+labdash auth login
+```
 
 ## GitLab's device page after you approve
 
@@ -45,19 +76,35 @@ labdash auth login --web
 
 The gitlab.com application id means nothing on `gitlab.example.com`. Unless an administrator has registered an application there, a personal access token is the way in, and it lasts a great deal longer than an OAuth token does.
 
-Create one at `https://<your-host>/-/user_settings/personal_access_tokens` with the `api` scope, or `read_api` for [read-only mode](/guide/read-only). Then:
+Create one at `https://<your-host>/-/user_settings/personal_access_tokens` with the `api` scope, or `read_api` for [read-only mode](/guide/read-only).
 
-```bash
-labdash auth login --hostname gitlab.example.com --with-token
-```
+To paste it by hand, run `labdash`, choose **a personal access token**, and paste it there. Nothing is echoed, and <Keys>Esc</Keys> leaves the screen.
 
-The prompt does not echo. To pipe the token from a script or from CI:
+For a script or for CI, pipe it in:
 
 ```bash
 echo "$TOKEN" | labdash auth login --hostname gitlab.example.com --with-token
 ```
 
-labdash validates the token against the instance before storing it, so a typo fails at login rather than on the first refresh of the dashboard.
+:::info `auth login --with-token` never prompts
+Reading a secret at a terminal means putting that terminal into raw mode, and a raw-mode read swallows <Keys>Ctrl+C</Keys>. The command reads a pipe and nothing else. Interactive pasting belongs to the app, where <Keys>Esc</Keys> always works.
+:::
+
+labdash validates the token against the instance before storing it, so a typo fails at login rather than on the first refresh of the dashboard. It also asks the instance what the token is allowed to do, so a `read_api` token lands in [read-only mode](/guide/read-only) rather than discovering it on the first merge.
+
+## An instance labdash has not seen before
+
+Signing in to a host with no entry in the settings file offers to write one:
+
+```
+gitlab.example.com is not in your settings file.
+Saving it gives caCert, clientCert, proxy and subfolder a home.
+
+  →  Save it     writes the instance, never the credential
+     Skip        everything works; there is nowhere to put transport settings
+```
+
+Only the instance is written. The credential goes to your keyring, or to a `0600` file, and never to the settings file. Declining still completes the login, and the file is not created at all — see [self-managed GitLab](/guide/self-hosted) for what an entry is worth.
 
 :::danger There is no `--token <value>` flag
 A flag value lands in your shell history and is visible in the process list to every other user on the machine. labdash reads a token from standard input only. Interactive input goes through a no-echo read, so the token does not reach your scrollback either.
@@ -85,7 +132,13 @@ It prints who the credential belongs to, where it is stored, when it expires, an
 
 You do not have to remember to run it. A personal access token expires at 00:00 UTC on its date, so labdash puts a quiet line in the context bar from fourteen days out and a prominent one from three days out. An OAuth credential renews itself and never reaches that state.
 
-If a token does expire while the dashboard is open, one key restarts the login and the sections resume where they were, with your scroll position and pinned tabs intact.
+If a token does expire while the dashboard is open, the error names the instance and carries that instance's token page, and <Keys>Ctrl+A</Keys> restarts the login for it.
+
+```
+gitlab.example.com rejected the credential — it has expired or been revoked.
+Press Ctrl+A to sign in again, or create a token at
+https://gitlab.example.com/-/user_settings/personal_access_tokens?scopes=api
+```
 
 ```bash
 labdash auth logout      # removes ours, and says so when there was nothing to remove

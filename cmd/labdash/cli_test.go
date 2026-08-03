@@ -25,7 +25,7 @@ func TestSHL23_T1_PipedOutputIsOneLineOfPlainText(t *testing.T) {
 	t.Parallel()
 
 	var out bytes.Buffer
-	cmd := newRootCmd(crash.New(crash.Options{}))
+	cmd := newRootCmd(crash.New(crash.Options{}), deps{})
 	cmd.SetOut(&out)
 	cmd.SetErr(&out)
 	cmd.SetArgs([]string{})
@@ -40,33 +40,29 @@ func TestSHL23_T1_PipedOutputIsOneLineOfPlainText(t *testing.T) {
 		"the advice does not name where machine-readable output lives")
 }
 
-// The other half of SHL-23: --no-input turns a prompt into a non-zero exit that
-// names what was needed, rather than a hang.
-func TestSHL23_T1_NoInputRefusesToPromptAndSaysWhatItNeeded(t *testing.T) {
-	noInput = true
-	t.Cleanup(func() { noInput = false })
+// The other half of SHL-23: a terminal is never prompted at, so a job that
+// somehow reaches this path exits non-zero naming what it needed rather than
+// blocking on a question nobody can answer.
+func TestSHL23_T1_ATerminalIsNeverPromptedAndTheFailureNamesTheInput(t *testing.T) {
+	t.Parallel()
 
-	var out bytes.Buffer
-	_, err := readToken(strings.NewReader(""), &out, "gitlab.example.com", true)
+	_, err := readToken(strings.NewReader(""), "gitlab.example.com", true)
 
-	require.Error(t, err, "--no-input prompted anyway")
+	require.Error(t, err, "the command prompted anyway")
 	require.Contains(t, err.Error(), "personal access token",
 		"the failure does not name the input it needed")
 	require.Contains(t, err.Error(), "gitlab.example.com")
-	require.Empty(t, out.String(), "--no-input wrote a prompt before giving up")
 }
 
-// A token that arrives on a pipe needs no prompt, with or without --no-input.
+// A token that arrives on a pipe is read straight through. This is the whole of
+// the scripted path, and it is unchanged.
 func TestSHL23_APipedTokenIsReadWithoutAPrompt(t *testing.T) {
-	noInput = true
-	t.Cleanup(func() { noInput = false })
+	t.Parallel()
 
-	var out bytes.Buffer
-	token, err := readToken(strings.NewReader("glpat-example\n"), &out, "gitlab.com", false)
+	token, err := readToken(strings.NewReader("glpat-example\n"), "gitlab.com", false)
 
 	require.NoError(t, err)
 	require.Equal(t, "glpat-example", token)
-	require.Empty(t, out.String())
 }
 
 // KEY-10.T1 at the command. Prevents the two flags drifting from the keymap

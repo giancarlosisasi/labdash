@@ -71,6 +71,11 @@ type Credentials struct {
 	TokenType    string
 	ClientID     string
 
+	// Scopes is what the instance granted this credential, recorded at login so
+	// that read-only is known before the first mutation rather than by failing
+	// one. Empty means unknown. Only action.ScopeFromGranted reads it.
+	Scopes []string
+
 	// TLS and transport settings, from our instance config.
 	CACert        string
 	ClientCert    string
@@ -133,9 +138,17 @@ func (c Credentials) baseURL() string {
 
 // OAuthExpired reports whether this is an OAuth credential whose expiry has
 // passed.
+//
+// A zero expiry counts as expired. golang.org/x/oauth2 reads its own zero
+// Expiry as "never expires", and a GitLab OAuth token that is never renewed
+// dies silently after two hours — so the one reading that looks harmless is the
+// one that breaks the dashboard with no error to explain it.
 func (c Credentials) OAuthExpired() bool {
-	if !c.IsOAuth2 || c.OAuth2Expiry.IsZero() {
+	if !c.IsOAuth2 {
 		return false
+	}
+	if c.OAuth2Expiry.IsZero() {
+		return true
 	}
 	return time.Now().After(c.OAuth2Expiry)
 }
@@ -143,9 +156,14 @@ func (c Credentials) OAuthExpired() bool {
 // NeedsRefresh reports whether a managed OAuth credential is close enough to
 // expiry that it should be renewed before the next request. Renewing early
 // means a slow fetch cannot straddle the boundary and 401 mid-render.
+//
+// A zero expiry needs a refresh, for the reason in OAuthExpired.
 func (c Credentials) NeedsRefresh() bool {
-	if !c.Managed || c.Kind != KindOAuth || c.OAuth2Expiry.IsZero() {
+	if !c.Managed || c.Kind != KindOAuth {
 		return false
+	}
+	if c.OAuth2Expiry.IsZero() {
+		return true
 	}
 	return time.Now().Add(refreshMargin).After(c.OAuth2Expiry)
 }

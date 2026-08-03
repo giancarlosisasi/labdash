@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/giancarlosisasi/labdash/internal/action"
 	"github.com/giancarlosisasi/labdash/internal/keymap"
 	"github.com/giancarlosisasi/labdash/internal/tui/frame"
 	"github.com/giancarlosisasi/labdash/internal/tui/help"
@@ -28,6 +29,14 @@ func (m *Model) render() string {
 func (m *Model) frameLines() []string {
 	l := m.layout
 	box := frame.Box{Theme: m.theme, Width: l.Width}
+
+	if m.wizard != nil {
+		// The wizard keeps the frame and the footer and spends every other row
+		// on the question. There is nothing yet to put in a context bar, and
+		// chrome nobody can read from is chrome that costs data rows.
+		return append(m.wizard.Frame(l), box.Row(m.footer()), box.Bottom())
+	}
+
 	split := l.Preview == layout.RightPreview
 
 	lines := []string{box.Top(), box.Row(m.contextBar())}
@@ -102,8 +111,16 @@ func (m *Model) contextBar() string {
 	}
 
 	var badges []string
-	if m.scope == "" {
+	if m.username != "" {
+		badges = append(badges, m.theme.Copy("@"+m.username))
+	}
+	switch m.scope {
+	case action.ScopeNone:
 		badges = append(badges, m.theme.Copy("not signed in"))
+	case action.ScopeRead:
+		// GitLab's own word for the scope is read_api; the badge says
+		// read-only, which is the state, and the refusal names the scope.
+		badges = append(badges, m.theme.Copy("read-only"))
 	}
 	if m.offline {
 		badges = append(badges, m.theme.Copy("offline"))
@@ -124,6 +141,11 @@ func (m *Model) sectionTabs() string {
 func (m *Model) footer() string {
 	ctx := m.context()
 
+	left := m.current().Title()
+	if m.wizard != nil {
+		left = m.wizard.Title()
+	}
+
 	var hints []frame.Hint
 	for _, a := range m.footerActions() {
 		key := keymap.Label(a.entry.Key)
@@ -139,7 +161,7 @@ func (m *Model) footer() string {
 	}
 
 	return frame.Footer(m.theme, m.layout.Width-4, frame.FooterState{
-		Left:    m.current().Title(),
+		Left:    left,
 		Message: m.message,
 		Hints:   hints,
 	})

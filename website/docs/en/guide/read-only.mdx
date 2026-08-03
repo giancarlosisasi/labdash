@@ -30,8 +30,14 @@ Or use a personal access token created with `read_api` instead of `api`. labdash
 Three things happen, and nothing else:
 
 1. A `read-only` badge appears in the context bar, so the mode is always visible.
-2. Mutating keys are removed from the footer and from the <Keys>?</Keys> overlay. They are not shown and then refused.
+2. Mutating keys leave the <Keys>?</Keys> overlay, and grey out in the footer. Pressing one answers with the reason rather than sending a request that is certain to fail.
 3. Everything else behaves exactly as it does with a full token.
+
+```
+Cannot merge — this token is read-only, so labdash cannot change anything.
+```
+
+The keys stay visible because the keymap is fixed and nothing is rebindable. A key that vanished would be a key nobody could ask about.
 
 | Works | Hidden |
 | --- | --- |
@@ -50,12 +56,14 @@ The left column is most of the product. A read-only labdash still reports what i
 Scopes are recorded at login, so labdash usually knows before it tries. If a mutation does come back `403`, because the token was narrowed after login or the instance disagrees, the message names the cause:
 
 ```
-Cannot approve !2841: your token is read-only.
-Create one with the `api` scope at
-https://gitlab.example.com/-/user_settings/personal_access_tokens
+gitlab.example.com refused that — this token is read-only. Create one with the
+api scope at https://gitlab.example.com/-/user_settings/personal_access_tokens?scopes=api,
+then press Ctrl+A to sign in again
 ```
 
-The message is never a raw API error and never a silent no-op.
+The message is never a raw API error and never a silent no-op. The URL is that instance's own, subfolder and all, not gitlab.com's.
+
+A `403` that is about your permissions rather than your token — merging into a protected branch, say — is left alone. A new token would not help, so labdash does not suggest one.
 
 ## Reasons to use it
 

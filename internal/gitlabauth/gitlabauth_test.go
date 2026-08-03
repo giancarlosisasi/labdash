@@ -154,9 +154,11 @@ func TestResolveFromOurStore(t *testing.T) {
 	}
 }
 
-// A per-instance tokenEnv is the most explicit signal available, so it beats
-// even our own stored credential.
-func TestResolveInstanceTokenEnvWins(t *testing.T) {
+// AUT-10.T1 — a per-instance tokenEnv is the most explicit signal available, so
+// it beats even our own stored credential.
+//
+// Prevents: the most explicit signal being silently ignored.
+func TestAUT10T1_InstanceTokenEnvBeatsOurStore(t *testing.T) {
 	clearTokenEnv(t)
 	t.Setenv("WORK_TOKEN", "from-instance-env")
 
@@ -183,9 +185,11 @@ func TestResolveInstanceTokenEnvWins(t *testing.T) {
 	}
 }
 
-// The generic variables are not host-scoped, so they must apply only to the
-// default host. Otherwise one instance's token leaks to another.
-func TestResolveGenericEnvIsDefaultHostOnly(t *testing.T) {
+// AUT-10.T2 — the generic variables are not host-scoped, so they must apply
+// only to the default host.
+//
+// Prevents: sending gitlab.com's token to a customer's instance.
+func TestAUT10T2_GenericEnvIsDefaultHostOnly(t *testing.T) {
 	clearTokenEnv(t)
 	t.Setenv("GITLAB_TOKEN", "generic-env-token")
 
@@ -217,7 +221,10 @@ func TestResolveGenericEnvIsDefaultHostOnly(t *testing.T) {
 	})
 }
 
-func TestResolveAlternateEnvVars(t *testing.T) {
+// AUT-10.T3 — every accepted variable name, one at a time.
+//
+// Prevents: breaking users who already export OAUTH_TOKEN for glab.
+func TestAUT10T3_EveryAcceptedEnvVarName(t *testing.T) {
 	for _, name := range []string{"GITLAB_ACCESS_TOKEN", "OAUTH_TOKEN"} {
 		t.Run(name, func(t *testing.T) {
 			clearTokenEnv(t)
@@ -289,7 +296,12 @@ func TestCredentialsRedactSecrets(t *testing.T) {
 	}
 }
 
-func TestConfigDirIsPlatformCorrect(t *testing.T) {
+// CFG-01.T1 and REG-09 — the configuration directory comes from the XDG
+// resolver on every platform.
+//
+// Prevents: the os.UserConfigDir() landmine. It returns roaming %APPDATA% on
+// Windows, so the file would be written where nothing reads it.
+func TestCFG01T1_REG09_ConfigDirComesFromXDG(t *testing.T) {
 	t.Run("LABDASH_CONFIG_DIR overrides", func(t *testing.T) {
 		dir := t.TempDir()
 		t.Setenv("LABDASH_CONFIG_DIR", dir)

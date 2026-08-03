@@ -107,6 +107,71 @@ func LoadConfigFrom(path string) (Config, error) {
 	return cfg, nil
 }
 
+// SaveInstance writes one instance stanza into the settings file, creating the
+// file if this is the first one.
+//
+// It writes the instance and nothing else. A credential never reaches this
+// file: it goes to the keyring, or to a 0600 file beside it. The file stays
+// safe to commit and safe to hand to a colleague, which is the whole reason
+// customHeaders reads its secret from an environment variable.
+//
+// The file is created at this moment and not before. A starter file nobody
+// asked for is the retired behaviour this replaces.
+func SaveInstance(host string, inst InstanceConfig) error {
+	return SaveInstanceTo(SettingsPath(), host, inst)
+}
+
+// SaveInstanceTo is SaveInstance against an explicit path.
+func SaveInstanceTo(path, host string, inst InstanceConfig) error {
+	if host == "" {
+		return errors.New("an instance needs a host")
+	}
+
+	cfg, err := LoadConfigFrom(path)
+	if err != nil {
+		return err
+	}
+	if cfg.Instances == nil {
+		cfg.Instances = map[string]InstanceConfig{}
+	}
+	cfg.Instances[host] = inst
+
+	raw, err := yaml.Marshal(cfg)
+	if err != nil {
+		return fmt.Errorf("encoding settings: %w", err)
+	}
+
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return fmt.Errorf("creating %s: %w", dir, err)
+	}
+
+	// Temp-and-rename, so an interrupted write cannot leave a settings file
+	// that stops the application launching.
+	tmp, err := os.CreateTemp(dir, settingsFile+".*")
+	if err != nil {
+		return fmt.Errorf("creating a temporary settings file: %w", err)
+	}
+	tmpName := tmp.Name()
+	defer func() {
+		tmp.Close()
+		os.Remove(tmpName)
+	}()
+
+	if _, err := tmp.Write(raw); err != nil {
+		return fmt.Errorf("writing a temporary settings file: %w", err)
+	}
+	if err := tmp.Close(); err != nil {
+		return fmt.Errorf("closing a temporary settings file: %w", err)
+	}
+
+	if err := os.Rename(tmpName, path); err != nil {
+		return fmt.Errorf("replacing %s: %w", path, err)
+	}
+
+	return nil
+}
+
 // Instance returns the settings for host, and whether an entry existed.
 func (c Config) Instance(host string) (InstanceConfig, bool) {
 	inst, ok := c.Instances[host]
